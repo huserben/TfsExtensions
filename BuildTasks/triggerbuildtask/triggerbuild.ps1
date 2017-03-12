@@ -121,10 +121,9 @@ if ($enableBuildInQueueConditionAsBool){
     Write-Output "Checking if blocking builds are queued"
 
     $blockingBuildsArray | ForEach{
-        Write-Output "Checking Build: $($_)"
+        Write-Output "Checking Build Definition: $($_)"
         $blockingBuildId = Get-BuildDefinition-Id -definition $_
-        Write-Output "Id is $($blockingBuildId)"
-
+        
         $queuedBuilds = Get-Build-By-Status -buildDefinitionId $blockingBuildId -statusFilter "notStarted"
         if ($queuedBuilds.Count -ne 0){
             Write-Output "$($_) is queued - will not trigger new build"
@@ -139,11 +138,9 @@ if ($dependentOnSuccessfulBuildConditionAsBool){
     Write-Output "Checking if dependant build definitions last builds were successful"
 
     $dependentBuildsArray | ForEach{
-        Write-Output "Checking Build $($_)"
+        Write-Output "Checking Build Definition $($_)"
         $dependentBuildId = Get-BuildDefinition-Id -definition $_
 
-        Write-Output "Id is $($dependentBuildId)"
-        
         $lastBuilds = Get-Build-By-Status -buildDefinitionId $dependentBuildId
         $lastBuildResult = $lastBuilds.value[0].result
         if ($lastBuildResult -ne "succeeded"){
