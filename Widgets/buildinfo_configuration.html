@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+	<html xmlns="http://www.w3.org/1999/xhtml">
+		<head>        					
+			<script src="bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js"></script>      
+			<script type="text/javascript">
+				VSS.init({                        
+					explicitNotifyLoaded: true,
+					usePlatformStyles: true
+				});
+               
+				VSS.require(["TFS/Dashboards/WidgetHelpers", "TFS/Build/RestClient"], function (WidgetHelpers, TFS_Build_WebAPI) {
+					VSS.register("BuildInfo.Configuration", function () {   
+						var projectId = VSS.getWebContext().project.id;
+						var $queryDropdown = $("#query-path-dropdown");
+						
+						return {
+							load: function (widgetSettings, widgetConfigurationContext) {
+								var eventName = WidgetHelpers.WidgetEvent.ConfigurationChange;
+
+								 $queryDropdown.on("change", function () {
+									 var $selectedItem = $("#query-path-dropdown option:selected");
+									 var customSettings = {
+										data: JSON.stringify({
+												selectedBuildId: $queryDropdown.val(),
+												selectedBuild: $selectedItem.text()
+											})
+									};
+									 
+								     var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+									 widgetConfigurationContext.notify(eventName, eventArgs);
+
+								 });
+
+								TFS_Build_WebAPI.getClient().getDefinitions(projectId)
+								                        .then(function (definitionReferences) {
+															definitionReferences.forEach(function(definitionReference){
+																$queryDropdown.append(
+																	$('<option></option>').val(definitionReference.id).html(definitionReference.name));
+															});
+														});
+
+								var settings = JSON.parse(widgetSettings.customSettings.data);
+								if (settings && settings.selectedBuildId) {
+									 $queryDropdown.val(settings.selectedBuildId);
+									 var eventArgs = WidgetHelpers.WidgetEvent.Args(customSettings);
+									 widgetConfigurationContext.notify(eventName, eventArgs);
+								 }
+ 		
+								return WidgetHelpers.WidgetStatusHelper.Success();
+							},
+							onSave: function() {
+							var $selectedItem = $("#query-path-dropdown option:selected");
+
+							var customSettings = {
+									data: JSON.stringify({
+											selectedBuildId: $queryDropdown.val(),
+											selectedBuild: $selectedItem.text()
+										})
+								};
+								return WidgetHelpers.WidgetConfigurationSave.Valid(customSettings);
+							}
+						}
+					});
+					VSS.notifyLoadSucceeded();
+				});
+			</script>  		
+		</head>
+		<body>
+			<div class="container">
+				<fieldset>
+					<label class="label">Build Definitions: </label>
+					<select id="query-path-dropdown" style="margin-top:10px">															
+					</select>
+				</fieldset>		
+			</div>
+		</body>
+	</html>

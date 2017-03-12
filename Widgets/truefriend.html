@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+
+	<script src="bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js"></script>
+	<script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+			usePlatformStyles: true
+        });
+
+        VSS.require(["TFS/Dashboards/WidgetHelpers", "TFS/Build/RestClient"], function (WidgetHelpers, TFS_Build_WebAPI) {
+			WidgetHelpers.IncludeWidgetStyles();
+            VSS.register("TrueFriendWidget", function () {
+                var projectId = VSS.getWebContext().project.id;
+
+                var getBuildInfo = function (widgetSettings) {
+                    var settings = JSON.parse(widgetSettings.customSettings.data);
+                    if (!settings || !settings.selectedBuildId) {
+                        var $container = $('#build-info-container');
+                        $container.empty();
+                        $container.text("Sorry nothing to show, please configure a build definition to show the info for.");
+
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    }
+
+                    var $title = $('h2.title');
+                    $title.text(settings.selectedBuild  + " Builds fixed by other People");
+
+                    settings.trueFriends = new Map();           
+
+                    return TFS_Build_WebAPI.getClient().getBuilds(projectId, [settings.selectedBuildId])
+                        .then(function (builds) {
+
+                            var personWhoBrokeTheBuild = "";
+                            var buildIsBroken = false;
+
+                            builds.reverse().forEach(function(build){
+                                if (build.result != 2 && !buildIsBroken){
+                                    buildIsBroken = true;
+                                    personWhoBrokeTheBuild = build.requestedFor.displayName;
+                                }
+                                else if (buildIsBroken)
+                                {
+                                    buildIsBroken = false;
+
+                                    var friend = build.requestedFor.displayName;
+                                    if (personWhoBrokeTheBuild != friend){
+                                        if (settings.trueFriends.get(friend) === undefined){
+                                            settings.trueFriends.set(friend, 0);
+                                        }
+
+                                        var numberOfFixedForeignBuilds = settings.trueFriends.get(friend) + 1;                                    
+                                        settings.trueFriends.set(friend, numberOfFixedForeignBuilds);
+                                    }
+                                    
+                                    personWhoBrokeTheBuild = "";
+                                }
+                            });
+                            
+                            setBuildInfoText(settings);                           
+
+                            // Use the widget helper and return success as Widget Status
+                            return WidgetHelpers.WidgetStatusHelper.Success();
+                        }, function (error) {
+                            // Use the widget helper and return failure as Widget Status
+                            return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
+                        });
+                }
+
+                var setBuildInfoText = function(settings){
+                    var $container = $('#build-info-container');
+                    $container.empty();
+
+                    if (settings.trueFriends){
+                        $container.append("<table>");
+                        $container.append("<tr>");
+                        $container.append("<th>Responsible</th>");
+                        $container.append("<th># of Fixed Foreign Builds</th>");
+                        $container.append("</tr>");
+                        var trueFriendsArray = [];
+                        for (var entry of settings.trueFriends){
+                            trueFriendsArray.push(entry);
+                        }
+
+                        trueFriendsArray.sort(function(x, y){
+                            return y[1] - x[1];
+                        });
+
+                        for (var friend of trueFriendsArray) {
+                             $container.append("<tr>");
+                             $container.append("<td>" + friend[0] + "</td>");
+                             $container.append("<td>" + friend[1] + "</td>");
+                             $container.append("</tr>");
+                        }                    
+
+                        $container.append("</table>");
+                    }
+                };
+
+                return {
+                    load: function (widgetSettings) {
+                        
+                        var $title = $('h2.title');
+                        $title.text('Team Members');
+
+                        return getBuildInfo(widgetSettings);
+                    },
+                    reload: function (widgetSettings) {
+                        return getBuildInfo(widgetSettings);
+                    }
+                }
+            });
+            VSS.notifyLoadSucceeded();
+        });
+    </script>
+
+</head>
+<body>
+	<div class="widget">
+		<h2 class="title"></h1>
+		<div id="build-info-container"></div>
+	</div>
+</body>
+</html>

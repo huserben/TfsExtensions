@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+
+	<script src="bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js"></script>
+	<script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+			usePlatformStyles: true
+        });
+
+        VSS.require(["TFS/Dashboards/WidgetHelpers", "TFS/Build/RestClient"], function (WidgetHelpers, TFS_Build_WebAPI) {
+			WidgetHelpers.IncludeWidgetStyles();
+            VSS.register("ConsecutiveSuccessfulBuildsWidget", function () {
+                var projectId = VSS.getWebContext().project.id;
+
+                var getBuildInfo = function (widgetSettings) {
+                    var settings = JSON.parse(widgetSettings.customSettings.data);
+                    if (!settings || !settings.selectedBuildId) {
+                        var $container = $('#build-info-container');
+                        $container.empty();
+                        $container.text("Sorry nothing to show, please configure a build definition to show the info for.");
+
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    }
+
+                    var $title = $('h2.title');
+                    $title.text("Consecutive Successful Builds for " + settings.selectedBuild);
+
+                    settings.builders = new Map();                    
+
+                    return TFS_Build_WebAPI.getClient().getBuilds(projectId, [settings.selectedBuildId])
+                        .then(function (builds) {
+
+                            builds.reverse().forEach(function(build){
+                                var builder = build.requestedFor.displayName;
+
+                                if (settings.builders.get(builder) === undefined){
+                                    settings.builders.set(builder, 0);
+                                }
+
+                                var numberOfCsbs = 0;
+                                // Status code for Succeeded is apparently 2...
+                                if (build.result == 2){
+                                    numberOfCsbs = settings.builders.get(builder) + 1;
+                                }
+                                
+                                settings.builders.set(builder, numberOfCsbs);
+                            });
+                            
+                            setBuildInfoText(settings);                           
+
+                            // Use the widget helper and return success as Widget Status
+                            return WidgetHelpers.WidgetStatusHelper.Success();
+                        }, function (error) {
+                            // Use the widget helper and return failure as Widget Status
+                            return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
+                        });
+                }
+
+                var setBuildInfoText = function(settings){
+                    var $container = $('#build-info-container');
+                    $container.empty();
+
+                    if (settings.builders){
+                        $container.append("<table>");
+                        $container.append("<tr>");
+                        $container.append("<th>Responsible</th>");
+                        $container.append("<th># of Consecutive Successful Builds</th>");
+                        $container.append("</tr>");
+                        var buildersArray = [];
+                        for (var entry of settings.builders){
+                            buildersArray.push(entry);
+                        }
+
+                        buildersArray.sort(function(x, y){
+                            return y[1] - x[1];
+                        });
+
+                        for (var builder of buildersArray) {
+                             $container.append("<tr>");
+                             $container.append("<td>" + builder[0] + "</td>");
+                             $container.append("<td>" + builder[1] + "</td>");
+                             $container.append("</tr>");
+                        }                    
+
+                        $container.append("</table>");
+                    }
+                };
+
+                return {
+                    load: function (widgetSettings) {
+                        
+                        var $title = $('h2.title');
+                        $title.text('Team Members');
+
+                        return getBuildInfo(widgetSettings);
+                    },
+                    reload: function (widgetSettings) {
+                        return getBuildInfo(widgetSettings);
+                    }
+                }
+            });
+            VSS.notifyLoadSucceeded();
+        });
+    </script>
+
+</head>
+<body>
+	<div class="widget">
+		<h2 class="title"></h1>
+		<div id="build-info-container"></div>
+	</div>
+</body>
+</html>

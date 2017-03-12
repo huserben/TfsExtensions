@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+
+	<script src="bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js"></script>
+	<script type="text/javascript">
+        VSS.init({
+            explicitNotifyLoaded: true,
+			usePlatformStyles: true
+        });
+
+        VSS.require(["TFS/Dashboards/WidgetHelpers", "TFS/Build/RestClient"], function (WidgetHelpers, TFS_Build_WebAPI) {
+			WidgetHelpers.IncludeWidgetStyles();
+            VSS.register("BuildBreakersWidget", function () {
+                var projectId = VSS.getWebContext().project.id;
+
+                var getBuildInfo = function (widgetSettings) {
+                    var settings = JSON.parse(widgetSettings.customSettings.data);
+                    if (!settings || !settings.selectedBuildId) {
+                        var $container = $('#build-info-container');
+                        $container.empty();
+                        $container.text("Sorry nothing to show, please configure a build definition to show the info for.");
+
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    }
+
+                    var $title = $('h2.title');
+                    $title.text(settings.selectedBuild + " Build Breakers");
+
+                    settings.buildBreakers = new Map();
+
+                    return TFS_Build_WebAPI.getClient().getBuilds(projectId, [settings.selectedBuildId])
+                        .then(function (builds) {
+
+                            builds.some(function(build){
+
+                                var buildBreaker = build.requestedFor.displayName;
+
+                                // Status code for Succeeded is apparently 2...
+                                if (build.result != 2){                   
+                                    if (!settings.buildBreakers.get(buildBreaker)){
+                                        settings.buildBreakers.set(buildBreaker, 0);
+                                    }
+
+                                    var buildBreakingStats = settings.buildBreakers.get(buildBreaker) + 1;
+                                    settings.buildBreakers.set(buildBreaker, buildBreakingStats);
+                                }
+                            });
+                            
+                            setBuildInfoText(settings);                           
+
+                            // Use the widget helper and return success as Widget Status
+                            return WidgetHelpers.WidgetStatusHelper.Success();
+                        }, function (error) {
+                            // Use the widget helper and return failure as Widget Status
+                            return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
+                        });
+                }
+
+                var setBuildInfoText = function(settings){
+                    var $container = $('#build-info-container');
+                    $container.empty();
+
+                    if (settings.buildBreakers){
+
+                        $container.append("<table>");
+                        $container.append("<tr>");
+                        $container.append("<th>Responsible</th>");
+                        $container.append("<th>Broken Builds</th>");
+                        $container.append("</tr>");
+                        var buildBreakersArray = [];
+                        for (var entry of settings.buildBreakers){
+                            buildBreakersArray.push(entry);
+                        }
+
+                        buildBreakersArray.sort(function(x, y){
+                            return y[1] - x[1];
+                        });
+
+                        for (var breaker of buildBreakersArray) {
+                             $container.append("<tr>");
+                             $container.append("<td>" + breaker[0] + "</td>");
+                             $container.append("<td>" + breaker[1] + "</td>");
+                             $container.append("</tr>");
+                        }                    
+
+                        $container.append("</table>");
+                    }
+                };
+
+                return {
+                    load: function (widgetSettings) {
+                        
+                        var $title = $('h2.title');
+                        $title.text('Build Breakers');
+
+                        return getBuildInfo(widgetSettings);
+                    },
+                    reload: function (widgetSettings) {
+                        return getBuildInfo(widgetSettings);
+                    }
+                }
+            });
+            VSS.notifyLoadSucceeded();
+        });
+    </script>
+
+</head>
+<body>
+	<div class="widget">
+		<h2 class="title"></h1>
+		<div id="build-info-container"></div>
+	</div>
+</body>
+</html>

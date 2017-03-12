@@ -1,0 +1,145 @@
+{
+	"id": "32abcf98-0df6-4711-b2e4-66a405d3c1a6",
+	"name": "TriggerBuild",
+	"friendlyName": "Triggers a new Build",
+	"description": "This tasks allows to trigger a new Build (add it to the queue) as part of a Build Definition. It contains as well some conditions that can be applied, for example if the last build of certain definition was successful or not.",
+	"helpMarkDown": "",
+	"category": "Build",
+	"visibility": [
+		"Build"
+		],
+	"author": "Benjamin Huser",
+	"version": {
+		"Major": 1,
+		"Minor": 3,
+		"Patch": 12
+	},
+	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
+	"groups": [
+		{
+			"name": "basicConfiguration",
+			"displayName": "Basic Configuration",
+			"isExpanded": true
+		},
+		{
+			"name": "advancedOptions",
+			"displayName": "Advanced Options",
+			"isExpanded": false
+		},
+		{
+			"name": "conditions",
+			"displayName": "Trigger Conditions",
+			"isExpanded": true
+		}
+	],
+	"inputs": [
+		{
+			"name":  "definitionIsInCurrentTeamProject",
+			"type":  "boolean",
+			"label":  "True if the build to be triggered is defined within the current team project",
+			"defaultValue":  true,
+			"required":  true,
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "tfsServer",
+			"type":  "string",
+			"label":  "URL to TFS Server (including Team Project)",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "definitionIsInCurrentTeamProject = false",
+			"helpMarkDown":  "The TFS Server the Build you want to trigger is located.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "buildDefinition",
+			"type":  "string",
+			"label":  "Name of the Build Definition that shall be triggered",
+			"defaultValue":  "",
+			"required":  true,
+			"helpMarkDown":  "The name of the definition that we want to queue a new build for.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "useDefaultCredentials",
+			"type":  "boolean",
+			"label":  "Use the default credentials of the agent that runs the build",
+			"defaultValue":  true,
+			"required":  true,
+			"groupName":  "advancedOptions"
+		},
+		{
+			"name":  "username",
+			"type":  "string",
+			"label":  "The username that shall be used to authenticate if default authentication is not used",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "useDefaultCredentials = false",
+			"groupName":  "advancedOptions"
+		},
+		{
+			"name":  "password",
+			"type":  "string",
+			"label":  "The password that shall be used to authenticate if default authentication is not used",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "useDefaultCredentials = false",
+			"groupName":  "advancedOptions"
+		},
+		{
+			"name":  "enableBuildInQueueCondition",
+			"type":  "boolean",
+			"label":  "Enable Build In Queue Condition",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown": "If enabled, build will only be triggered if none of the specified build definitions is currently waiting in a queue.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "includeCurrentBuildDefinition",
+			"type":  "boolean",
+			"label":  "Include current Build Definition as blocking Build",
+			"defaultValue":  true,
+			"required":  true,
+			"visibleRule": "enableBuildInQueueCondition = true",
+			"helpMarkDown": "If enabled, current build definition is included in Builds that block trigger of new build.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "blockingBuildsList",
+			"type":  "string",
+			"label":  "Blocking Build Definitions",
+			"defaultValue":  "",
+			"required":  false,
+			"visibleRule": "enableBuildInQueueCondition = true",
+			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if they are currently waiting in a queue.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "dependentOnSuccessfulBuildCondition",
+			"type":  "boolean",
+			"label":  "Enable Build Dependency Condition",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown": "If enabled, build will only be triggered if the last builds of all the specified builds were successful.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "dependentBuildsList",
+			"type":  "string",
+			"label":  "Dependent Build Definitions",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "dependentOnSuccessfulBuildCondition = true",
+			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were not successful.",
+			"groupName":  "conditions"
+		}
+	],	
+	"execution": {
+		"PowerShell": {
+			"target":  "$(currentDirectory)\\triggerbuild.ps1",
+			"argumentFormat":  "",
+			"workingDirectory":  "$(currentDirectory)"
+		}
+	} 
+}

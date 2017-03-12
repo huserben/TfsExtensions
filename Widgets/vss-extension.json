@@ -1,0 +1,188 @@
+{
+    "manifestVersion": 1,
+    "id": "vsts-extensions-myExtensions",
+    "version": "1.0.53",
+    "name": "Build Info Widgets",
+    "description": "Contains different build related widgets.",
+    "publisher": "benjhuser",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "icons": {
+        "default": "img/logo.png"
+    },
+    "demands": ["contribution/ms.vss-dashboards-web.widget-sdk-version-2"],
+    "contributions": [
+        {
+            "id": "TrueFriendWidget",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                ".BuildInfo.Configuration"
+            ],
+            "properties": {
+                "name": "True Friend Widget",
+                "description": "Displays a list of who fixed builds broken by other people.",
+                "catalogIconUrl": "img/helloWorld.png",
+                "previewImageUrl": "img/helloWorld_330x160.png",
+                "uri": "truefriend.html",
+                "supportedSizes": [
+                    {
+                        "rowSpan": 2,
+                        "columnSpan": 2
+                    }
+                ],
+                "supportedScopes": [
+                    "project_team"
+                ]
+            }
+        },
+        {
+            "id": "ConsecutiveSuccessfulBuildsWidget",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                ".BuildInfo.Configuration"
+            ],
+            "properties": {
+                "name": "Consecutive Successful Build Widget",
+                "description": "Displays a ranking of who had the most consecuctive successful builds.",
+                "catalogIconUrl": "img/helloWorld.png",
+                "previewImageUrl": "img/helloWorld_330x160.png",
+                "uri": "csb.html",
+                "supportedSizes": [
+                    {
+                        "rowSpan": 2,
+                        "columnSpan": 2
+                    }
+                ],
+                "supportedScopes": [
+                    "project_team"
+                ]
+            }
+        },
+        {
+            "id": "BuildBreakersWidget",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                ".BuildInfo.Configuration"
+            ],
+            "properties": {
+                "name": "Build Breakers Widget",
+                "description": "Displays a ranking of who broke the build the most.",
+                "catalogIconUrl": "img/helloWorld.png",
+                "previewImageUrl": "img/helloWorld_330x160.png",
+                "uri": "buildbreakers.html",
+                "supportedSizes": [
+                    {
+                        "rowSpan": 2,
+                        "columnSpan": 2
+                    }
+                ],
+                "supportedScopes": [
+                    "project_team"
+                ]
+            }
+        },
+         {
+            "id": "IntegratorsWidget",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                ".BuildInfo.Configuration"
+            ],
+            "properties": {
+                "name": "Integrators Widget",
+                "description": "Displays a ranking of who integrated his or her changes the most.",
+                "catalogIconUrl": "img/helloWorld.png",
+                "previewImageUrl": "img/helloWorld_330x160.png",
+                "uri": "integrators.html",
+                "supportedSizes": [
+                    {
+                        "rowSpan": 2,
+                        "columnSpan": 2
+                    }
+                ],
+                "supportedScopes": [
+                    "project_team"
+                ]
+            }
+        },
+          {
+            "id": "BuildStatusInfoWidget",
+            "type": "ms.vss-dashboards-web.widget",
+            "targets": [
+                "ms.vss-dashboards-web.widget-catalog",
+                ".BuildInfo.Configuration"
+            ],
+            "properties": {
+                "name": "Build Status Info Widget",
+                "description": "Displays status of a build definition.",
+                "catalogIconUrl": "img/helloWorld.png",
+                "previewImageUrl": "img/helloWorld_330x160.png",
+                "uri": "buildinfo.html",
+                "supportedSizes": [
+                    {
+                        "rowSpan": 1,
+                        "columnSpan": 2
+                    }
+                ],
+                "supportedScopes": [
+                    "project_team"
+                ]
+            }
+        },
+        {
+            "id": "BuildInfo.Configuration",
+            "type": "ms.vss-dashboards-web.widget-configuration",
+            "targets": [
+                "ms.vss-dashboards-web.widget-configuration"
+            ],
+            "properties": {
+                "name": "BuildInfo.Configuration",
+                "description": "Configures BuildInfo Widget",
+                "uri": "buildinfo_configuration.html"
+            }
+        }
+    ],
+    "files": [
+      	{
+            "path": "buildinfo.html",
+            "addressable": true
+        },
+        {
+            "path": "buildbreakers.html",
+            "addressable": true
+        },
+        {
+            "path": "buildinfo_configuration.html",
+            "addressable": true
+        },
+        {
+            "path": "integrators.html",
+            "addressable": true
+        },
+        {
+            "path": "csb.html",
+            "addressable": true
+        },
+        {
+            "path": "truefriend.html",
+            "addressable": true
+        },
+        {
+            "path": "bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js",
+            "addressable": true
+        },
+        {
+            "path": "img",
+            "addressable": true
+        }
+    ],
+    "scopes": [
+        "vso.work", "vso.work", "vso.work_write", "vso.build", "vso.build_execute"
+    ]
+}
