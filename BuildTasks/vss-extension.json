@@ -1,35 +1,35 @@
 {
     "manifestVersion": 1,
-    "id": "build-task",
-    "name": "Benjs Build Extensions",
-    "version": "1.0.0",
-    "publisher": "huserben",
+    "id": "tfs-extensions-build-tasks",
+    "name": "Build Tasks Extensions",
+    "version": "1.0.6",
+    "publisher": "benjhuser",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "Tools for building with Fabrikam. Includes one build task.",
+    "description": "Tools for building. Includes one build task.",
     "categories": [
         "Build and release"
     ],
     "icons": {
-        "default": "images/extension-icon.png"        
+        "default": "images/logo.png"        
     },
     "files": [
         {
-            "path": "buildtask"
+            "path": "triggerbuildtask"
         }
     ],
     "contributions": [
         {
-            "id": "custom-build-task",
+            "id": "trigger-build-task",
             "type": "ms.vss-distributed-task.task",
             "targets": [
                 "ms.vss-distributed-task.tasks"
             ],
             "properties": {
-                "name": "buildtask"
+                "name": "triggerbuildtask"
             }
         }
     ]
