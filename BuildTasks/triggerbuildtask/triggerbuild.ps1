@@ -152,15 +152,12 @@ if ($dependentOnSuccessfulBuildConditionAsBool){
     Write-Output "None of the dependant build definitions last builds were failing - proceeding"
 }
 
-Write-Output "Fetching build definition ID for Build: $($buildDefinition)"
 $buildDefinitionId = Get-BuildDefinition-Id -definition $buildDefinition
-Write-Output "Build Definition fetched - Id is $($buildDefinitionId)"
 
 $queueBuildUrl = "/build/builds?api-version=2.0"
 $queueBuildBody = "{ definition: { id: $($buildDefinitionId) }}"
 
-Write-Output "Queue new Build for definition $($buildDefinition) on $($tfsServer)/$($queueBuildUrl)"
-Write-Output "POST Message: $($queueBuildBody)"
+Write-Output "Queue new Build for definition $($buildDefinition) on $($tfsServer)/_apis/$($queueBuildUrl)"
 
 $response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody
 
