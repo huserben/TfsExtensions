@@ -1,7 +1,7 @@
 {
 	"id": "32abcf98-0df6-4711-b2e4-66a405d3c1a6",
 	"name": "TriggerBuild",
-	"friendlyName": "Triggers a new Build",
+	"friendlyName": "Trigger Build",
 	"description": "This tasks allows to trigger a new Build (add it to the queue) as part of a Build Definition. It contains as well some conditions that can be applied, for example if the last build of certain definition was successful or not.",
 	"helpMarkDown": "",
 	"category": "Build",
@@ -36,7 +36,7 @@
 		{
 			"name":  "definitionIsInCurrentTeamProject",
 			"type":  "boolean",
-			"label":  "True if the build to be triggered is defined within the current team project",
+			"label":  "True if the build to be triggered is defined within the same team project as this build",
 			"defaultValue":  true,
 			"required":  true,
 			"groupName":  "basicConfiguration"
@@ -44,11 +44,11 @@
 		{
 			"name":  "tfsServer",
 			"type":  "string",
-			"label":  "URL to TFS Server (including Team Project)",
+			"label":  "URL to TFS Server (including Collection and Team Project)",
 			"defaultValue":  "",
 			"required":  true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
-			"helpMarkDown":  "The TFS Server the Build you want to trigger is located.",
+			"helpMarkDown":  "The TFS Server the Build you want to trigger is located. Example: https://<YOURACCOUNT>.visualstudio.com/DefaultCollection/<TEAMPROJECT>",
 			"groupName":  "basicConfiguration"
 		},
 		{

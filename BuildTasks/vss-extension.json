@@ -1,25 +1,62 @@
 {
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
-    "name": "Build Tasks Extensions",
-    "version": "1.0.6",
+    "name": "Trigger Build Task",
+    "version": "1.0.12",
     "publisher": "benjhuser",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "Tools for building. Includes one build task.",
+    "description": "Build Task that can be used to trigger a new Build so that build-chaining is possible. Supports as well conditional triggers.",
     "categories": [
         "Build and release"
     ],
     "icons": {
         "default": "images/logo.png"        
     },
+	"tags" :[
+		"build",
+		"build-chaining",
+		"queue",
+		"queue build"
+	],
+	"screenshots": [
+		{
+			"path": "images/taskselection.png"
+		}
+	],
+	"content":{
+		"details":{
+			"path": "overview.md"
+		},
+		"license": {
+			"path": "LICENSE"
+		}
+	},
+	"links":{
+		"repository":{
+			"uri": "https://github.com/huserben/TfsExtensions/tree/master/BuildTasks"
+		},
+		"license":{
+			"uri": "https://github.com/huserben/TfsExtensions/blob/master/LICENSE"
+		}
+	},
+	"repository": {
+		"type": "git",
+		"uri":	"https://github.com/huserben/TfsExtensions/tree/master/BuildTasks"
+	},
     "files": [
         {
             "path": "triggerbuildtask"
-        }
+        },
+		{
+			"path": "basic_configuration.PNG"
+		}
+    ],
+	"demands": [
+        "api-version/2.0"
     ],
     "contributions": [
         {
@@ -32,5 +69,9 @@
                 "name": "triggerbuildtask"
             }
         }
-    ]
+    ],
+	"branding": {
+        "color": "rgb(255, 153, 0)",
+        "theme": "light"
+    }
 }
