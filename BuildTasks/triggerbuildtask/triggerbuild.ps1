@@ -23,7 +23,7 @@ if ($definitionIsInCurrentTeamProjectAsBool -eq $False){
 }
 else{
     Write-Output "Using Current Team Project URL"
-    $tfsUrl = Get-ChildItem Env:BUILD_REPOSITORY_URI
+    $tfsUrl = Get-ChildItem Env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI
     $teamProject = Get-ChildItem Env:SYSTEM_TEAMPROJECT
     $tfsServer = "$($tfsUrl.Value)/$($teamProject.Value)"
 }
@@ -89,7 +89,6 @@ Function Send-Web-Request
         $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$securePassword)))
         
         if ($messageBody){
-            Write-Output "Do I get here?"
             return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $base64AuthInfo"} -Method $requestType -ContentType "application/json" -Body $messageBody -UseBasicParsing
         }
         return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $base64AuthInfo"} -Method $requestType -ContentType "application/json" -UseBasicParsing
