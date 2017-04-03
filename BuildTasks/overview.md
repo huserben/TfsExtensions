@@ -3,7 +3,7 @@ This build task enables the chaining of builds within TFS.
 It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects).  
 
 ## Release Notes
-The latest release notes can be found on [Github](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/ReleaseNotes.md).
+The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  
