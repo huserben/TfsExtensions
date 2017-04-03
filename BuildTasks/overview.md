@@ -1,6 +1,9 @@
 # Trigger Build Task
 This build task enables the chaining of builds within TFS.  
 It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects).  
+
+## Release Notes
+The latest release notes can be found on [Github](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/ReleaseNotes.md).
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  
@@ -11,13 +14,17 @@ you can leave the checkbox checked.
   
   
 If your build would be in another Team Project, uncheck the checkbox and fill in the URL to this team project. It **must** include the collection it is in and would look something like this:  
-*https://<YOURACCOUNT>.visualstudio.com/DefaultCollection/<TEAMPROJECT>*  
+*https://**YOURACCOUNT**.visualstudio.com/DefaultCollection/<TEAMPROJECT>*  
   
 ![Custom Team Project Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/customteamprojectconfiguration.PNG)  
   
 ## Advanced Configuration
 Under the advanced configuration you can set the credentials of the account which will trigger the builds. If your build agent has access to your TFS and sufficient rights to trigger a build, you can leave the *Use Default Credentials* 
-checkbox checked. Otherwise you need to uncheck it and specify the user and password combination yourself. It is recommended to not use plaintext here, but make use of variables - especially for the password.  
+checkbox checked.  
+Otherwise you need to uncheck it and specify the authentication method you want to use. Currenty Personal Access Tokens and Basic Authentication are supported. Check the TFS documents in order how to enable those. The Personal Access Token will need at least the following right: *Build (read and execute)*  
+
+After selecting the authentication method provide either the Personal Access Token (you can leave the username empty if you use PATs) or the username/password combination.  
+It is recommended to not use plaintext here, but make use of variables - especially for the password/PAT.  
   
 ![Use Alternate Credentials](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/usealternatecredentials.PNG)  
   

@@ -3,6 +3,7 @@ param(
      [Parameter(Mandatory=$false)][string]$tfsServer, 
      [Parameter(Mandatory=$true)][string]$buildDefinition, 
      [Parameter(Mandatory=$true)][string]$useDefaultCredentials,
+     [Parameter(Mandatory=$false)][string]$authenticationMethod,
      [Parameter(Mandatory=$false)][string]$username,
      [Parameter(Mandatory=$false)][string]$password,
      [Parameter(Mandatory=$true)][string]$enableBuildInQueueCondition,
@@ -18,6 +19,8 @@ $enableBuildInQueueConditionAsBool = [System.Convert]::ToBoolean($enableBuildInQ
 $includeCurrentBuildDefinitionAsBool = [System.Convert]::ToBoolean($includeCurrentBuildDefinition)
 $dependentOnSuccessfulBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnSuccessfulBuildCondition)
 
+$authenticationToken = ""
+
 if ($definitionIsInCurrentTeamProjectAsBool -eq $False){
     Write-Output "Using Custom Team Project URL"
 }
@@ -32,6 +35,17 @@ Write-Output "Path to Server: $($tfsServer)"
 
 if ($useDefaultCredentialsAsBool -eq $False){
     Write-Output "Using Custom Credentials"
+
+    if ($authenticationMethod -eq "Basic Authentication"){
+        Write-Output "Using Basic Authentication"
+        $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
+        $credential = New-Object –TypeName "System.Management.Automation.PSCredential" –ArgumentList $username, $securePassword
+        $authenticationToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$securePassword)))
+    }
+    else{
+        Write-Output "Using Personal Access Token"
+        $authenticationToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "something", $password)))
+    }
 }
 else{
     Write-Output "Using Default Credentials"
@@ -83,15 +97,21 @@ Function Send-Web-Request
         }
         return Invoke-WebRequest -UseDefaultCredentials -Uri $fullUrl -Method $requestType -ContentType "application/json" -UseBasicParsing
     }
-    else{
-        $securePassword = ConvertTo-SecureString -String $password -AsPlainText -Force
-        $credential = New-Object –TypeName "System.Management.Automation.PSCredential" –ArgumentList $username, $securePassword
-        $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$securePassword)))
+    else{        
+        if ($authenticationMethod -eq "Basic Authentication"){
+            if ($messageBody){
+                return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -Body $messageBody -UseBasicParsing
+            }
         
-        if ($messageBody){
-            return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $base64AuthInfo"} -Method $requestType -ContentType "application/json" -Body $messageBody -UseBasicParsing
+            return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -UseBasicParsing
         }
-        return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $base64AuthInfo"} -Method $requestType -ContentType "application/json" -UseBasicParsing
+        else{        
+            if ($messageBody){
+                return Invoke-WebRequest -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -Body $messageBody -UseBasicParsing
+            }
+
+            return Invoke-WebRequest -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -UseBasicParsing
+        }
     }    
 }
 
