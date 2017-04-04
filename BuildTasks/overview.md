@@ -18,13 +18,26 @@ If your build would be in another Team Project, uncheck the checkbox and fill in
   
 ![Custom Team Project Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/customteamprojectconfiguration.PNG)  
   
-## Advanced Configuration
-Under the advanced configuration you can set the credentials of the account which will trigger the builds. If your build agent has access to your TFS and sufficient rights to trigger a build, you can leave the *Use Default Credentials* 
-checkbox checked.  
-Otherwise you need to uncheck it and specify the authentication method you want to use. Currenty Personal Access Tokens and Basic Authentication are supported. Check the TFS documents in order how to enable those. The Personal Access Token will need at least the following right: *Build (read and execute)*  
+## Authentication Options
+In this section can be set how you authenticate against your TFS. 
 
-After selecting the authentication method provide either the Personal Access Token (you can leave the username empty if you use PATs) or the username/password combination.  
-It is recommended to not use plaintext here, but make use of variables - especially for the password/PAT.  
+### Default Credentials
+If your build agent has access to your TFS and sufficient rights to trigger a build and is part of your domain, you can leave the *Use Default Credentials*. This will be a valid option if you have an OnPrem Build Agent, but will not work if you use the Hosted Agents from VSTS.  
+### OAuth Token
+If you want to use OAuth, you can select this option. If you leave the Token field empty, the task will try to access the System.AccessToken environment variable of your build agent.  If you use this option, make sure that you enabled the option *Allow Scripts to Access OAuth Token* in the options of your Build Definition:  
+![Allow Scripts OAuth Token Access](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/allowscriptstokenaccess.PNG)  
+Otherwise your build task will fail.
+
+This option will work with Hosted Build Agents from VSTS.  
+
+### Personal Access Token
+If you want to use a Personal Access Token, you have to make sure that it at least has the following right: *Build (read and execute)*  
+Then just provide the Access Token in the appropriate input box and the task is good to go:  
+![Using the Personal Access Token](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/usepersonalaccesstoken.PNG) 
+
+### Basic Authentication
+If you have enabled Basic Authentication, you can as well use this sort of authentication by providing the username and password.    
+It is recommended to not use plaintext here, but make use of variables - especially for the password.  
   
 ![Use Alternate Credentials](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/usealternatecredentials.PNG)  
   

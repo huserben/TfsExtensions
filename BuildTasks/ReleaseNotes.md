@@ -1,7 +1,7 @@
 # Release Notes
 
-## Version 1.4.0
-- Added support for Personal Access Token ([Invalid Web Request results on a default VSTS environment](https://github.com/huserben/TfsExtensions/issues/2))
+## Version 1.4
+- Added support for Personal Access Token and OAuth System Token Authentication ([Invalid Web Request results on a default VSTS environment](https://github.com/huserben/TfsExtensions/issues/2))
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
