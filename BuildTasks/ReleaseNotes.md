@@ -1,5 +1,8 @@
 # Release Notes
 
+## Version 1.5
+- Added new Condition to check if last build of a definition failed. This enables to queue for example a scheduled build automatically if it failed last time and all dependent builds are now fixed.
+
 ## Version 1.4
 - Added support for Personal Access Token and OAuth System Token Authentication ([Invalid Web Request results on a default VSTS environment](https://github.com/huserben/TfsExtensions/issues/2))
 

@@ -9,13 +9,16 @@ param(
      [Parameter(Mandatory=$false)][string]$includeCurrentBuildDefinition,
      [Parameter(Mandatory=$false)][string]$blockingBuildsList,
      [Parameter(Mandatory=$true)][string]$dependentOnSuccessfulBuildCondition,
-     [Parameter(Mandatory=$false)][string]$dependentBuildsList
+     [Parameter(Mandatory=$false)][string]$dependentBuildsList,
+     [Parameter(Mandatory=$true)][string]$dependentOnFailedBuildCondition,
+     [Parameter(Mandatory=$false)][string]$dependentFailingBuildsList
 ) 
 
 $definitionIsInCurrentTeamProjectAsBool = [System.Convert]::ToBoolean($definitionIsInCurrentTeamProject)
 $enableBuildInQueueConditionAsBool = [System.Convert]::ToBoolean($enableBuildInQueueCondition)
 $includeCurrentBuildDefinitionAsBool = [System.Convert]::ToBoolean($includeCurrentBuildDefinition)
 $dependentOnSuccessfulBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnSuccessfulBuildCondition)
+$dependentOnFailedBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnFailedBuildCondition)
 
 $authenticationToken = ""
 
@@ -88,6 +91,21 @@ if ($dependentOnSuccessfulBuildConditionAsBool){
 }
 else{
     Write-Output "Dependant Build Condition is not enabled"
+}
+
+if ($dependentOnFailedBuildConditionAsBool){
+Write-Output "Dependant Failing Build Condition is enabled"
+    $dependentFailedBuildsArray = @()
+
+    $dependentFailingBuildsList.Split(",").Trim() | ForEach {
+        if ($_){
+            Write-Output "Add $($_) to list of dependent build definitions"
+            $dependentFailedBuildsArray += $_
+        }
+    }
+}
+else{
+    Write-Output "Dependant on Failed Build Condition is not enabled"
 }
 
 Function Send-Web-Request
@@ -177,6 +195,24 @@ if ($dependentOnSuccessfulBuildConditionAsBool){
     }
 
     Write-Output "None of the dependant build definitions last builds were failing - proceeding"
+}
+
+if ($dependentOnFailedBuildConditionAsBool){
+   Write-Output "Checking if dependant build definitions last builds were NOT successful"
+
+   $dependentFailedBuildsArray | ForEach{
+        Write-Output "Checking Build Definition $($_)"
+        $dependentBuildId = Get-BuildDefinition-Id -definition $_
+
+        $lastBuilds = Get-Build-By-Status -buildDefinitionId $dependentBuildId
+        $lastBuildResult = $lastBuilds.value[0].result
+        if ($lastBuildResult -eq "succeeded"){
+            Write-Output "Last build of definition $($_) was successful (state is: $($lastBuilds.value[0].status)) - will not trigger new build"
+            exit
+        }
+   }
+
+    Write-Output "None of the dependant build definitions last builds were successful - proceeding"
 }
 
 $buildDefinitionId = Get-BuildDefinition-Id -definition $buildDefinition

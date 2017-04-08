@@ -11,8 +11,8 @@
 	"author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 4,
-		"Patch": 6
+		"Minor": 5,
+		"Patch": 0
 	},
 	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
 	"groups": [
@@ -126,7 +126,7 @@
 		{
 			"name":  "dependentOnSuccessfulBuildCondition",
 			"type":  "boolean",
-			"label":  "Enable Build Dependency Condition",
+			"label":  "Enable Successful Build Dependency Condition",
 			"defaultValue":  false,
 			"required":  true,
 			"helpMarkDown": "If enabled, build will only be triggered if the last builds of all the specified builds were successful.",
@@ -140,6 +140,25 @@
 			"required":  true,
 			"visibleRule": "dependentOnSuccessfulBuildCondition = true",
 			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were not successful.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "dependentOnFailedBuildCondition",
+			"type":  "boolean",
+			"label":  "Enable Failed Build Dependency Condition",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown": "If enabled, build will only be triggered if the last builds of all the specified builds were **not** successful.  Can be used to automatically trigger a build once all the dependent builds are fixed if the last try (e.g. a scheduled build during the night) failed.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "dependentFailingBuildsList",
+			"type":  "string",
+			"label":  "Dependent Build Definitions",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "dependentOnFailedBuildCondition = true",
+			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were successful.",
 			"groupName":  "conditions"
 		}
 	],	
