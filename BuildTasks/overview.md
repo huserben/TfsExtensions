@@ -66,4 +66,7 @@ This condition is very similar to the *Build Dependency Condition* mentioned abo
 The example scenario would be that you have a scheduled build during the night that runs no matter what. Due to failing dependent builds it will fail as well. Now you fix the dependent build and you automatically want to trigger the build that failed during the nightly-run, but you only want to do that if it failed before.  
 Again you can specify a comma speratated list of build definitions that you would like to have included in the check.
   
-![Failing Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/failedbuilddependencycondition.PNG)
+![Failing Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/failedbuilddependencycondition.PNG)  
+
+## Issues
+In case you have issues, for example exceptions when you run the Task make sure that the Authentication Option selected is valid. If you still have problems, please open a new issue at [github](https://github.com/huserben/TfsExtensions/issues) rather than in the Q&A section.

@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
     "name": "Trigger Build Task",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "publisher": "benjhuser",
     "targets": [
         {
@@ -54,9 +54,6 @@
 		{
 			"path": "basic_configuration.PNG"
 		}
-    ],
-	"demands": [
-        "api-version/2.0"
     ],
     "contributions": [
         {
