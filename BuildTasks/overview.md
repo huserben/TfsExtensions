@@ -7,8 +7,7 @@ The latest release notes can be found on [Github](https://github.com/huserben/Tf
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  
-This name **must** match with what you defined as name for your build definition. If the build you want to trigger is defined in the same team project as the build definition you are currently modifying, 
-you can leave the checkbox checked.  
+This name **must** match with what you defined as name for your build definition. If the build you want to trigger is defined in the same team project as the build definition you are currently modifying, you can leave the checkbox checked.  
   
 ![Basic Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/basic_configuration.PNG)  
   
@@ -25,7 +24,7 @@ In this section can be set how you authenticate against your TFS.
 If your build agent has access to your TFS and sufficient rights to trigger a build and is part of your domain, you can leave the *Use Default Credentials*. This will be a valid option if you have an OnPrem Build Agent, but will not work if you use the Hosted Agents from VSTS.  
 ### OAuth Token
 If you want to use OAuth, you can select this option. If you leave the Token field empty, the task will try to access the System.AccessToken environment variable of your build agent.  If you use this option, make sure that you enabled the option *Allow Scripts to Access OAuth Token* in the options of your Build Definition:  
-![Allow Scripts OAuth Token Access](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/allowscriptstokenaccess.PNG)  
+![Allow Scripts OAuth Token Access](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/allowscriptstokenaccess.png)  
 Otherwise your build task will fail.
 
 This option will work with Hosted Build Agents from VSTS.  
