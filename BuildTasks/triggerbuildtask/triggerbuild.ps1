@@ -217,11 +217,13 @@ if ($dependentOnFailedBuildConditionAsBool){
 
 $buildDefinitionId = Get-BuildDefinition-Id -definition $buildDefinition
 
-$queueBuildUrl = "/build/builds?api-version=2.0"
-$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: $($env:BUILD_SOURCEBRANCH) }"
+$queueBuildUrl = "build/builds?api-version=2.0"
+$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: '$env:BUILD_SOURCEBRANCH' }"
 
 Write-Output "Queue new Build for definition $($buildDefinition) on $($tfsServer)/_apis/$($queueBuildUrl)"
+Write-Output $queueBuildBody
 
 $response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody
 
 Write-Output "Queued new Build for Definition $($buildDefinition)"
+Write-Host "Response = $($response | ConvertTo-Json -Depth 100)"
