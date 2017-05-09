@@ -4,6 +4,9 @@ It makes use of the built-in TFS API to queue a new build of any build definitio
 
 ## Release Notes
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
+
+## Known Issues
+A list of current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  

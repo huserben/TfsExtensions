@@ -1,7 +1,10 @@
 # Release Notes
 
 ## Version 1.6
-- SourceBranch is now included when triggering a build
+- SourceBranch is now included when triggering a build 
+- Fixed issue that exception was thrown when Blocking Build Condition was enabled with the current build selected, but no additional builds selected [(see Issue)](https://github.com/huserben/TfsExtensions/issues/4)
+
+### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
 - [**@nobitagamaer**](https://github.com/nobitagamer)  
 

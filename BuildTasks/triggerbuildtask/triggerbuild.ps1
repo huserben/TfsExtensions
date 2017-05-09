@@ -27,9 +27,7 @@ if ($definitionIsInCurrentTeamProjectAsBool -eq $False){
 }
 else{
     Write-Output "Using Current Team Project URL"
-    $tfsUrl = Get-ChildItem Env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI
-    $teamProject = Get-ChildItem Env:SYSTEM_TEAMPROJECT
-    $tfsServer = "$($tfsUrl.Value)/$($teamProject.Value)"
+    $tfsServer = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$($env:SYSTEM_TEAMPROJECT)"
 }
 
 Write-Output "Path to Server: $($tfsServer)"
@@ -70,8 +68,10 @@ if ($enableBuildInQueueConditionAsBool){
     }
 
     $blockingBuildsList.Split(",").Trim() | ForEach {
-        Write-Output "Add $($_) to list of blocking Build Definitions"
-        $blockingBuildsArray += $_
+        if ($_){
+            Write-Output "Add $($_) to list of blocking Build Definitions"
+            $blockingBuildsArray += $_
+        }
     }
 }
 else{
@@ -166,13 +166,15 @@ if ($enableBuildInQueueConditionAsBool){
     Write-Output "Checking if blocking builds are queued"
 
     $blockingBuildsArray | ForEach{
-        Write-Output "Checking Build Definition: $($_)"
-        $blockingBuildId = Get-BuildDefinition-Id -definition $_
+        if ($_){
+            Write-Output "Checking Build Definition: $($_)"
+            $blockingBuildId = Get-BuildDefinition-Id -definition $_
         
-        $queuedBuilds = Get-Build-By-Status -buildDefinitionId $blockingBuildId -statusFilter "notStarted"
-        if ($queuedBuilds.Count -ne 0){
-            Write-Output "$($_) is queued - will not trigger new build"
-            exit
+            $queuedBuilds = Get-Build-By-Status -buildDefinitionId $blockingBuildId -statusFilter "notStarted"
+            if ($queuedBuilds.Count -ne 0){
+                Write-Output "$($_) is queued - will not trigger new build"
+                exit
+            }
         }
     }
 
