@@ -1,7 +1,8 @@
 param(
      [Parameter(Mandatory=$true)][string]$definitionIsInCurrentTeamProject,
      [Parameter(Mandatory=$false)][string]$tfsServer, 
-     [Parameter(Mandatory=$true)][string]$buildDefinition,
+     [Parameter(Mandatory=$true)][string]$buildDefinition,     
+     [Parameter(Mandatory=$true)][string]$queueBuildForUserThatTriggeredBuild,
      [Parameter(Mandatory=$false)][string]$authenticationMethod,
      [Parameter(Mandatory=$false)][string]$username,
      [Parameter(Mandatory=$false)][string]$password,
@@ -19,8 +20,10 @@ $enableBuildInQueueConditionAsBool = [System.Convert]::ToBoolean($enableBuildInQ
 $includeCurrentBuildDefinitionAsBool = [System.Convert]::ToBoolean($includeCurrentBuildDefinition)
 $dependentOnSuccessfulBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnSuccessfulBuildCondition)
 $dependentOnFailedBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnFailedBuildCondition)
+$queueBuildForUserThatTriggeredBuildAsBool = [System.Convert]::ToBoolean($queueBuildForUserThatTriggeredBuild)
 
 $authenticationToken = ""
+$requestedForBody = ""
 
 if ($definitionIsInCurrentTeamProjectAsBool -eq $False){
     Write-Output "Using Custom Team Project URL"
@@ -55,6 +58,11 @@ elseif ($authenticationMethod -eq "Basic Authentication"){
 elseif($authenticationMethod -eq "Personal Access Token"){
         Write-Output "Using Personal Access Token"
         $authenticationToken = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f "something", $password)))
+}
+
+if ($queueBuildForUserThatTriggeredBuildAsBool){
+    Write-Output "Build shall be triggered for same user that triggered current build: $($env:BUILD_REQUESTEDFOR)"
+    $requestedForBody = "requestedFor: { id: ""$($env:BUILD_REQUESTEDFORID)""}"
 }
 
 if ($enableBuildInQueueConditionAsBool){
@@ -220,7 +228,7 @@ if ($dependentOnFailedBuildConditionAsBool){
 $buildDefinitionId = Get-BuildDefinition-Id -definition $buildDefinition
 
 $queueBuildUrl = "build/builds?api-version=2.0"
-$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"" }"
+$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"", $($requestedForBody)}"
 
 Write-Output "Queue new Build for definition $($buildDefinition) on $($tfsServer)/_apis/$($queueBuildUrl)"
 Write-Output $queueBuildBody

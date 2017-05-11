@@ -20,6 +20,15 @@ If your build would be in another Team Project, uncheck the checkbox and fill in
   
 ![Custom Team Project Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/customteamprojectconfiguration.PNG)  
   
+Furthermore you can select whether the subsequent builds that are triggered should be run as it would be requested by the same user that triggered the original build or not. This can be useful if you have any kind of query that is based on the name, for example if you want to filter for builds triggered by you or if you have setup email alerts.  
+If you do not select this option, it depends on the method of authentication (see below) for whom the builds will be triggered:  
+| Authentication Method  | Requested By |
+| ------------- | ------------- |
+| Default Credentials  | Build Service User  |
+| OAuth Token  | Build Service User (if System.AccessToken is used), otherwise owner of the Token  |
+| Personal Access Token  | User that created that Token  |
+| Basic Authentication  | Specified User  |
+  
 ## Authentication Options
 In this section can be set how you authenticate against your TFS. 
 
