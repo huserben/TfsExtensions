@@ -11,7 +11,7 @@
 	"author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 7,
+		"Minor": 8,
 		"Patch": 0
 	},
 	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
@@ -20,6 +20,11 @@
 			"name": "basicConfiguration",
 			"displayName": "Basic Configuration",
 			"isExpanded": true
+		},
+		{
+			"name": "advancedConfiguration",
+			"displayName": "Advanced Configuration",
+			"isExpanded": false
 		},
 		{
 			"name": "authenticationOptions",
@@ -68,6 +73,24 @@
 			"required":  true,
 			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build.",
 			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "useSameSourceVersion",
+			"type":  "boolean",
+			"label":  "Use current changeset for the triggered build",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown":  "If this option is enabled, the triggered build will run with the same source version as the original build. If this is not enabled, the newest version will be used.",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "buildParameters",
+			"type":  "string",
+			"label":  "Define additional parameters for the build, for example build configuration or platform.",
+			"defaultValue":  "",
+			"required":  false,
+			"helpMarkDown":  "Specify the build parameters.If nothing is specified, the default values will be used. See Build Task description for more info on the format and the usage of variables.",
+			"groupName":  "advancedConfiguration"
 		},
 		{
 			"name": "authenticationMethod",

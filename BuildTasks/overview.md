@@ -28,6 +28,24 @@ If you do not select this option, it depends on the method of authentication (se
  - **Personal Access Token**: Owner of that Token  
  - **Basic Authentication**: Specified User 
   
+## Advanced Configuration
+![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
+### Use Same Source Version
+If this option is enabled, the triggered build will use the same source version as the build that includes the task. This means if the build was triggered for a specific changeset or label, the same source version will used in the triggered build. This option is disabled by default, which means the triggered build will use the latest sources.
+
+### Build Parameters
+This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
+You need to specify first the name of the variable you want to set, as you can see it in the Variables Tab of the build you want to trigger. Then the value can be set after a *:*   
+**All** variable names and values must be enclosed by a *\"*  
+\"VariableIWantToSet\" : \"WhateverValue\"  
+You can specify multiple parameters, just append a *,* after the value and then specify the next variable-value pair.  
+It is as well possible to make use of the build variables of the build that is running. For example if you want to reuse the Build Configuration for the triggered build, you can do so by using the following syntax for the value part:  
+\"$(BuildConfiguration)\"  
+This will work with every variable you have defined in your build.  
+  
+**Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the follwing error:  
+*The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
+
 ## Authentication Options
 In this section can be set how you authenticate against your TFS. 
 

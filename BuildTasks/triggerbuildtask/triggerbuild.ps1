@@ -3,6 +3,8 @@ param(
      [Parameter(Mandatory=$false)][string]$tfsServer, 
      [Parameter(Mandatory=$true)][string]$buildDefinition,     
      [Parameter(Mandatory=$true)][string]$queueBuildForUserThatTriggeredBuild,
+     [Parameter(Mandatory=$true)][string]$useSameSourceVersion,
+     [Parameter(Mandatory=$false)][string]$buildParameters,
      [Parameter(Mandatory=$false)][string]$authenticationMethod,
      [Parameter(Mandatory=$false)][string]$username,
      [Parameter(Mandatory=$false)][string]$password,
@@ -21,9 +23,11 @@ $includeCurrentBuildDefinitionAsBool = [System.Convert]::ToBoolean($includeCurre
 $dependentOnSuccessfulBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnSuccessfulBuildCondition)
 $dependentOnFailedBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnFailedBuildCondition)
 $queueBuildForUserThatTriggeredBuildAsBool = [System.Convert]::ToBoolean($queueBuildForUserThatTriggeredBuild)
+$useSameSourceVersionAsBool = [System.Convert]::ToBoolean($useSameSourceVersion)
 
 $authenticationToken = ""
 $requestedForBody = ""
+$sourceVersionBody ="";
 
 if ($definitionIsInCurrentTeamProjectAsBool -eq $False){
     Write-Output "Using Custom Team Project URL"
@@ -63,6 +67,22 @@ elseif($authenticationMethod -eq "Personal Access Token"){
 if ($queueBuildForUserThatTriggeredBuildAsBool){
     Write-Output "Build shall be triggered for same user that triggered current build: $($env:BUILD_REQUESTEDFOR)"
     $requestedForBody = "requestedFor: { id: ""$($env:BUILD_REQUESTEDFORID)""}"
+}
+
+if ($useSameSourceVersionAsBool){
+    $sourceVersion = $($env:BUILD_SOURCEVERSION)
+    
+    # If we use the latest version, the source version will not have a C prepended, so we have to do that manually...
+    if (-Not $sourceVersion.StartsWith("C")){
+        $sourceVersion = "C$($sourceVersion)"
+    }
+
+    Write-Output "Triggered Build will use the same source version: $($sourceVersion)"
+    $sourceVersionBody = "sourceVersion: ""$($sourceVersion)"""
+}
+
+if ($buildParameters){
+    Write-Host "Will trigger build with folowing parameters: $($buildParameters)"
 }
 
 if ($enableBuildInQueueConditionAsBool){
@@ -228,7 +248,21 @@ if ($dependentOnFailedBuildConditionAsBool){
 $buildDefinitionId = Get-BuildDefinition-Id -definition $buildDefinition
 
 $queueBuildUrl = "build/builds?api-version=2.0"
-$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"", $($requestedForBody)}"
+$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"""
+
+if ($requestedForBody){
+    $queueBuildBody += ", $($requestedForBody)"
+}
+
+if ($sourceVersionBody){
+    $queueBuildBody += ", $($sourceVersionBody)"
+}
+
+if ($buildParameters){
+    $queueBuildBody += ", parameters: ""{$($buildParameters)}"""
+}
+
+$queueBuildBody += "}"
 
 Write-Output "Queue new Build for definition $($buildDefinition) on $($tfsServer)/_apis/$($queueBuildUrl)"
 Write-Output $queueBuildBody
