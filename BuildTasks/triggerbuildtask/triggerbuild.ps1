@@ -71,9 +71,11 @@ if ($queueBuildForUserThatTriggeredBuildAsBool){
 
 if ($useSameSourceVersionAsBool){
     $sourceVersion = $($env:BUILD_SOURCEVERSION)
-    
+    $repositoryType = $($env:BUILD_REPOSITORY_PROVIDER)
+
+    # if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
     # If we use the latest version, the source version will not have a C prepended, so we have to do that manually...
-    if (-Not $sourceVersion.StartsWith("C")){
+    if (-Not $sourceVersion.StartsWith("C") -and $repositoryType -eq "TfsVersionControl"){
         $sourceVersion = "C$($sourceVersion)"
     }
 
@@ -159,7 +161,7 @@ Function Send-Web-Request
                 return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -Body $messageBody -UseBasicParsing
             }
         
-            return Invoke-WebRequest -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -UseBasicParsing
+            return Invoke-WebRequest  -Credential $credential -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -UseBasicParsing
     }elseif($authenticationMethod -eq "Personal Access Token"){        
             if ($messageBody){
                 return Invoke-WebRequest -Uri $fullUrl -Headers @{Authorization = "Basic $authenticationToken"} -Method $requestType -ContentType "application/json" -Body $messageBody -UseBasicParsing
