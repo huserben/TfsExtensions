@@ -1,5 +1,8 @@
 # Release Notes
 
+## Version 1.9
+- Added support to trigger multiple builds at once via a comma-separated list
+
 ## Version 1.8.5
 - Fixed bug that caused Task to fail when using Current Source Version on Git Repositories [The latest version throw 409 conflict error](https://github.com/huserben/TfsExtensions/issues/7)
 

@@ -11,8 +11,8 @@
 	"author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 8,
-		"Patch": 5
+		"Minor": 9,
+		"Patch": 0
 	},
 	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
 	"groups": [
@@ -59,10 +59,10 @@
 		{
 			"name":  "buildDefinition",
 			"type":  "string",
-			"label":  "Name of the Build Definition that shall be triggered",
+			"label":  "Name of the Build Definitions that shall be triggered",
 			"defaultValue":  "",
 			"required":  true,
-			"helpMarkDown":  "The name of the definition that we want to queue a new build for.",
+			"helpMarkDown":  "Comma-Separated list of names of the definition that we want to queue a new build for.",
 			"groupName":  "basicConfiguration"
 		},
 		{

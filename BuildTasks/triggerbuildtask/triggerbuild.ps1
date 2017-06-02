@@ -247,28 +247,39 @@ if ($dependentOnFailedBuildConditionAsBool){
     Write-Output "None of the dependant build definitions last builds were successful - proceeding"
 }
 
-$buildDefinitionId = Get-BuildDefinition-Id -definition $buildDefinition
+$buildDefinitionsToTrigger = @()
 
-$queueBuildUrl = "build/builds?api-version=2.0"
-$queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"""
+    $buildDefinition.Split(",").Trim() | ForEach {
+        if ($_){
+            Write-Output "Add $($_) to list of Builds to trigger"
+            $buildDefinitionsToTrigger += $_
+        }
+    }
 
-if ($requestedForBody){
-    $queueBuildBody += ", $($requestedForBody)"
+$buildDefinitionsToTrigger | ForEach{
+    $buildDefinitionId = Get-BuildDefinition-Id -definition $_
+
+    $queueBuildUrl = "build/builds?api-version=2.0"
+    $queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"""
+
+    if ($requestedForBody){
+        $queueBuildBody += ", $($requestedForBody)"
+    }
+
+    if ($sourceVersionBody){
+        $queueBuildBody += ", $($sourceVersionBody)"
+    }
+
+    if ($buildParameters){
+        $queueBuildBody += ", parameters: ""{$($buildParameters)}"""
+    }
+
+    $queueBuildBody += "}"
+
+    Write-Output "Queue new Build for definition $($_) on $($tfsServer)/_apis/$($queueBuildUrl)"
+    Write-Output $queueBuildBody
+
+    $response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody
+
+    Write-Output "Queued new Build for Definition $($_)"
 }
-
-if ($sourceVersionBody){
-    $queueBuildBody += ", $($sourceVersionBody)"
-}
-
-if ($buildParameters){
-    $queueBuildBody += ", parameters: ""{$($buildParameters)}"""
-}
-
-$queueBuildBody += "}"
-
-Write-Output "Queue new Build for definition $($buildDefinition) on $($tfsServer)/_apis/$($queueBuildUrl)"
-Write-Output $queueBuildBody
-
-$response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody
-
-Write-Output "Queued new Build for Definition $($buildDefinition)"
