@@ -2,18 +2,26 @@
 This build task enables the chaining of builds within TFS.  
 It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects).  
 
+## Supported TFS Versions
+The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 updwards.  
+Currently only Windows Build Agents are supported as the Task is based on Powershell.
+
 ## Release Notes
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
 ## Known Issues
-A list of current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
+- Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)
+
+A list of all current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  
-This name **must** match with what you defined as name for your build definition. If the build you want to trigger is defined in the same team project as the build definition you are currently modifying, you can leave the checkbox checked.  
+This name **must** match with what you defined as name for your build definition. If the build you want to trigger is defined in the same team project as the build definition you are currently modifying, you can leave the checkbox checked. You can as well define multiple build that you want to trigger by separating the names with a comma.  
   
 ![Basic Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/basic_configuration.PNG)  
   
+
+**Important:** If your build definition name contains a '&', the task will fail (see Known Issues above).
   
 If your build would be in another Team Project, uncheck the checkbox and fill in the URL to this team project. It **must** include the collection it is in and would look something like this:  
 *https://**YOURACCOUNT**.visualstudio.com/DefaultCollection/<TEAMPROJECT>*  
@@ -32,6 +40,20 @@ If you do not select this option, it depends on the method of authentication (se
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
 ### Use Same Source Version
 If this option is enabled, the triggered build will use the same source version as the build that includes the task. This means if the build was triggered for a specific changeset or label, the same source version will used in the triggered build. This option is disabled by default, which means the triggered build will use the latest sources.
+
+### Use Same Source Branch
+If this is enabled, the triggered build will use the same source branch as the build that includes the task. This means if the build is triggered for the source branch *refs/heads/master*, the triggered build will as well.  
+Please make sure that if this option is enabled, the triggered build can actually be triggered for that branch. Especially if you trigger builds across projects you might want to disable this step.
+
+If you disable this option, you can specify the source-branch that shall be used yourself. If you don't define anything, the source-branch parameter will not be specified and the default will be used.
+
+### Wait for Completion of Triggered Builds
+If you enable this option, the build task will wait for the completion of all the triggered builds.  
+After triggering all the builds, the task periodically check the builds that were triggered and just continue when all of them are finished.  
+You can specify the intervall of when the builds are checked, just specify the value in seconds.  
+Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway.
+
+**Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
 ### Build Parameters
 This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  

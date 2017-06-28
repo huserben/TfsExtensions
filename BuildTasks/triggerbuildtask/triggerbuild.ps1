@@ -4,6 +4,11 @@ param(
      [Parameter(Mandatory=$true)][string]$buildDefinition,     
      [Parameter(Mandatory=$true)][string]$queueBuildForUserThatTriggeredBuild,
      [Parameter(Mandatory=$true)][string]$useSameSourceVersion,
+     [Parameter(Mandatory=$true)][string]$useSameBranch,
+     [Parameter(Mandatory=$false)][string]$branchToUse,
+     [Parameter(Mandatory=$true)][string]$waitForQueuedBuildsToFinish,
+     [Parameter(Mandatory=$true)][string]$waitForQueuedBuildsToFinishRefreshTime,
+     [Parameter(Mandatory=$true)][string]$failTaskIfBuildsNotSuccessful,
      [Parameter(Mandatory=$false)][string]$buildParameters,
      [Parameter(Mandatory=$false)][string]$authenticationMethod,
      [Parameter(Mandatory=$false)][string]$username,
@@ -24,6 +29,9 @@ $dependentOnSuccessfulBuildConditionAsBool = [System.Convert]::ToBoolean($depend
 $dependentOnFailedBuildConditionAsBool = [System.Convert]::ToBoolean($dependentOnFailedBuildCondition)
 $queueBuildForUserThatTriggeredBuildAsBool = [System.Convert]::ToBoolean($queueBuildForUserThatTriggeredBuild)
 $useSameSourceVersionAsBool = [System.Convert]::ToBoolean($useSameSourceVersion)
+$useSameBranchAsBool = [System.Convert]::ToBoolean($useSameBranch)
+$waitForQueuedBuildsToFinishAsBool = [System.Convert]::ToBoolean($waitForQueuedBuildsToFinish)
+$failTaskIfBuildsNotSuccessfulAsBool = [System.Convert]::ToBoolean($failTaskIfBuildsNotSuccessful)
 
 $authenticationToken = ""
 $requestedForBody = ""
@@ -81,6 +89,11 @@ if ($useSameSourceVersionAsBool){
 
     Write-Output "Triggered Build will use the same source version: $($sourceVersion)"
     $sourceVersionBody = "sourceVersion: ""$($sourceVersion)"""
+}
+
+if ($useSameBranchAsBool){
+    $branchToUse = $env:BUILD_SOURCEBRANCH
+    Write-Output "Using same branch as source version: $($branchToUse)"
 }
 
 if ($buildParameters){
@@ -142,7 +155,7 @@ Function Send-Web-Request
 {
     param([string]$apiUrl, [string]$requestType, [string]$messageBody)
 
-    $fullUrl = [uri]::EscapeUriString($tfsServer + "/_apis/" + $apiUrl)
+    $fullUrl = [uri]::EscapeUriString("$($tfsServer)/_apis/$($apiUrl)")
 
     if ($authenticationMethod -eq "Default Credentials"){
         if ($messageBody){
@@ -190,6 +203,26 @@ Function Get-Build-By-Status
     $response = Send-Web-Request -apiUrl $apiUrl -requestType "GET" | ConvertFrom-Json
 
     return $response
+}
+
+Function Is-Build-Finsihed
+{
+   param([string]$buildId)
+
+   $apiUrl = "build/builds/$($buildId)?api-version=2.0"
+   $response = Send-Web-Request -apiUrl $apiUrl -requestType "GET" | ConvertFrom-Json
+
+   return $response.status -eq "completed"
+}
+
+Function Was-Build-Successful
+{
+    param([string]$buildId)
+
+    $apiUrl = "build/builds/$($buildId)?api-version=2.0"
+    $response = Send-Web-Request -apiUrl $apiUrl -requestType "GET" | ConvertFrom-Json
+
+   return $response.result -eq "succeeded"
 }
 
 if ($enableBuildInQueueConditionAsBool){
@@ -256,11 +289,18 @@ $buildDefinitionsToTrigger = @()
         }
     }
 
+
+$queuedBuilds = @()
+
 $buildDefinitionsToTrigger | ForEach{
     $buildDefinitionId = Get-BuildDefinition-Id -definition $_
 
     $queueBuildUrl = "build/builds?api-version=2.0"
-    $queueBuildBody = "{ definition: { id: $($buildDefinitionId) }, sourceBranch: ""$($env:BUILD_SOURCEBRANCH)"""
+    $queueBuildBody = "{ definition: { id: $($buildDefinitionId) }"
+
+    if ($branchToUse){
+        $queueBuildBody += ", sourceBranch: ""$($branchToUse)"""
+    }
 
     if ($requestedForBody){
         $queueBuildBody += ", $($requestedForBody)"
@@ -279,7 +319,41 @@ $buildDefinitionsToTrigger | ForEach{
     Write-Output "Queue new Build for definition $($_) on $($tfsServer)/_apis/$($queueBuildUrl)"
     Write-Output $queueBuildBody
 
-    $response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody
+    $response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody | ConvertFrom-Json
+    $queuedBuildId = $response.id
+    $queuedBuilds += $queuedBuildId
+    Write-Output "Queued new Build for Definition $($_) with ID: $($queuedBuildId)"
+}
 
-    Write-Output "Queued new Build for Definition $($_)"
+if ($waitForQueuedBuildsToFinishAsBool){
+    $waitTimeAsInt = [Int32]$waitForQueuedBuildsToFinishRefreshTime
+    Write-Output "Will Wait for queued builds to be finished - Refresh time is set to $($waitForQueuedBuildsToFinishRefreshTime) seconds"
+
+    $buildsAreFinsihed = $false
+    while ($buildsAreFinsihed -ne $true) {
+        $buildsAreFinsihed = $true
+
+        $queuedBuilds | ForEach {
+            $buildFinished = Is-Build-Finsihed -buildId $_
+            if ($buildFinished -ne $true){
+                Write-Output "Build $($_) is not yet completed"
+                $buildsAreFinsihed = $false
+            }
+            else{
+                Write-Output "Build $($_) is completed"
+                $buildWasSuccessful = Was-Build-Successful -buildId $_
+
+                if ($failTaskIfBuildsNotSuccessfulAsBool -and ($buildWasSuccessful -ne $true)){
+                    Write-Error "Build $($_) was not successful - failing task"
+                    exit 1
+                }
+            }
+        }
+
+
+        if ($buildsAreFinsihed -ne $true){
+            Write-Output "Waiting for builds to complete..."
+            Start-Sleep $waitTimeAsInt
+        }
+    }
 }

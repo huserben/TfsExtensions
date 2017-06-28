@@ -11,7 +11,7 @@
 	"author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 9,
+		"Minor": 10,
 		"Patch": 0
 	},
 	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
@@ -81,6 +81,54 @@
 			"defaultValue":  false,
 			"required":  true,
 			"helpMarkDown":  "If this option is enabled, the triggered build will run with the same source version as the original build. If this is not enabled, the newest version will be used.",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "useSameBranch",
+			"type":  "boolean",
+			"label":  "Use same source branche as triggered build",
+			"defaultValue":  true,
+			"required":  true,
+			"helpMarkDown":  "If this option is enabled, the triggered build will be run with the same source branch as the original build. This only makes sense if the triggered build is within the same project and is cause for error if the branch is not available in the triggered build!",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "branchToUse",
+			"type":  "string",
+			"label":  "Defines Branch that shall be used",
+			"defaultValue":  "",
+			"required":  false,
+			"visibleRule": "useSameBranch = false",
+			"helpMarkDown":  "Define the branch that shall be used for the triggered build if we don't use the same branch as the original build, for example: refs/heads/master",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "waitForQueuedBuildsToFinish",
+			"type":  "boolean",
+			"label":  "Wait till the triggered builds are finished before build continues",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown":  "If this option is enabled, the script will wait until the all the queued builds are finished. Note: This can take a while depending on your builds and your build will not continue. If you only have one build agent you will even end up in a deadlock situation!",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "waitForQueuedBuildsToFinishRefreshTime",
+			"type":  "string",
+			"label":  "Time (in seconds) to wait between checks for the build",
+			"defaultValue":  60,
+			"required":  true,
+			"visibleRule": "waitForQueuedBuildsToFinish = true",
+			"helpMarkDown":  "This value defines how often the tasks checks if the triggered builds are completed already",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "failTaskIfBuildsNotSuccessful",
+			"type":  "boolean",
+			"label":  "Fail the build if the tasks were not successful",
+			"defaultValue":  true,
+			"required":  true,
+			"visibleRule": "waitForQueuedBuildsToFinish = true",
+			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
 			"groupName":  "advancedConfiguration"
 		},
 		{
