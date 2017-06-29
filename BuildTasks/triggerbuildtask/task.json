@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 1,
 		"Minor": 10,
-		"Patch": 0
+		"Patch": 1
 	},
 	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
 	"groups": [
@@ -86,7 +86,7 @@
 		{
 			"name":  "useSameBranch",
 			"type":  "boolean",
-			"label":  "Use same source branche as triggered build",
+			"label":  "Use same source branch as triggered build",
 			"defaultValue":  true,
 			"required":  true,
 			"helpMarkDown":  "If this option is enabled, the triggered build will be run with the same source branch as the original build. This only makes sense if the triggered build is within the same project and is cause for error if the branch is not available in the triggered build!",

@@ -13,6 +13,8 @@ The latest release notes can be found on [Github](https://github.com/huserben/Tf
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)
 
 A list of all current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
+
+If you find any Bugs, you have feature- or change requests or questions in general about the Task, feel free to raise an issue over at [Github](https://github.com/huserben/TfsExtensions/issues). 
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  

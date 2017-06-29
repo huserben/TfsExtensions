@@ -22,6 +22,9 @@ param(
      [Parameter(Mandatory=$false)][string]$dependentFailingBuildsList
 ) 
 
+# Execute following command to run the powershell script locally - adapt parameters if necessary for testing...
+# .\triggerbuild.ps1 "false" "https://benjsawesometfstest.visualstudio.com/DefaultCollection" "CI Test" "false" "false" "false" "" "false" "10" "false" "" "Default Credentials" "" "" "false" "false" "" "false" "" "false" ""
+
 $definitionIsInCurrentTeamProjectAsBool = [System.Convert]::ToBoolean($definitionIsInCurrentTeamProject)
 $enableBuildInQueueConditionAsBool = [System.Convert]::ToBoolean($enableBuildInQueueCondition)
 $includeCurrentBuildDefinitionAsBool = [System.Convert]::ToBoolean($includeCurrentBuildDefinition)
@@ -155,7 +158,9 @@ Function Send-Web-Request
 {
     param([string]$apiUrl, [string]$requestType, [string]$messageBody)
 
-    $fullUrl = [uri]::EscapeUriString("$($tfsServer)/_apis/$($apiUrl)")
+    # Unescape string if for some reason we get an already escaped string (e.g. %20 for a space)
+    $unescapedUrl = [uri]::UnescapeDataString("$($tfsServer)/_apis/$($apiUrl)")
+    $fullUrl = [uri]::EscapeUriString($($unescapedUrl))
 
     if ($authenticationMethod -eq "Default Credentials"){
         if ($messageBody){
