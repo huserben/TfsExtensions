@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 1.11
+- Added option to save id's of triggered builds in an environment variable so subsequent tasks can use this info (e.g. for downloading artifacts etc.) ([Save resulting build ID in environment ](https://github.com/huserben/TfsExtensions/issues/15))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@garuma**](https://github.com/garuma) 
+
 ## Version 1.10
 - Added support to select which source branch shall be used - either the same as the source build or it can be specified freely ([Unable to specify git sourceBranch for triggered build](https://github.com/huserben/TfsExtensions/issues/14))
 - Added option to wait for triggered builds to complete - this enables to run builds on a different agent and continue with the build just when they have finished. User can decide in which intervall the triggered builds shall be checked and if the build should fail if one of the builds was not completed successfully.

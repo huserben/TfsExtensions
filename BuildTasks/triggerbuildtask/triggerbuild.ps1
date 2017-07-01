@@ -9,6 +9,7 @@ param(
      [Parameter(Mandatory=$true)][string]$waitForQueuedBuildsToFinish,
      [Parameter(Mandatory=$true)][string]$waitForQueuedBuildsToFinishRefreshTime,
      [Parameter(Mandatory=$true)][string]$failTaskIfBuildsNotSuccessful,
+     [Parameter(Mandatory=$true)][string]$storeInEnvironmentVariable,
      [Parameter(Mandatory=$false)][string]$buildParameters,
      [Parameter(Mandatory=$false)][string]$authenticationMethod,
      [Parameter(Mandatory=$false)][string]$username,
@@ -23,7 +24,7 @@ param(
 ) 
 
 # Execute following command to run the powershell script locally - adapt parameters if necessary for testing...
-# .\triggerbuild.ps1 "false" "https://benjsawesometfstest.visualstudio.com/DefaultCollection" "CI Test" "false" "false" "false" "" "false" "10" "false" "" "Default Credentials" "" "" "false" "false" "" "false" "" "false" ""
+# .\triggerbuild.ps1 "false" "https://benjsawesometfstest.visualstudio.com/DefaultCollection" "CI Test" "false" "false" "false" "" "false" "10" "false" "true" "" "Default Credentials" "" "" "false" "false" "" "false" "" "false" ""
 
 $definitionIsInCurrentTeamProjectAsBool = [System.Convert]::ToBoolean($definitionIsInCurrentTeamProject)
 $enableBuildInQueueConditionAsBool = [System.Convert]::ToBoolean($enableBuildInQueueCondition)
@@ -35,6 +36,7 @@ $useSameSourceVersionAsBool = [System.Convert]::ToBoolean($useSameSourceVersion)
 $useSameBranchAsBool = [System.Convert]::ToBoolean($useSameBranch)
 $waitForQueuedBuildsToFinishAsBool = [System.Convert]::ToBoolean($waitForQueuedBuildsToFinish)
 $failTaskIfBuildsNotSuccessfulAsBool = [System.Convert]::ToBoolean($failTaskIfBuildsNotSuccessful)
+$storeInEnvironmentVariableAsBool = [System.Convert]::ToBoolean($storeInEnvironmentVariable)
 
 $authenticationToken = ""
 $requestedForBody = ""
@@ -328,6 +330,15 @@ $buildDefinitionsToTrigger | ForEach{
     $queuedBuildId = $response.id
     $queuedBuilds += $queuedBuildId
     Write-Output "Queued new Build for Definition $($_) with ID: $($queuedBuildId)"
+}
+
+if ($storeInEnvironmentVariableAsBool){
+    $variableName = "TriggeredBuildIds"
+    Write-Output "Storing triggered builds in environment variable '$($variableName)'"
+    [Environment]::SetEnvironmentVariable($variableName, $queuedBuilds -join ",", "User")
+
+    $variable = [Environment]::GetEnvironmentVariable($variableName,"User")
+    Write-Output $($variable)
 }
 
 if ($waitForQueuedBuildsToFinishAsBool){

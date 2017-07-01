@@ -57,6 +57,21 @@ Furthermore you can define what shall happen if one of the triggered builds was 
 
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
+###Store Build IDs in Environment Variable
+If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated.  
+
+The task uses a *User Level Environment Variable*. In for example a PowerShell Script, this can be accessed like this:  
+  
+*Write-Output "Fetching variable TriggeredBuildIds:"  
+$variable = [Environment]::GetEnvironmentVariable("TriggeredBuildIds","User")  
+Write-Output $($variable)*
+
+The possible output could then look like this for 2 triggered builds:  
+*2017-07-01T11:41:20.5194001Z Fetching variable TriggeredBuildIds:  
+2017-07-01T11:41:20.6131495Z 601,602*
+
+**Important:** If this option is enabled, previous values in the environment variable will be overwritten.
+
 ### Build Parameters
 This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
 You need to specify first the name of the variable you want to set, as you can see it in the Variables Tab of the build you want to trigger. Then the value can be set after a *:*   
