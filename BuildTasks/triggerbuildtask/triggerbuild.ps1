@@ -24,7 +24,7 @@ param(
 ) 
 
 # Execute following command to run the powershell script locally - adapt parameters if necessary for testing...
-# .\triggerbuild.ps1 "false" "https://benjsawesometfstest.visualstudio.com/DefaultCollection" "CI Test" "false" "false" "false" "" "false" "10" "false" "true" "" "Default Credentials" "" "" "false" "false" "" "false" "" "false" ""
+# .\triggerbuild.ps1 "false" "https://benjsawesometfstest.visualstudio.com/DefaultCollection/BuildTes" "CI Test" "false" "false" "false" "" "false" "10" "false" "true" "" "Default Credentials" "" "" "false" "false" "" "false" "" "false" ""
 
 $definitionIsInCurrentTeamProjectAsBool = [System.Convert]::ToBoolean($definitionIsInCurrentTeamProject)
 $enableBuildInQueueConditionAsBool = [System.Convert]::ToBoolean($enableBuildInQueueCondition)
@@ -329,7 +329,7 @@ $buildDefinitionsToTrigger | ForEach{
     $response = Send-Web-Request -apiUrl $queueBuildUrl -requestType "POST" -messageBody $queueBuildBody | ConvertFrom-Json
     $queuedBuildId = $response.id
     $queuedBuilds += $queuedBuildId
-    Write-Output "Queued new Build for Definition $($_) with ID: $($queuedBuildId)"
+    Write-Output "Queued new Build for Definition $($_): $($tfsServer)/_build/index?buildId=$($queuedBuildId)"
 }
 
 if ($storeInEnvironmentVariableAsBool){
