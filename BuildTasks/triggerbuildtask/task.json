@@ -134,10 +134,10 @@
 		{
 			"name":  "storeInEnvironmentVariable",
 			"type":  "boolean",
-			"label":  "Store triggered build id's in an environment variable",
+			"label":  "Store triggered build id's in a variable",
 			"defaultValue":  false,
 			"required":  true,
-			"helpMarkDown":  "When enabled, the triggered build id's will be stored in an environment variable called TriggeredBuildIds. In case of multiple triggered builds, the values will be separated by ','",
+			"helpMarkDown":  "When enabled, the triggered build id's will be stored in a variable called TriggeredBuildIds that will be available for subsequent Tasks. In case of multiple triggered builds, the values will be separated by ','",
 			"groupName":  "advancedConfiguration"
 		},
 		{

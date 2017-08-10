@@ -1,13 +1,20 @@
 # Trigger Build Task
 This build task enables the chaining of builds within TFS.  
-It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects).  
+It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects) and has support for different condition if the Build should be triggered.  
 
 ## Supported TFS Versions
 The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 updwards.  
-Currently only Windows Build Agents are supported as the Task is based on Powershell.
 
 ## Release Notes
+### Version 2.0 task is written in Node.js and thus supports Linux Agents as well! The PowerShell Task will not be maintained anymore.
+  
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
+
+## Updating from Version 1.* to 2.0.0
+In order to update your Task from Version 1.* to the new Version 2.0.0, you have to manually switch the Version in the Build Definition:
+![Update Task](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/updateToVersion2.PNG)  
+
+The interface including all available options stay the same. Your configuration will work as before. The only change was made in how to access the stored variable when this was used before (see [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md)).
 
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)
@@ -57,20 +64,20 @@ Furthermore you can define what shall happen if one of the triggered builds was 
 
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
-###Store Build IDs in Environment Variable
-If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated.  
+###Store Build IDs in Variable
+If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable to the subsequent Tasks. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated. If there is already a value in the variable from a previous Task, it **not** overwritten but keep the original value and append his resulting build id's.   
 
-The task uses a *User Level Environment Variable*. In for example a PowerShell Script, this can be accessed like this:  
+In for example a PowerShell Script the variable can be accessed like this:  
   
 *Write-Output "Fetching variable TriggeredBuildIds:"  
-$variable = [Environment]::GetEnvironmentVariable("TriggeredBuildIds","User")  
-Write-Output $($variable)*
+Write-Output "$($env:TriggeredBuildIds)"*
 
 The possible output could then look like this for 2 triggered builds:  
 *2017-07-01T11:41:20.5194001Z Fetching variable TriggeredBuildIds:  
 2017-07-01T11:41:20.6131495Z 601,602*
 
-**Important:** If this option is enabled, previous values in the environment variable will be overwritten.
+The variable is as well available as an input in the configuration for *any* subsequent Task. Just access it like this:
+*$(TriggeredBuildIds)* 
 
 ### Build Parameters
 This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
@@ -136,4 +143,4 @@ Again you can specify a comma speratated list of build definitions that you woul
 ![Failing Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/failedbuilddependencycondition.PNG)  
 
 ## Issues
-In case you have issues, for example exceptions when you run the Task make sure that the Authentication Option selected is valid. If you still have problems, please open a new issue at [github](https://github.com/huserben/TfsExtensions/issues) rather than in the Q&A section.
+In case you have issues, for example exceptions when you run the Task make sure that the Authentication Option selected is valid. If you still have problems, please open a new issue at [github](https://github.com/huserben/TfsExtensions/issues).

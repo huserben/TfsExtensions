@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.0
+- Task was completly refactored to use Node.js. PowerShell Task is not supported anymore - if needed you can still find it [here](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/powershellTask). ([Make Trigger Build Task available to be run on all Platforms](https://github.com/huserben/TfsExtensions/issues/10))
+- Stored variable with Build IDs is now only available during runtime of the build and can be accessed via *$env:TriggeredBuildIds* in a PowerShell Script of via *$(TriggeredBuildIds)* in the configuration section of all subsequent Tasks.
+
 ## Version 1.11
 - Added option to save id's of triggered builds in an environment variable so subsequent tasks can use this info (e.g. for downloading artifacts etc.) ([Save resulting build ID in environment ](https://github.com/huserben/TfsExtensions/issues/15))
 - Changed output so that a link to the triggered build is displayed ([Feature request: when a build is queued, include a link or the full name of the new build](https://github.com/huserben/TfsExtensions/issues/16))
