@@ -1,21 +1,21 @@
 {
-    "id": "32abcf98-0df6-4711-b2e4-66a405d3c1a6",
-    "name": "TriggerBuild",
-    "friendlyName": "Trigger Build",
-    "description": "This tasks allows to trigger a new Build (add it to the queue) as part of a Build Definition. It contains as well some conditions that can be applied, for example if the last build of certain definition was successful or not.",
-    "helpMarkDown": "",
-    "category": "Build",
+	"id": "32abcf98-0df6-4711-b2e4-66a405d3c1a6",
+	"name": "TriggerBuild",
+	"friendlyName": "Trigger Build",
+	"description": "This tasks allows to trigger a new Build (add it to the queue) as part of a Build Definition. It contains as well some conditions that can be applied, for example if the last build of certain definition was successful or not.",
+	"helpMarkDown": "",
+	"category": "Build",
 	"visibility": [
 		"Build"
 		],
-    "author": "Benjamin Huser",
+	"author": "Benjamin Huser",
 	"version": {
-		"Major": 2,
-		"Minor": 0,
-		"Patch": 0
+		"Major": 1,
+		"Minor": 11,
+		"Patch": 1
 	},
-	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
-    "groups": [
+	"instanceNameFormat":  "Trigger a new build of $(buildDefinition)",
+	"groups": [
 		{
 			"name": "basicConfiguration",
 			"displayName": "Basic Configuration",
@@ -251,11 +251,11 @@
 			"groupName":  "conditions"
 		}
 	],	
-    "execution": {
-        "Node": {
-            "target": "index.js",
+	"execution": {
+		"PowerShell": {
+			"target":  "$(currentDirectory)\\triggerbuild.ps1",
 			"argumentFormat":  "",
 			"workingDirectory":  "$(currentDirectory)"
-        }
-    }
+		}
+	} 
 }

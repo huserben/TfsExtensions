@@ -1,0 +1,75 @@
+{
+    "manifestVersion": 1,
+    "id": "tfs-extensions-build-tasks",
+    "name": "Trigger Build Task",
+    "version": "1.11.1",
+    "publisher": "benjhuser",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "Build Task that can be used to trigger a new Build so that build-chaining is possible. Supports as well conditional triggers.",
+    "categories": [
+        "Build and release"
+    ],
+    "icons": {
+        "default": "images/logo.png"        
+    },
+	"tags" :[
+		"build",
+		"build-chaining",
+		"queue",
+		"queue build"
+	],
+	"screenshots": [
+		{
+			"path": "images/taskselection.png"
+		}
+	],
+	"content":{
+		"details":{
+			"path": "overview.md"
+		},
+		"license": {
+			"path": "LICENSE"
+		}
+	},
+	"links":{
+		"repository":{
+			"uri": "https://github.com/huserben/TfsExtensions/tree/master/BuildTasks"
+		},
+		"license":{
+			"uri": "https://github.com/huserben/TfsExtensions/blob/master/LICENSE"
+		}
+	},
+	"repository": {
+		"type": "git",
+		"uri":	"https://github.com/huserben/TfsExtensions/tree/master/BuildTasks"
+	},
+    "files": [
+        {
+            "path": "triggerbuildtask"
+        },
+		{
+			"path": "basic_configuration.PNG"
+		}
+    ],
+    "contributions": [
+        {
+            "id": "trigger-build-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "triggerbuildtask"
+            }
+        }
+    ],
+	"branding": {
+        "color": "rgb(255, 153, 0)",
+        "theme": "light"
+    },
+	"public": true
+}

@@ -1,0 +1,248 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const taskLibrary = require("vsts-task-lib/task");
+const tfsRestService = require("./tfsrestservice");
+const tfsConstants = require("./tfsconstants");
+const taskConstants = require("./taskconstants");
+let definitionIsInCurrentTeamProject;
+let tfsServer;
+let buildDefinitionsToTrigger;
+let queueBuildForUserThatTriggeredBuild;
+let useSameSourceVersion;
+let useSameBranch;
+let branchToUse;
+let waitForQueuedBuildsToFinish;
+let waitForQueuedBuildsToFinishRefreshTime;
+let failTaskIfBuildsNotSuccessful;
+let storeInVariable;
+let buildParameters;
+let authenticationMethod;
+let username;
+let password;
+let enableBuildInQueueCondition;
+let includeCurrentBuildDefinition;
+let blockingBuilds;
+let dependentOnSuccessfulBuildCondition;
+let dependentBuildsList;
+let dependentOnFailedBuildCondition;
+let dependentFailingBuildsList;
+let requestedForBody;
+let sourceVersionBody;
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            getInputs();
+            parseInputs();
+            var conditionsFulfilled = yield checkConditions();
+            if (conditionsFulfilled) {
+                var triggeredBuilds = yield triggerBuilds();
+                writeVariable(triggeredBuilds);
+                yield waitForBuildsToFinish(triggeredBuilds);
+            }
+        }
+        catch (err) {
+            taskLibrary.setResult(taskLibrary.TaskResult.Failed, err.message);
+        }
+    });
+}
+function sleep(ms) {
+    console.log(`Sleeping for ${ms} of miliseconds...`);
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+function waitForBuildsToFinish(queuedBuildIds) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (waitForQueuedBuildsToFinish) {
+            console.log(`Will wait for queued build to be finished - Refresh time is set to ${waitForQueuedBuildsToFinishRefreshTime} seconds`);
+            var areBuildsFinished = false;
+            while (!areBuildsFinished) {
+                areBuildsFinished = yield areTriggeredBuildsFinished(queuedBuildIds);
+                yield sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
+            }
+        }
+    });
+}
+function areTriggeredBuildsFinished(triggeredBuilds) {
+    return __awaiter(this, void 0, void 0, function* () {
+        for (let queuedBuildId of triggeredBuilds) {
+            var buildFinished = yield tfsRestService.isBuildFinished(queuedBuildId);
+            if (!buildFinished) {
+                console.log(`Build ${queuedBuildId} is not yet completed`);
+                return false;
+            }
+            else {
+                console.log(`Build ${queuedBuildId} has completed`);
+                var buildSuccessful = yield tfsRestService.wasBuildSuccessful(queuedBuildId);
+                if (failTaskIfBuildsNotSuccessful && !buildSuccessful) {
+                    throw new Error(`Build ${queuedBuildId} was not successful - failing task.`);
+                }
+            }
+        }
+        return true;
+    });
+}
+function writeVariable(triggeredBuilds) {
+    if (storeInVariable) {
+        console.log(`Storing triggered build id's in variable '${taskConstants.TriggeredBuildIdsEnvironmentVariableName}'`);
+        var previousValue = taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
+        if (previousValue !== undefined) {
+            // concatenate variable values
+            console.log(`Following value is already stored in the variable: '${previousValue}'`);
+            triggeredBuilds.splice(0, 0, previousValue);
+        }
+        taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, triggeredBuilds.join(","));
+        console.log(`New Value of variable: '${taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)}'`);
+    }
+}
+function triggerBuilds() {
+    return __awaiter(this, void 0, void 0, function* () {
+        var queuedBuildIds = new Array();
+        for (let build of buildDefinitionsToTrigger) {
+            var queuedBuildId = yield tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, buildParameters);
+            queuedBuildIds.push(queuedBuildId);
+            console.log(`Queued new Build for definition ${build}: ${tfsServer}/_build/index?buildId=${queuedBuildId}`);
+        }
+        return queuedBuildIds;
+    });
+}
+function checkConditions() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (enableBuildInQueueCondition) {
+            console.log("Checking if blocking builds are queued");
+            for (let blockingBuild of blockingBuilds) {
+                console.log(`Checking build ${blockingBuild}`);
+                let queuedBuilds = yield tfsRestService.getBuildsByStatus(blockingBuild, `${taskConstants.BuildStateNotStarted},${taskConstants.BuildStateInProgress}`);
+                if (queuedBuilds.length > 0) {
+                    console.log(`${blockingBuild} is queued - will not trigger new build.`);
+                    return false;
+                }
+            }
+            ;
+            console.log("None of the blocking builds is queued - proceeding");
+        }
+        if (dependentOnSuccessfulBuildCondition) {
+            console.log("Checking if dependant build definitions last builds were successful");
+            for (let element of dependentBuildsList) {
+                console.log(`Checking build ${element}`);
+                let lastBuilds = (yield tfsRestService.getBuildsByStatus(element, ""));
+                if (lastBuilds.length > 0 && lastBuilds[0].result !== taskConstants.BuildResultSucceeded) {
+                    console.log(`Last build of definition ${element} was not successful
+                    (state is ${lastBuilds[0].result}) - will not trigger new build`);
+                    return false;
+                }
+            }
+            ;
+            console.log("None of the dependant build definitions last builds were failing - proceeding");
+        }
+        if (dependentOnFailedBuildCondition) {
+            console.log("Checking if dependant build definitions last builds were NOT successful");
+            for (let build of dependentFailingBuildsList) {
+                let lastBuilds = (yield tfsRestService.getBuildsByStatus(build, ""));
+                if (lastBuilds.length > 0 && lastBuilds[0].result === taskConstants.BuildResultSucceeded) {
+                    console.log(`Last build of definition ${build} was successful
+                (state is ${lastBuilds[0].result}) - will not trigger new build`);
+                    return false;
+                }
+            }
+            ;
+            console.log("None of the dependant build definitions last builds were successful - proceeding");
+        }
+        return true;
+    });
+}
+function parseInputs() {
+    if (definitionIsInCurrentTeamProject) {
+        console.log("Using current Team Project Url");
+        tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
+    }
+    else {
+        console.log("Using Custom Team Project Url");
+    }
+    console.log("Path to Server: " + tfsServer);
+    tfsRestService.initialize(authenticationMethod, username, password, tfsServer);
+    if (queueBuildForUserThatTriggeredBuild) {
+        let user = `${process.env[tfsConstants.RequestedForUsername]}`;
+        let userId = `${process.env[tfsConstants.RequestedForUserId]}`;
+        console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
+        requestedForBody = `requestedFor: { id: \"${userId}\"}`;
+    }
+    if (useSameSourceVersion) {
+        let sourceVersion = `${process.env[tfsConstants.SourceVersion]}`;
+        let repositoryType = `${process.env[tfsConstants.RepositoryType]}`;
+        // if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
+        // if we use the latest version, the source version will not have a C prepended, so we have to do that manually...
+        if (!sourceVersion.startsWith("C") && repositoryType === tfsConstants.TfsRepositoryType) {
+            sourceVersion = `C${sourceVersion}`;
+        }
+        console.log(`Triggered Build will use the same source version: ${sourceVersion}`);
+        sourceVersionBody = `sourceVersion: \"${sourceVersion}\"`;
+    }
+    if (useSameBranch) {
+        branchToUse = `${process.env[tfsConstants.SourceBranch]}`;
+        console.log(`Using same branch as source version: ${branchToUse}`);
+    }
+    if (buildParameters !== null) {
+        console.log(`Will trigger build with following parameters: ${buildParameters}`);
+    }
+    if (enableBuildInQueueCondition) {
+        console.log("Build in Queue Condition is enabled");
+        if (includeCurrentBuildDefinition) {
+            let currentBuildDefinition = `${process.env[tfsConstants.CurrentBuildDefinition]}`;
+            console.log("Current Build Definition shall be included");
+            blockingBuilds.push(currentBuildDefinition);
+        }
+        console.log("Following builds are blocking:");
+        blockingBuilds.forEach(blockingBuild => {
+            console.log(`${blockingBuild}`);
+        });
+    }
+    if (dependentOnSuccessfulBuildCondition) {
+        console.log("Dependant Build Condition is enabled - Following builds are checked:");
+        dependentBuildsList.forEach(element => {
+            console.log(`${element}`);
+        });
+    }
+    if (dependentOnFailedBuildCondition) {
+        console.log("Dependant Failing Build Condition is enabled - Following builds are checked:");
+        dependentFailingBuildsList.forEach(dependantBuild => {
+            console.log(`${dependantBuild}`);
+        });
+    }
+}
+/// Fetch all the inputs and set them to the variables to be used within the script.
+function getInputs() {
+    // basic Configuration
+    definitionIsInCurrentTeamProject = taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
+    tfsServer = taskLibrary.getInput(taskConstants.ServerUrlInput, false);
+    buildDefinitionsToTrigger = taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true);
+    // advanced Configuration
+    queueBuildForUserThatTriggeredBuild = taskLibrary.getBoolInput(taskConstants.QueueBuildForUserInput, true);
+    useSameSourceVersion = taskLibrary.getBoolInput(taskConstants.UseSameSourceVersionInput, true);
+    useSameBranch = taskLibrary.getBoolInput(taskConstants.UseSameBranchInput, true);
+    branchToUse = taskLibrary.getInput(taskConstants.BranchToUseInput, false);
+    waitForQueuedBuildsToFinish = taskLibrary.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true);
+    waitForQueuedBuildsToFinishRefreshTime = parseInt(taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
+    failTaskIfBuildsNotSuccessful = taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
+    storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
+    buildParameters = taskLibrary.getInput(taskConstants.BuildParametersInput, false);
+    // authentication
+    authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);
+    username = taskLibrary.getInput(taskConstants.UsernameInput, false);
+    password = taskLibrary.getInput(taskConstants.PasswordInput, false);
+    // conditions
+    enableBuildInQueueCondition = taskLibrary.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, true);
+    includeCurrentBuildDefinition = taskLibrary.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, false);
+    blockingBuilds = taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false);
+    dependentOnSuccessfulBuildCondition = taskLibrary.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, true);
+    dependentBuildsList = taskLibrary.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", false);
+    dependentOnFailedBuildCondition = taskLibrary.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, true);
+    dependentFailingBuildsList = taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false);
+}
+run();
