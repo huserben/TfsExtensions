@@ -12,7 +12,7 @@ The latest release notes can be found on [Github](https://github.com/huserben/Tf
 
 ## Updating from Version 1.* to 2.0.0
 In order to update your Task from Version 1.* to the new Version 2.0.0, you have to manually switch the Version in the Build Definition:
-![Update Task](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/updateToVersion2.PNG)  
+![Update Task](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/updateToVersion2.png)  
 
 The interface including all available options stay the same. Your configuration will work as before. The only change was made in how to access the stored variable when this was used before (see [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md)).
 
