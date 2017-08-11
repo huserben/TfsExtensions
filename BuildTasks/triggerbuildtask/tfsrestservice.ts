@@ -24,8 +24,6 @@ export function initialize(authenticationMethod: string, username: string, passw
             console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
             console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
             authenticationMethod = taskConstants.AuthenticationMethodOAuthToken;
-            username = "";
-            password = "";
     }
 
     switch (authenticationMethod) {

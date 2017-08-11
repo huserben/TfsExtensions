@@ -70,7 +70,8 @@ function getInputs(): void {
     waitForQueuedBuildsToFinishRefreshTime = parseInt(taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
     failTaskIfBuildsNotSuccessful = taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
 
-    triggeredBuilds = taskLibrary.getDelimitedInput(taskConstants.TriggeredBuildIdsEnvironmentVariableName, ",", true);
+    triggeredBuilds = taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName).split(",");
+    console.log(`Following Builds are awaited: {triggeredBuilds}`);
 }
 
 run();
