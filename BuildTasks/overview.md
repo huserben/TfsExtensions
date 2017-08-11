@@ -6,9 +6,9 @@ It makes use of the built-in TFS API to queue a new build of any build definitio
 The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 updwards.  
 
 ## Release Notes
-### Version 2.0 task is written in Node.js and thus supports Linux Agents as well! The PowerShell Task will not be maintained anymore.
+### Version 2.0 task is written in Node.js and thus supports Linux Agents as well! The PowerShell Task will not be maintained anymore - Please do update to the latest version as soon as you can.
 
-* **A new Task is available that can be used to wait for Builds that were triggered by the Trigger Build Task in any previous step**
+**A new Task "Wait for Builds to finish" is available that can be used to wait for Builds that were triggered by the Trigger Build Task in any previous step**
   
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
@@ -20,7 +20,7 @@ In order to update your Task from Version 1.* to the new Version 2.0.0, you have
 The interface including mainly stays the same. Your configuration will work as before. The only changes were made in the authentication and how to access the stored variable when this was used before (see [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md)) and that a flag was added to the Basic Configuration that untrusted certificate errors are ignored (see Basic Configuration below).
 
 #### Removed Default Credentials Options
-TODO
+The option to authenticate via default credentials was removed as it is not well supported within Node.js. Please do switch to another authentication method. The task currently automatically will switch to OAuth if Default is still used - however this option will be removed in an upcoming version.
 
 
 ## Known Issues
