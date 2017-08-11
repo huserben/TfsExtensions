@@ -16,7 +16,12 @@ The latest release notes can be found on [Github](https://github.com/huserben/Tf
 In order to update your Task from Version 1.* to the new Version 2.0.0, you have to manually switch the Version in the Build Definition:
 ![Update Task](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/updateToVersion2.png)  
 
-The interface including all available options stay the same. Your configuration will work as before. The only change was made in how to access the stored variable when this was used before (see [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md)).
+### Interface Changes
+The interface including mainly stays the same. Your configuration will work as before. The only changes were made in the authentication and how to access the stored variable when this was used before (see [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md)) and that a flag was added to the Basic Configuration that untrusted certificate errors are ignored (see Basic Configuration below).
+
+#### Removed Default Credentials Options
+TODO
+
 
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)
@@ -42,10 +47,11 @@ If your build would be in another Team Project, uncheck the checkbox and fill in
 Furthermore you can select whether the subsequent builds that are triggered should be run as it would be requested by the same user that triggered the original build or not. This can be useful if you have any kind of query that is based on the name, for example if you want to filter for builds triggered by you or if you have setup email alerts.   
   
 If you do not select this option, it depends on the method of authentication (see below) for whom the builds will be triggered:  
- - **Default Credentials**: Build Service User  
  - **OAuth Token**: Build Service User (if System.AccessToken is used), otherwise owner of the Token  
  - **Personal Access Token**: Owner of that Token  
  - **Basic Authentication**: Specified User 
+
+The **Ignore SSL Certificate Errors** flag can be used if you need to ignore SSL errors caused by untrusted certificates.
   
 ## Advanced Configuration
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
@@ -102,7 +108,7 @@ This will work with every variable you have defined in your build.
 In this section can be set how you authenticate against your TFS. 
 
 ### Default Credentials
-If your build agent has access to your TFS and sufficient rights to trigger a build and is part of your domain, you can leave the *Use Default Credentials*. This will be a valid option if you have an OnPrem Build Agent, but will not work if you use the Hosted Agents from VSTS.  
+**This option is not supported anymore - when used the script will automatically try to use the OAuth Token instead to provide support for. However it will create a warning and you should change it yourself to another Authentication Method as this will option will be removed in the future.**  
 ### OAuth Token
 If you want to use OAuth, you can select this option. If you leave the Token field empty, the task will try to access the System.AccessToken environment variable of your build agent.  If you use this option, make sure that you enabled the option *Allow Scripts to Access OAuth Token* in the options of your Build Definition:  
 ![Allow Scripts OAuth Token Access](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/allowscriptstokenaccess.png)  

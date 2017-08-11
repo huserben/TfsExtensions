@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 2,
 		"Minor": 0,
-		"Patch": 0
+		"Patch": 13
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
     "groups": [
@@ -72,6 +72,15 @@
 			"defaultValue":  true,
 			"required":  true,
 			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "ignoreSslCertificateErrors",
+			"type":  "boolean",
+			"label":  "Ignore SSL Certificate Errors",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown":  "When enabled possible certificate errors (for example untrusted CA's) will be ignored",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -156,7 +165,7 @@
             "required": true,
             "groupName": "authenticationOptions",
             "defaultValue": "Personal Access Token",
-            "helpMarkDown": "Select your method of authentication.",
+            "helpMarkDown": "Select your method of authentication (Default Credentials is deprecated and will be removed in later versions - will internally use OAuth Token).",
             "options": {
 				"Default Credentials": "Default Credentials",
 				"OAuth Token": "OAuth Token",

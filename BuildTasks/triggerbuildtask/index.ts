@@ -15,6 +15,7 @@ let waitForQueuedBuildsToFinishRefreshTime: number;
 let failTaskIfBuildsNotSuccessful: boolean;
 let storeInVariable: boolean;
 let buildParameters: string;
+let ignoreSslCertificateErrors : boolean;
 let authenticationMethod: string;
 let username: string;
 let password: string;
@@ -56,31 +57,10 @@ async function waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
 
         var areBuildsFinished: boolean = false;
         while (!areBuildsFinished) {
-            areBuildsFinished = await areTriggeredBuildsFinished(queuedBuildIds);
+            areBuildsFinished = await tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
             await sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
         }
     }
-}
-
-async function areTriggeredBuildsFinished(triggeredBuilds: string[]): Promise<boolean> {
-
-    for (let queuedBuildId of triggeredBuilds) {
-        var buildFinished: boolean = await tfsRestService.isBuildFinished(queuedBuildId);
-
-        if (!buildFinished) {
-            console.log(`Build ${queuedBuildId} is not yet completed`);
-            return false;
-        } else {
-            console.log(`Build ${queuedBuildId} has completed`);
-            var buildSuccessful: boolean = await tfsRestService.wasBuildSuccessful(queuedBuildId);
-
-            if (failTaskIfBuildsNotSuccessful && !buildSuccessful) {
-                throw new Error(`Build ${queuedBuildId} was not successful - failing task.`);
-            }
-        }
-    }
-
-    return true;
 }
 
 function writeVariable(triggeredBuilds: string[]): void {
@@ -183,7 +163,7 @@ function parseInputs(): void {
     }
     console.log("Path to Server: " + tfsServer);
 
-    tfsRestService.initialize(authenticationMethod, username, password, tfsServer);
+    tfsRestService.initialize(authenticationMethod, username, password, tfsServer, ignoreSslCertificateErrors);
 
     if (queueBuildForUserThatTriggeredBuild) {
         let user: string = `${process.env[tfsConstants.RequestedForUsername]}`;
@@ -253,6 +233,7 @@ function getInputs(): void {
     definitionIsInCurrentTeamProject = taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
     tfsServer = taskLibrary.getInput(taskConstants.ServerUrlInput, false);
     buildDefinitionsToTrigger = taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true);
+    ignoreSslCertificateErrors = taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
 
     // advanced Configuration
     queueBuildForUserThatTriggeredBuild = taskLibrary.getBoolInput(taskConstants.QueueBuildForUserInput, true);

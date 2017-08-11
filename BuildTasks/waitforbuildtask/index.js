@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const taskLibrary = require("vsts-task-lib/task");
-const tfsRestService = require("../triggerBuildTask/tfsrestservice");
-const tfsConstants = require("../triggerBuildTask/tfsconstants");
-const taskConstants = require("../triggerBuildTask/taskconstants");
+const tfsRestService = require("./tfsrestservice");
+const tfsConstants = require("./tfsconstants");
+const taskConstants = require("./taskconstants");
 let definitionIsInCurrentTeamProject;
 let tfsServer;
+let ignoreSslCertificateErrors;
 let triggeredBuilds;
 let waitForQueuedBuildsToFinishRefreshTime;
 let failTaskIfBuildsNotSuccessful;
@@ -42,28 +43,9 @@ function waitForBuildsToFinish(queuedBuildIds) {
          Will wait for queued build to be finished - Refresh time is set to ${waitForQueuedBuildsToFinishRefreshTime} seconds`);
         var areBuildsFinished = false;
         while (!areBuildsFinished) {
-            areBuildsFinished = yield areTriggeredBuildsFinished(queuedBuildIds);
+            areBuildsFinished = yield tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
             yield sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
         }
-    });
-}
-function areTriggeredBuildsFinished(triggeredBuilds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        for (let queuedBuildId of triggeredBuilds) {
-            var buildFinished = yield tfsRestService.isBuildFinished(queuedBuildId);
-            if (!buildFinished) {
-                console.log(`Build ${queuedBuildId} is not yet completed`);
-                return false;
-            }
-            else {
-                console.log(`Build ${queuedBuildId} has completed`);
-                var buildSuccessful = yield tfsRestService.wasBuildSuccessful(queuedBuildId);
-                if (failTaskIfBuildsNotSuccessful && !buildSuccessful) {
-                    throw new Error(`Build ${queuedBuildId} was not successful - failing task.`);
-                }
-            }
-        }
-        return true;
     });
 }
 function parseInputs() {
@@ -75,13 +57,14 @@ function parseInputs() {
         console.log("Using Custom Team Project Url");
     }
     console.log("Path to Server: " + tfsServer);
-    tfsRestService.initialize(authenticationMethod, username, password, tfsServer);
+    tfsRestService.initialize(authenticationMethod, username, password, tfsServer, ignoreSslCertificateErrors);
 }
 /// Fetch all the inputs and set them to the variables to be used within the script.
 function getInputs() {
     // basic Configuration
     definitionIsInCurrentTeamProject = taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
     tfsServer = taskLibrary.getInput(taskConstants.ServerUrlInput, false);
+    ignoreSslCertificateErrors = taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
     // authentication
     authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);
     username = taskLibrary.getInput(taskConstants.UsernameInput, false);

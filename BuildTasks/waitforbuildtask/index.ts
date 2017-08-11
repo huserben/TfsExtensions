@@ -1,10 +1,11 @@
 import taskLibrary = require("vsts-task-lib/task");
-import tfsRestService = require("../triggerBuildTask/tfsrestservice");
-import tfsConstants = require("../triggerBuildTask/tfsconstants");
-import taskConstants = require("../triggerBuildTask/taskconstants");
+import tfsRestService = require("./tfsrestservice");
+import tfsConstants = require("./tfsconstants");
+import taskConstants = require("./taskconstants");
 
 let definitionIsInCurrentTeamProject: boolean;
 let tfsServer: string;
+let ignoreSslCertificateErrors : boolean;
 let triggeredBuilds : string[];
 let waitForQueuedBuildsToFinishRefreshTime: number;
 let failTaskIfBuildsNotSuccessful: boolean;
@@ -34,30 +35,9 @@ async function waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
 
         var areBuildsFinished: boolean = false;
         while (!areBuildsFinished) {
-            areBuildsFinished = await areTriggeredBuildsFinished(queuedBuildIds);
+            areBuildsFinished = await tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
             await sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
         }
-}
-
-async function areTriggeredBuildsFinished(triggeredBuilds: string[]): Promise<boolean> {
-
-    for (let queuedBuildId of triggeredBuilds) {
-        var buildFinished: boolean = await tfsRestService.isBuildFinished(queuedBuildId);
-
-        if (!buildFinished) {
-            console.log(`Build ${queuedBuildId} is not yet completed`);
-            return false;
-        } else {
-            console.log(`Build ${queuedBuildId} has completed`);
-            var buildSuccessful: boolean = await tfsRestService.wasBuildSuccessful(queuedBuildId);
-
-            if (failTaskIfBuildsNotSuccessful && !buildSuccessful) {
-                throw new Error(`Build ${queuedBuildId} was not successful - failing task.`);
-            }
-        }
-    }
-
-    return true;
 }
 
 function parseInputs(): void {
@@ -69,7 +49,7 @@ function parseInputs(): void {
     }
     console.log("Path to Server: " + tfsServer);
 
-    tfsRestService.initialize(authenticationMethod, username, password, tfsServer);
+    tfsRestService.initialize(authenticationMethod, username, password, tfsServer, ignoreSslCertificateErrors);
 
 }
 
@@ -78,6 +58,7 @@ function getInputs(): void {
     // basic Configuration
     definitionIsInCurrentTeamProject = taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
     tfsServer = taskLibrary.getInput(taskConstants.ServerUrlInput, false);
+    ignoreSslCertificateErrors = taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
 
     // authentication
     authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);

@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 1,
 		"Minor": 0,
-		"Patch": 0
+		"Patch": 2
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
     "groups": [
@@ -44,6 +44,15 @@
 			"required":  true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
 			"helpMarkDown":  "The TFS Server the Build you want to trigger is located. Example: https://<YOURACCOUNT>.visualstudio.com/DefaultCollection/<TEAMPROJECT>",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "ignoreSslCertificateErrors",
+			"type":  "boolean",
+			"label":  "Ignore SSL Certificate Errors",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown":  "When enabled possible certificate errors (for example untrusted CA's) will be ignored",
 			"groupName":  "basicConfiguration"
 		},		
 		{
