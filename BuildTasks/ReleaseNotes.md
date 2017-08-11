@@ -3,6 +3,11 @@
 ## Version 2.0
 - Task was completly refactored to use Node.js. PowerShell Task is not supported anymore - if needed you can still find it [here](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/powershellTask). ([Make Trigger Build Task available to be run on all Platforms](https://github.com/huserben/TfsExtensions/issues/10))
 - Stored variable with Build IDs is now only available during runtime of the build and can be accessed via *$env:TriggeredBuildIds* in a PowerShell Script of via *$(TriggeredBuildIds)* in the configuration section of all subsequent Tasks.
+- Added separate Task (*Wait For Builds to Finish*) that will wait for builds to be finished and that will use the *TriggeredBuildIds* of **all** previous Trigger Build Tasks that had the option to store the triggered build ids in a variable. The task has the same options available as the regular task (setting refresh time and define if build should fail on task failure) ([Add new Task: Wait for triggered build to complete](https://github.com/huserben/TfsExtensions/issues/22)).
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@henning-krause**](https://github.com/henning-krause)  
 
 ## Version 1.11
 - Added option to save id's of triggered builds in an environment variable so subsequent tasks can use this info (e.g. for downloading artifacts etc.) ([Save resulting build ID in environment ](https://github.com/huserben/TfsExtensions/issues/15))

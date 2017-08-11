@@ -7,6 +7,8 @@ The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 
 
 ## Release Notes
 ### Version 2.0 task is written in Node.js and thus supports Linux Agents as well! The PowerShell Task will not be maintained anymore.
+
+* **A new Task is available that can be used to wait for Builds that were triggered by the Trigger Build Task in any previous step**
   
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
@@ -63,6 +65,10 @@ You can specify the intervall of when the builds are checked, just specify the v
 Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway.
 
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
+
+####Wait for Triggered Build Task
+There is a dedicated Task that can be used in order to wait for triggered Builds to finish. When using this Task instead of the above mentioned optionl, you can do other Tasks in between and just start waiting at the latest possible moment.
+The Task uses as an input the Stored Build ID's (see below) of any Trigger Build Task that was running before and that set the option of storing the IDs. The rest of the configuration is as described above.
 
 ###Store Build IDs in Variable
 If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable to the subsequent Tasks. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated. If there is already a value in the variable from a previous Task, it **not** overwritten but keep the original value and append his resulting build id's.   

@@ -1,0 +1,109 @@
+{
+    "id": "511a5e02-cdfe-420d-96b5-a2251ddaf6fb",
+    "name": "WaitForBuildToFinish",
+    "friendlyName": "Wait For Build(s) to finish",
+    "description": "This tasks will wait for builds that were triggered using the Trigger Build Task to finish. This Tasks requires that at least one TriggerBuildTask was run before and has set the storeVariable flag to true.",
+    "helpMarkDown": "",
+    "category": "Build",
+	"visibility": [
+		"Build"
+		],
+    "author": "Benjamin Huser",
+	"version": {
+		"Major": 1,
+		"Minor": 0,
+		"Patch": 0
+	},
+	"instanceNameFormat": "Waiting for Builds to finish",
+    "groups": [
+		{
+			"name": "basicConfiguration",
+			"displayName": "Configuration",
+			"isExpanded": true
+		},
+		{
+			"name": "authenticationOptions",
+			"displayName": "Authentication",
+			"isExpanded": true
+		}
+	],
+	"inputs": [
+		{
+			"name":  "definitionIsInCurrentTeamProject",
+			"type":  "boolean",
+			"label":  "True if the build to be triggered is defined within the same team project as this build",
+			"defaultValue":  true,
+			"required":  true,
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "tfsServer",
+			"type":  "string",
+			"label":  "URL to TFS Server (including Collection and Team Project)",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "definitionIsInCurrentTeamProject = false",
+			"helpMarkDown":  "The TFS Server the Build you want to trigger is located. Example: https://<YOURACCOUNT>.visualstudio.com/DefaultCollection/<TEAMPROJECT>",
+			"groupName":  "basicConfiguration"
+		},		
+		{
+			"name":  "waitForQueuedBuildsToFinishRefreshTime",
+			"type":  "string",
+			"label":  "Time (in seconds) to wait between checks for the build",
+			"defaultValue":  60,
+			"required":  true,
+			"helpMarkDown":  "This value defines how often the tasks checks if the triggered builds are completed already",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "failTaskIfBuildsNotSuccessful",
+			"type":  "boolean",
+			"label":  "Fail the build if the tasks were not successful",
+			"defaultValue":  true,
+			"required":  true,
+			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name": "authenticationMethod",
+			"type": "pickList",
+			"label": "Authentication Method",
+            "required": true,
+            "groupName": "authenticationOptions",
+            "defaultValue": "Personal Access Token",
+            "helpMarkDown": "Select your method of authentication.",
+            "options": {
+				"Default Credentials": "Default Credentials",
+				"OAuth Token": "OAuth Token",
+                "Personal Access Token": "Personal Access Token",
+                "Basic Authentication": "Basic Authentication"
+				}
+		},
+		{
+			"name":  "username",
+			"type":  "string",
+			"label":  "The username that shall be used to authenticate if basic authentication is used",
+			"defaultValue":  "",
+			"required":  false,
+			"visibleRule": "authenticationMethod = Basic Authentication",
+			"groupName":  "authenticationOptions"
+		},
+		{
+			"name":  "password",
+			"type":  "string",
+			"label":  "The password, Personal Access Token or OAuth Token to authenticate",
+			"defaultValue":  "",
+			"required":  false,
+			"helpMarkDown": "If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options!",
+			"visibleRule": "authenticationMethod != Default Credentials",
+			"groupName":  "authenticationOptions"
+		}
+	],	
+    "execution": {
+        "Node": {
+            "target": "index.js",
+			"argumentFormat":  "",
+			"workingDirectory":  "$(currentDirectory)"
+        }
+    }
+}
