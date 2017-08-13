@@ -65,15 +65,17 @@ Please make sure that if this option is enabled, the triggered build can actuall
 If you disable this option, you can specify the source-branch that shall be used yourself. If you don't define anything, the source-branch parameter will not be specified and the default will be used.
 
 ### Wait for Completion of Triggered Builds
+![Waiting Options](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/waitingoptions.PNG)  
+  
 If you enable this option, the build task will wait for the completion of all the triggered builds.  
 After triggering all the builds, the task periodically check the builds that were triggered and just continue when all of them are finished.  
 You can specify the intervall of when the builds are checked, just specify the value in seconds.  
-Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway.
+Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway.  
+If it is checked that the build is successful it can be specified whether the artifacts of the build(s) shall be downloaded. If so it can be specified where to store them on the build agent for further use. This location can then be used in the subsequent Tasks (for example extracting the downloaded zip and do something with it).
 
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
 ####Wait for Triggered Build Task
-![Waiting Options](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/waitingoptions.PNG)  
 There is a dedicated Task that can be used in order to wait for triggered Builds to finish. When using this Task instead of the above mentioned optionl, you can do other Tasks in between and just start waiting at the latest possible moment.
 The Task uses as an input the Stored Build ID's (see below) of any Trigger Build Task that was running before and that set the option of storing the IDs. The rest of the configuration is as described above.
 
