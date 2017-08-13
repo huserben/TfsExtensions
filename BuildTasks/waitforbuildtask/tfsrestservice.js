@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const WebRequest = require("web-request");
+const fs = require("fs");
+const url = require("url");
 const tfsConstants = require("./tfsconstants");
 const taskConstants = require("./taskconstants");
 let options;
@@ -60,7 +62,7 @@ function initialize(authenticationMethod, username, password, tfsServer, ignoreS
             throw new Error("Cannot handle authentication method " + authenticationMethod);
     }
     options.headers = {
-        "Content-Type": "application/json; charset=utf-8"
+        "Content-Type": "application/json"
     };
     options.agentOptions = { rejectUnauthorized: !ignoreSslError };
     options.encoding = "utf-8";
@@ -94,7 +96,6 @@ function triggerBuild(buildDefinitionName, branch, requestedFor, sourceVersion, 
         }
         queueBuildBody += "}";
         console.log(`Queue new Build for definition ${buildDefinitionName}`);
-        console.log(queueBuildBody);
         var result = yield WebRequest.post(queueBuildUrl, options, queueBuildBody);
         return JSON.parse(result.content).id;
     });
@@ -106,7 +107,7 @@ function waitForBuildsToFinish(triggeredBuilds, failIfNotSuccessful) {
         for (let queuedBuildId of triggeredBuilds) {
             var buildFinished = yield isBuildFinished(queuedBuildId);
             if (!buildFinished) {
-                console.log(`Build ${queuedBuildId} is not yet completed`);
+                console.log(`Build ${queuedBuildId} has not yet completed`);
                 result = false;
             }
             else {
@@ -122,6 +123,48 @@ function waitForBuildsToFinish(triggeredBuilds, failIfNotSuccessful) {
     });
 }
 exports.waitForBuildsToFinish = waitForBuildsToFinish;
+function downloadArtifacts(buildId, downloadDirectory) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(`Downloading artifacts for ${buildId}`);
+        if (!fs.existsSync(downloadDirectory)) {
+            console.log(`Directory ${downloadDirectory} does not exist - will be created`);
+            fs.mkdirSync(downloadDirectory);
+        }
+        if (!downloadDirectory.endsWith("\\")) {
+            downloadDirectory += "\\";
+        }
+        var requestUrl = `build/builds/${buildId}/artifacts`;
+        var result = yield WebRequest.json(requestUrl, options);
+        if (result.count === undefined) {
+            console.log(`No artifacts found for build ${buildId} - skipping...`);
+        }
+        console.log(`Found ${result.count} artifact(s)`);
+        for (let artifact of result.value) {
+            console.log(`Downloading artifact ${artifact.name}...`);
+            var fileFormat = url.parse(artifact.resource.downloadUrl, true).query.$format;
+            // if for whatever reason we cannot get the file format from the url just try with zip.
+            if (fileFormat === null || fileFormat === undefined) {
+                fileFormat = "zip";
+            }
+            var fileName = `${artifact.name}.${fileFormat}`;
+            var index = 1;
+            while (fs.existsSync(`${downloadDirectory}${fileName}`)) {
+                console.log(`${fileName} already exists...`);
+                fileName = `${artifact.name}${index}.${fileFormat}`;
+                index++;
+            }
+            options.baseUrl = "";
+            options.headers = {
+                "Content-Type": `application/${fileFormat}`
+            };
+            options.encoding = null;
+            var request = yield WebRequest.stream(artifact.resource.downloadUrl, options);
+            yield request.pipe(fs.createWriteStream(downloadDirectory + fileName));
+            console.log(`Stored artifact here: ${downloadDirectory}${fileName}`);
+        }
+    });
+}
+exports.downloadArtifacts = downloadArtifacts;
 function isBuildFinished(buildId) {
     return __awaiter(this, void 0, void 0, function* () {
         var requestUrl = `build/builds/${buildId}?api-version=2.0`;

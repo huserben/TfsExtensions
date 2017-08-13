@@ -2,13 +2,16 @@ import taskLibrary = require("vsts-task-lib/task");
 import tfsRestService = require("./tfsrestservice");
 import tfsConstants = require("./tfsconstants");
 import taskConstants = require("./taskconstants");
+import generalFunctions = require("./generalfunctions");
 
 let definitionIsInCurrentTeamProject: boolean;
 let tfsServer: string;
-let ignoreSslCertificateErrors : boolean;
-let triggeredBuilds : string[];
+let ignoreSslCertificateErrors: boolean;
+let triggeredBuilds: string[];
 let waitForQueuedBuildsToFinishRefreshTime: number;
 let failTaskIfBuildsNotSuccessful: boolean;
+let downloadBuildArtifacts: boolean;
+let dropDirectory: string;
 let authenticationMethod: string;
 let username: string;
 let password: string;
@@ -24,20 +27,25 @@ async function run(): Promise<void> {
     }
 }
 
-function sleep(ms: number): Promise<void> {
-    console.log(`Sleeping for ${ms} of miliseconds...`);
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
-         console.log(`
+    console.log(`
          Will wait for queued build to be finished - Refresh time is set to ${waitForQueuedBuildsToFinishRefreshTime} seconds`);
 
-        var areBuildsFinished: boolean = false;
-        while (!areBuildsFinished) {
-            areBuildsFinished = await tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
-            await sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
+    var areBuildsFinished: boolean = false;
+    while (!areBuildsFinished) {
+        areBuildsFinished = await tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
+
+        if (!areBuildsFinished) {
+            await generalFunctions.sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
         }
+    }
+
+    if (downloadBuildArtifacts) {
+        console.log(`Downloading build artifacts to ${dropDirectory}`);
+        for (let buildId of queuedBuildIds) {
+            await tfsRestService.downloadArtifacts(buildId, dropDirectory);
+        }
+    }
 }
 
 function parseInputs(): void {
@@ -69,6 +77,14 @@ function getInputs(): void {
     // task configuration
     waitForQueuedBuildsToFinishRefreshTime = parseInt(taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
     failTaskIfBuildsNotSuccessful = taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
+
+    if (failTaskIfBuildsNotSuccessful) {
+        downloadBuildArtifacts = taskLibrary.getBoolInput(taskConstants.DownloadBuildArtifacts, true);
+    } else {
+        downloadBuildArtifacts = false;
+    }
+
+    dropDirectory = taskLibrary.getInput(taskConstants.DropDirectory, false);
 
     triggeredBuilds = taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName).split(",");
     console.log(`Following Builds are awaited: {triggeredBuilds}`);

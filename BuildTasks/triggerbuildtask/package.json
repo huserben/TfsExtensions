@@ -13,7 +13,7 @@
     "vsts-task-lib": "^2.0.6"
   },
   "devDependencies": {
-    "@types/node": "^8.0.15",
+    "@types/node": "^8.0.20",
     "@types/q": "^1.0.2"
   }
 }

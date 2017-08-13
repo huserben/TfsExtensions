@@ -73,6 +73,7 @@ Furthermore you can define what shall happen if one of the triggered builds was 
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
 ####Wait for Triggered Build Task
+![Waiting Options](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/waitingoptions.PNG)  
 There is a dedicated Task that can be used in order to wait for triggered Builds to finish. When using this Task instead of the above mentioned optionl, you can do other Tasks in between and just start waiting at the latest possible moment.
 The Task uses as an input the Stored Build ID's (see below) of any Trigger Build Task that was running before and that set the option of storing the IDs. The rest of the configuration is as described above.
 

@@ -11,8 +11,8 @@
     "author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 0,
-		"Patch": 1
+		"Minor": 1,
+		"Patch": 0
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
     "groups": [
@@ -71,6 +71,26 @@
 			"defaultValue":  true,
 			"required":  true,
 			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "downloadBuildArtifacts",
+			"type":  "boolean",
+			"label":  "Download Build Artifacts",
+			"defaultValue":  false,
+			"required":  true,
+			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
+			"helpMarkDown":  "Will download the build artifacts of the triggered builds (if available) and will store it on the build agent for further processing.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "dropDirectory",
+			"type":  "string",
+			"label":  "Drop Directory",
+			"defaultValue":  "$(agent.workFolder)",
+			"required":  false,
+			"visibleRule": "downloadBuildArtifacts = true",
+			"helpMarkDown":  "Directory where the artifacts should be downloaded to. Variables can be used - e.g. $(agent.workFolder)",
 			"groupName":  "basicConfiguration"
 		},
 		{

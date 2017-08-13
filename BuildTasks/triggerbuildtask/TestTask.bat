@@ -1,13 +1,15 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build Test
-SET INPUT_buildDefinition=CI Test, CI Test
+SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/GitTest
+SET INPUT_buildDefinition=TestBuildToTrigger
 SET INPUT_queueBuildForUserThatTriggeredBuild=false
 SET INPUT_useSameSourceVersion=false
 SET INPUT_useSameBranch=false
 SET INPUT_branchToUse=
-SET INPUT_waitForQueuedBuildsToFinish=false
+SET INPUT_waitForQueuedBuildsToFinish=true
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
-SET INPUT_failTaskIfBuildsNotSuccessful=false
+SET INPUT_failTaskIfBuildsNotSuccessful=true
+SET INPUT_downloadBuildArtifacts=true
+SET INPUT_dropDirectory=D:\Projects\git\TfsExtensions\BuildTasks\Test
 SET INPUT_storeInEnvironmentVariable=true
 SET INPUT_buildParameters=
 SET INPUT_ignoreSslCertificateErrors=false
@@ -21,5 +23,7 @@ SET INPUT_dependentOnSuccessfulBuildCondition=false
 SET INPUT_dependentBuildsList=
 SET INPUT_dependentOnFailedBuildCondition=false
 SET INPUT_dependentFailingBuildsList=
+
+
 
 node index.js

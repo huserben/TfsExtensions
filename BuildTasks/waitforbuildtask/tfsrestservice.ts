@@ -1,4 +1,6 @@
 import * as WebRequest from "web-request";
+import fs = require("fs");
+import url = require("url");
 import tfsConstants = require("./tfsconstants");
 import taskConstants = require("./taskconstants");
 
@@ -11,9 +13,19 @@ export interface IBuild {
     status: string;
 }
 
-interface ITfsGetResponse {
+interface ITfsGetResponse<T> {
     count: number;
-    value: IBuild[];
+    value: T[];
+}
+
+interface IArtifact {
+    id: string;
+    name: string;
+    resource: IArtifactResource;
+}
+
+interface IArtifactResource {
+    downloadUrl: string;
 }
 
 export function initialize(authenticationMethod: string, username: string, password: string, tfsServer: string, ignoreSslError: boolean)
@@ -21,10 +33,10 @@ export function initialize(authenticationMethod: string, username: string, passw
     var baseUrl: string = `${encodeURI(tfsServer)}/${taskConstants.ApiUrl}/`;
 
     if (authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            authenticationMethod = taskConstants.AuthenticationMethodOAuthToken;
-            password = "";
+        console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
+        console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
+        authenticationMethod = taskConstants.AuthenticationMethodOAuthToken;
+        password = "";
     }
 
     switch (authenticationMethod) {
@@ -71,7 +83,7 @@ export function initialize(authenticationMethod: string, username: string, passw
     }
 
     options.headers = {
-        "Content-Type": "application/json; charset=utf-8"
+        "Content-Type": "application/json"
     };
     options.agentOptions = { rejectUnauthorized: !ignoreSslError };
     options.encoding = "utf-8";
@@ -83,7 +95,7 @@ export async function getBuildsByStatus(buildDefinitionName: string, statusFilte
     var requestUrl: string =
         `build/builds?api-version=2.0&definitions=${buildDefinitionID}&statusFilter=${statusFilter}`;
 
-    var result: ITfsGetResponse = await WebRequest.json<ITfsGetResponse>(requestUrl, options);
+    var result: ITfsGetResponse<IBuild> = await WebRequest.json<ITfsGetResponse<IBuild>>(requestUrl, options);
 
     return result.value;
 }
@@ -113,20 +125,19 @@ export async function triggerBuild(
     queueBuildBody += "}";
 
     console.log(`Queue new Build for definition ${buildDefinitionName}`);
-    console.log(queueBuildBody);
 
     var result: WebRequest.Response<string> = await WebRequest.post(queueBuildUrl, options, queueBuildBody);
 
     return JSON.parse(result.content).id;
 }
 
-export async function waitForBuildsToFinish(triggeredBuilds: string[], failIfNotSuccessful : boolean): Promise<boolean> {
-    var result : boolean = true;
+export async function waitForBuildsToFinish(triggeredBuilds: string[], failIfNotSuccessful: boolean): Promise<boolean> {
+    var result: boolean = true;
     for (let queuedBuildId of triggeredBuilds) {
         var buildFinished: boolean = await isBuildFinished(queuedBuildId);
 
         if (!buildFinished) {
-            console.log(`Build ${queuedBuildId} is not yet completed`);
+            console.log(`Build ${queuedBuildId} has not yet completed`);
             result = false;
         } else {
             result = result && true;
@@ -140,6 +151,59 @@ export async function waitForBuildsToFinish(triggeredBuilds: string[], failIfNot
     }
 
     return result;
+}
+
+export async function downloadArtifacts(buildId: string, downloadDirectory: string): Promise<void> {
+    console.log(`Downloading artifacts for ${buildId}`);
+
+    if (!fs.existsSync(downloadDirectory)) {
+        console.log(`Directory ${downloadDirectory} does not exist - will be created`);
+        fs.mkdirSync(downloadDirectory);
+    }
+
+    if (!downloadDirectory.endsWith("\\")) {
+        downloadDirectory += "\\";
+    }
+
+    var requestUrl: string = `build/builds/${buildId}/artifacts`;
+    var result: ITfsGetResponse<IArtifact> = await WebRequest.json<ITfsGetResponse<IArtifact>>(requestUrl, options);
+
+    if (result.count === undefined) {
+        console.log(`No artifacts found for build ${buildId} - skipping...`);
+    }
+
+    console.log(`Found ${result.count} artifact(s)`);
+
+    for (let artifact of result.value) {
+        console.log(`Downloading artifact ${artifact.name}...`);
+
+        var fileFormat : any = url.parse(artifact.resource.downloadUrl, true).query.$format;
+
+        // if for whatever reason we cannot get the file format from the url just try with zip.
+        if (fileFormat === null || fileFormat === undefined) {
+            fileFormat = "zip";
+        }
+
+        var fileName: string = `${artifact.name}.${fileFormat}`;
+        var index: number = 1;
+
+        while (fs.existsSync(`${downloadDirectory}${fileName}`)) {
+            console.log(`${fileName} already exists...`);
+            fileName = `${artifact.name}${index}.${fileFormat}`;
+            index++;
+        }
+
+        options.baseUrl = "";
+        options.headers = {
+            "Content-Type": `application/${fileFormat}`
+        };
+        options.encoding = null;
+
+        var request: WebRequest.Request<void> = await WebRequest.stream(artifact.resource.downloadUrl, options);
+        await request.pipe(fs.createWriteStream(downloadDirectory + fileName));
+
+        console.log(`Stored artifact here: ${downloadDirectory}${fileName}`);
+    }
 }
 
 async function isBuildFinished(buildId: string): Promise<boolean> {
@@ -159,7 +223,7 @@ async function wasBuildSuccessful(buildId: string): Promise<boolean> {
 async function getBuildDefinitionId(buildDefinitionName: string): Promise<string> {
     var requestUrl: string = `build/definitions?api-version=2.0&name=${encodeURIComponent(buildDefinitionName)}`;
 
-    var result: ITfsGetResponse = await WebRequest.json<ITfsGetResponse>(requestUrl, options);
+    var result: ITfsGetResponse<IBuild> = await WebRequest.json<ITfsGetResponse<IBuild>>(requestUrl, options);
 
     if (result.count === 0) {
         throw new Error(`Did not find any build definition with this name: ${buildDefinitionName}

@@ -12,6 +12,7 @@ const taskLibrary = require("vsts-task-lib/task");
 const tfsRestService = require("./tfsrestservice");
 const tfsConstants = require("./tfsconstants");
 const taskConstants = require("./taskconstants");
+const generalFunctions = require("./generalfunctions");
 let definitionIsInCurrentTeamProject;
 let tfsServer;
 let buildDefinitionsToTrigger;
@@ -22,6 +23,8 @@ let branchToUse;
 let waitForQueuedBuildsToFinish;
 let waitForQueuedBuildsToFinishRefreshTime;
 let failTaskIfBuildsNotSuccessful;
+let downloadBuildArtifacts;
+let dropDirectory;
 let storeInVariable;
 let buildParameters;
 let ignoreSslCertificateErrors;
@@ -54,10 +57,6 @@ function run() {
         }
     });
 }
-function sleep(ms) {
-    console.log(`Sleeping for ${ms} of miliseconds...`);
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 function waitForBuildsToFinish(queuedBuildIds) {
     return __awaiter(this, void 0, void 0, function* () {
         if (waitForQueuedBuildsToFinish) {
@@ -65,7 +64,15 @@ function waitForBuildsToFinish(queuedBuildIds) {
             var areBuildsFinished = false;
             while (!areBuildsFinished) {
                 areBuildsFinished = yield tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
-                yield sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
+                if (!areBuildsFinished) {
+                    yield generalFunctions.sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
+                }
+            }
+            if (downloadBuildArtifacts) {
+                console.log(`Downloading build artifacts to ${dropDirectory}`);
+                for (let buildId of queuedBuildIds) {
+                    yield tfsRestService.downloadArtifacts(buildId, dropDirectory);
+                }
             }
         }
     });
@@ -213,6 +220,13 @@ function getInputs() {
     waitForQueuedBuildsToFinish = taskLibrary.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true);
     waitForQueuedBuildsToFinishRefreshTime = parseInt(taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
     failTaskIfBuildsNotSuccessful = taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
+    if (failTaskIfBuildsNotSuccessful) {
+        downloadBuildArtifacts = taskLibrary.getBoolInput(taskConstants.DownloadBuildArtifacts, true);
+    }
+    else {
+        downloadBuildArtifacts = false;
+    }
+    dropDirectory = taskLibrary.getInput(taskConstants.DropDirectory, false);
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
     buildParameters = taskLibrary.getInput(taskConstants.BuildParametersInput, false);
     // authentication
