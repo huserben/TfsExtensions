@@ -77,7 +77,7 @@ function getBuildsByStatus(buildDefinitionName, statusFilter) {
     });
 }
 exports.getBuildsByStatus = getBuildsByStatus;
-function triggerBuild(buildDefinitionName, branch, requestedFor, sourceVersion, buildParameters) {
+function triggerBuild(buildDefinitionName, branch, requestedFor, sourceVersion, demands, buildParameters) {
     return __awaiter(this, void 0, void 0, function* () {
         var buildId = yield getBuildDefinitionId(buildDefinitionName);
         var queueBuildUrl = "build/builds?api-version=2.0";
@@ -91,13 +91,31 @@ function triggerBuild(buildDefinitionName, branch, requestedFor, sourceVersion, 
         if (sourceVersion !== undefined) {
             queueBuildBody += `, ${sourceVersion}`;
         }
+        if (demands !== null) {
+            queueBuildBody += `, demands: [`;
+            demands.forEach(demand => queueBuildBody += `\"${demand}\",`);
+            queueBuildBody += `]`;
+        }
         if (buildParameters !== null) {
             queueBuildBody += `, parameters: \"{${buildParameters}}\"`;
         }
         queueBuildBody += "}";
         console.log(`Queue new Build for definition ${buildDefinitionName}`);
         var result = yield WebRequest.post(queueBuildUrl, options, queueBuildBody);
-        return JSON.parse(result.content).id;
+        var resultAsJson = JSON.parse(result.content);
+        var triggeredBuildID = resultAsJson.id;
+        // if we are not able to fetch the expected JSON it means something went wrong and we got back some exception from TFS.
+        if (triggeredBuildID === undefined) {
+            var validationResults = resultAsJson.ValidationResults;
+            console.error("Could not queue the build because there were validation errors or warnings:");
+            validationResults.forEach(validation => {
+                if (validation.result !== "ok") {
+                    console.error(`${validation.result}: ${validation.message}`);
+                }
+            });
+            throw new Error(`Could not Trigger build. See console for more Information.`);
+        }
+        return triggeredBuildID;
     });
 }
 exports.triggerBuild = triggerBuild;
@@ -183,6 +201,13 @@ function getBuildDefinitionId(buildDefinitionName) {
     return __awaiter(this, void 0, void 0, function* () {
         var requestUrl = `build/definitions?api-version=2.0&name=${encodeURIComponent(buildDefinitionName)}`;
         var result = yield WebRequest.json(requestUrl, options);
+        if (result.value === undefined) {
+            console.log("Authentication failed - please make sure your settings are correct.");
+            console.log("If you use the OAuth Token, make sure you enabled the access to it on the Build Definition.");
+            console.log("If you use a Personal Access Token, make sure it did not expire.");
+            console.log("If you use Basic Authentication, make sure alternate credentials are enabled on your TFS/VSTS.");
+            throw new Error(`Authentication with TFS Server failed. Please check your settings.`);
+        }
         if (result.count === 0) {
             throw new Error(`Did not find any build definition with this name: ${buildDefinitionName}
         - checked following url: ${options.baseUrl}${requestUrl}`);

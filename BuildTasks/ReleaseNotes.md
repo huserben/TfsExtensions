@@ -1,5 +1,19 @@
 # Release Notes
 
+## Version 2.2
+- Added option to specify demands for triggered build. This for example allows the possibility to filter for a specific build agent ([Possibility to add Demands](https://github.com/huserben/TfsExtensions/issues/27)).
+- Improved handling when authentication fails. Now a proper message with some additional help info will be displayed ([Failed Authentication should fail Task and output a proper Message](https://github.com/huserben/TfsExtensions/issues/25)).
+- Validation errors when triggering the build are now caught and will fail the build. Furthermore the validation error will be written to the output. Validation errors can happen when no build agent is available (e.g. no Agent Queue specified or no agent with matching demands etc.) ([Handle Validation Errors when triggering Build](https://github.com/huserben/TfsExtensions/issues/26)).
+- Blocking Builds will not check for builds that are currently building, only for the ones waiting in a queue.  
+- Inputs are now trimmed so that trailing whitespaces don't lead to errors
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@Koshak118**](https://github.com/Koshak118)  
+- [**@thoemmi**](https://github.com/thoemmi)  
+- [**@veepee78**](https://github.com/veepee78)  
+
+
 ## Version 2.1
 - Added option to download build artifacts from triggreed builds to both Tasks. This option is only available when failing the task if the builds were not successful. Drop Folder can be specified to where to put the artifacts ([Add new Task: Wait for triggered build to complete](https://github.com/huserben/TfsExtensions/issues/22)).
 

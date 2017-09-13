@@ -11,6 +11,7 @@ export const FailTaskIfBuildNotSuccessfulInput : string = "failTaskIfBuildsNotSu
 export const DownloadBuildArtifacts : string = "downloadBuildArtifacts";
 export const DropDirectory : string = "dropDirectory";
 export const StoreInEnvironmentVariableInput : string = "storeInEnvironmentVariable";
+export const DemandsVariableInput = "demands";
 export const BuildParametersInput : string = "buildParameters";
 export const IgnoreSslCertificateErrorsInput : string = "ignoreSslCertificateErrors";
 export const AuthenticationMethodInput : string = "authenticationMethod";

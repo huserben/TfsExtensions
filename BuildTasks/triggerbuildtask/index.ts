@@ -2,7 +2,7 @@ import taskLibrary = require("vsts-task-lib/task");
 import tfsRestService = require("./tfsrestservice");
 import tfsConstants = require("./tfsconstants");
 import taskConstants = require("./taskconstants");
-import generalFunctions = require("./generalfunctions");
+import common = require("./generalfunctions");
 
 let definitionIsInCurrentTeamProject: boolean;
 let tfsServer: string;
@@ -17,6 +17,7 @@ let failTaskIfBuildsNotSuccessful: boolean;
 let downloadBuildArtifacts: boolean;
 let dropDirectory: string;
 let storeInVariable: boolean;
+let demands : string[];
 let buildParameters: string;
 let ignoreSslCertificateErrors: boolean;
 let authenticationMethod: string;
@@ -58,7 +59,7 @@ async function waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
             areBuildsFinished = await tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
 
             if (!areBuildsFinished) {
-                await generalFunctions.sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
+                await common.sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
             }
         }
 
@@ -93,7 +94,7 @@ async function triggerBuilds(): Promise<string[]> {
 
     for (let build of buildDefinitionsToTrigger) {
         var queuedBuildId: string =
-            await tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, buildParameters);
+            await tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, buildParameters);
 
         queuedBuildIds.push(queuedBuildId);
 
@@ -112,7 +113,7 @@ async function checkConditions(): Promise<boolean> {
             let queuedBuilds: tfsRestService.IBuild[]
                 = await tfsRestService.getBuildsByStatus(
                     blockingBuild,
-                    `${taskConstants.BuildStateNotStarted},${taskConstants.BuildStateInProgress}`);
+                    `${taskConstants.BuildStateNotStarted}`);
 
             if (queuedBuilds.length > 0) {
                 console.log(`${blockingBuild} is queued - will not trigger new build.`);
@@ -200,6 +201,18 @@ function parseInputs(): void {
         console.log(`Using same branch as source version: ${branchToUse}`);
     }
 
+    if (demands != null) {
+        var parsedDemands : string[] = [];
+
+        demands.forEach(demand => {
+            parsedDemands.push(demand.replace("=", "-equals"));
+        });
+
+        demands = parsedDemands;
+        console.log(`Will trigger build with following demands:`);
+        demands.forEach(demand => console.log(demand));
+    }
+
     if (buildParameters !== null) {
         console.log(`Will trigger build with following parameters: ${buildParameters}`);
     }
@@ -239,15 +252,17 @@ function parseInputs(): void {
 function getInputs(): void {
     // basic Configuration
     definitionIsInCurrentTeamProject = taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
-    tfsServer = taskLibrary.getInput(taskConstants.ServerUrlInput, false);
-    buildDefinitionsToTrigger = taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true);
+    tfsServer = common.trimValue(taskLibrary.getInput(taskConstants.ServerUrlInput, false));
+
+    buildDefinitionsToTrigger = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true));
+
     ignoreSslCertificateErrors = taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
 
     // advanced Configuration
     queueBuildForUserThatTriggeredBuild = taskLibrary.getBoolInput(taskConstants.QueueBuildForUserInput, true);
     useSameSourceVersion = taskLibrary.getBoolInput(taskConstants.UseSameSourceVersionInput, true);
     useSameBranch = taskLibrary.getBoolInput(taskConstants.UseSameBranchInput, true);
-    branchToUse = taskLibrary.getInput(taskConstants.BranchToUseInput, false);
+    branchToUse = common.trimValue(taskLibrary.getInput(taskConstants.BranchToUseInput, false));
     waitForQueuedBuildsToFinish = taskLibrary.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true);
     waitForQueuedBuildsToFinishRefreshTime = parseInt(taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
     failTaskIfBuildsNotSuccessful = taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
@@ -258,10 +273,11 @@ function getInputs(): void {
         downloadBuildArtifacts = false;
     }
 
-    dropDirectory = taskLibrary.getInput(taskConstants.DropDirectory, false);
+    dropDirectory = common.trimValue(taskLibrary.getInput(taskConstants.DropDirectory, false));
 
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
-    buildParameters = taskLibrary.getInput(taskConstants.BuildParametersInput, false);
+    demands = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
+    buildParameters = common.trimValue(taskLibrary.getInput(taskConstants.BuildParametersInput, false));
 
     // authentication
     authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);
@@ -270,12 +286,14 @@ function getInputs(): void {
 
     // conditions
     enableBuildInQueueCondition = taskLibrary.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, true);
+
     includeCurrentBuildDefinition = taskLibrary.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, false);
-    blockingBuilds = taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false);
+    blockingBuilds = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false));
+
     dependentOnSuccessfulBuildCondition = taskLibrary.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, true);
-    dependentBuildsList = taskLibrary.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", false);
+    dependentBuildsList = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", false));
     dependentOnFailedBuildCondition = taskLibrary.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, true);
-    dependentFailingBuildsList = taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false);
+    dependentFailingBuildsList = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false));
 }
 
 run();

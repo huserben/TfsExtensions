@@ -8,3 +8,20 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 exports.sleep = sleep;
+function trimValues(values) {
+    var returnValue = [];
+    if (values != null) {
+        values.forEach(value => {
+            returnValue.push(trimValue(value));
+        });
+    }
+    return returnValue;
+}
+exports.trimValues = trimValues;
+function trimValue(value) {
+    if (value !== null && value !== undefined) {
+        return value.trim();
+    }
+    return value;
+}
+exports.trimValue = trimValue;

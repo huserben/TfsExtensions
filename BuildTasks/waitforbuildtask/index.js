@@ -12,7 +12,7 @@ const taskLibrary = require("vsts-task-lib/task");
 const tfsRestService = require("./tfsrestservice");
 const tfsConstants = require("./tfsconstants");
 const taskConstants = require("./taskconstants");
-const generalFunctions = require("./generalfunctions");
+const common = require("./generalfunctions");
 let definitionIsInCurrentTeamProject;
 let tfsServer;
 let ignoreSslCertificateErrors;
@@ -44,7 +44,7 @@ function waitForBuildsToFinish(queuedBuildIds) {
         while (!areBuildsFinished) {
             areBuildsFinished = yield tfsRestService.waitForBuildsToFinish(queuedBuildIds, failTaskIfBuildsNotSuccessful);
             if (!areBuildsFinished) {
-                yield generalFunctions.sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
+                yield common.sleep((waitForQueuedBuildsToFinishRefreshTime * 1000));
             }
         }
         if (downloadBuildArtifacts) {
@@ -70,7 +70,7 @@ function parseInputs() {
 function getInputs() {
     // basic Configuration
     definitionIsInCurrentTeamProject = taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
-    tfsServer = taskLibrary.getInput(taskConstants.ServerUrlInput, false);
+    tfsServer = common.trimValue(taskLibrary.getInput(taskConstants.ServerUrlInput, false));
     ignoreSslCertificateErrors = taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
     // authentication
     authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);
@@ -85,7 +85,7 @@ function getInputs() {
     else {
         downloadBuildArtifacts = false;
     }
-    dropDirectory = taskLibrary.getInput(taskConstants.DropDirectory, false);
+    dropDirectory = common.trimValue(taskLibrary.getInput(taskConstants.DropDirectory, false));
     triggeredBuilds = taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName).split(",");
     console.log(`Following Builds are awaited: {triggeredBuilds}`);
 }

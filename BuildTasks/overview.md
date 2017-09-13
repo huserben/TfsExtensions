@@ -94,6 +94,14 @@ The possible output could then look like this for 2 triggered builds:
 The variable is as well available as an input in the configuration for *any* subsequent Task. Just access it like this:
 *$(TriggeredBuildIds)* 
 
+### Demands
+Depending on your build definition a ceratin set of demands will be required from the agent to be built. When queuing a build additional demands can be specified, for example to filter for a special build agent. If additional demands need to be specified, they can be added here. Multiple demands can be specified when they are separated by a comma.  
+
+####Syntax
+The syntax is as follows. If you just want to check if the demand exists on the agent, just specify the value (see image above the demand "MySpecialDemandForThisBuild".  Furthermore a demand can be checked if it has a certain value. To add this kind of demands you can write it like this: "OtherDemand = 42".  
+
+**Note:** If no suitable agent is available with the specified demands, the build cannot be triggered and the Task will fail!
+
 ### Build Parameters
 This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
 You need to specify first the name of the variable you want to set, as you can see it in the Variables Tab of the build you want to trigger. Then the value can be set after a *:*   
