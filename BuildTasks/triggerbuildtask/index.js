@@ -181,7 +181,7 @@ function parseInputs() {
     if (demands != null) {
         var parsedDemands = [];
         demands.forEach(demand => {
-            parsedDemands.push(demand.replace("=", "-equals"));
+            parsedDemands.push(demand.replace("=", " -equals "));
         });
         demands = parsedDemands;
         console.log(`Will trigger build with following demands:`);

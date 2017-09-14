@@ -205,7 +205,7 @@ function parseInputs(): void {
         var parsedDemands : string[] = [];
 
         demands.forEach(demand => {
-            parsedDemands.push(demand.replace("=", "-equals"));
+            parsedDemands.push(demand.replace("=", " -equals "));
         });
 
         demands = parsedDemands;
