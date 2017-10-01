@@ -186,9 +186,13 @@ function parseInputs(): void {
         let sourceVersion: string = `${process.env[tfsConstants.SourceVersion]}`;
         let repositoryType: string = `${process.env[tfsConstants.RepositoryType]}`;
 
+        console.log(`Source Version: ${sourceVersion}`);
+
         // if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
         // if we use the latest version, the source version will not have a C prepended, so we have to do that manually...
-        if (!sourceVersion.startsWith("C") && repositoryType === tfsConstants.TfsRepositoryType) {
+        // in case it starts with an L it means it's a label and its fine.
+        // shelvesets are prepended with a C as well, so the logic still holds
+        if (!sourceVersion.startsWith("C") && !sourceVersion.startsWith("L") && repositoryType === tfsConstants.TfsRepositoryType) {
             sourceVersion = `C${sourceVersion}`;
         }
 

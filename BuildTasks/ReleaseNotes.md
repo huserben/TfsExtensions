@@ -1,17 +1,25 @@
 # Release Notes
 
+## Version 2.3
+- Fixed issue that task failed when it was built for a label ([Build from label or changeset and use same version causes error](https://github.com/huserben/TfsExtensions/issues/28#issuecomment-332582129))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@JohnHennesey**](https://github.com/JohnHennesey)  
+
 ## Version 2.2
 - Added option to specify demands for triggered build. This for example allows the possibility to filter for a specific build agent ([Possibility to add Demands](https://github.com/huserben/TfsExtensions/issues/27)).
 - Improved handling when authentication fails. Now a proper message with some additional help info will be displayed ([Failed Authentication should fail Task and output a proper Message](https://github.com/huserben/TfsExtensions/issues/25)).
 - Validation errors when triggering the build are now caught and will fail the build. Furthermore the validation error will be written to the output. Validation errors can happen when no build agent is available (e.g. no Agent Queue specified or no agent with matching demands etc.) ([Handle Validation Errors when triggering Build](https://github.com/huserben/TfsExtensions/issues/26)).
 - Blocking Builds will not check for builds that are currently building, only for the ones waiting in a queue.  
-- Inputs are now trimmed so that trailing whitespaces don't lead to errors
+- Inputs are now trimmed so that trailing whitespaces don't lead to errors  
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
 - [**@Koshak118**](https://github.com/Koshak118)  
 - [**@thoemmi**](https://github.com/thoemmi)  
 - [**@veepee78**](https://github.com/veepee78)  
+- [**@JohnHennesey**](https://github.com/JohnHennesey)  
 
 
 ## Version 2.1

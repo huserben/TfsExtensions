@@ -10,8 +10,8 @@ SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
 SET INPUT_failTaskIfBuildsNotSuccessful=false
 SET INPUT_downloadBuildArtifacts=false
 SET INPUT_dropDirectory=
-SET INPUT_storeInEnvironmentVariable=false
-SET INPUT_demands=Demand1, Demand2=blub
+SET INPUT_storeInEnvironmentVariable=true
+SET INPUT_demands=
 SET INPUT_buildParameters=
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_authenticationMethod=Personal Access Token

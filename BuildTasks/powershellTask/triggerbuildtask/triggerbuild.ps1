@@ -88,8 +88,10 @@ if ($useSameSourceVersionAsBool){
 
     # if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
     # If we use the latest version, the source version will not have a C prepended, so we have to do that manually...
-    if (-Not $sourceVersion.StartsWith("C") -and $repositoryType -eq "TfsVersionControl"){
-        $sourceVersion = "C$($sourceVersion)"
+    if ($repositoryType -eq "TfsVersionControl"){
+        if (-Not $sourceVersion.ToUpper().StartsWith("C") -and -Not $sourceVersion.ToUpper().StartsWith("L")) {
+            $sourceVersion = "C$($sourceVersion)"
+        }
     }
 
     Write-Output "Triggered Build will use the same source version: $($sourceVersion)"
