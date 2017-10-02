@@ -17,8 +17,8 @@ let failTaskIfBuildsNotSuccessful: boolean;
 let downloadBuildArtifacts: boolean;
 let dropDirectory: string;
 let storeInVariable: boolean;
-let demands : string[];
-let queueid : number;
+let demands: string[];
+let queueid: number;
 let buildParameters: string;
 let ignoreSslCertificateErrors: boolean;
 let authenticationMethod: string;
@@ -208,15 +208,18 @@ function parseInputs(): void {
     }
 
     if (demands != null) {
-        var parsedDemands : string[] = [];
+        var parsedDemands: string[] = [];
 
         demands.forEach(demand => {
             parsedDemands.push(demand.replace("=", " -equals "));
         });
 
         demands = parsedDemands;
-        console.log(`Will trigger build with following demands:`);
-        demands.forEach(demand => console.log(demand));
+
+        if (demands.length > 0) {
+            console.log(`Will trigger build with following demands:`);
+            demands.forEach(demand => console.log(demand));
+        }
     }
 
     if (queueid !== undefined) {
@@ -288,7 +291,7 @@ function getInputs(): void {
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
     demands = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
 
-    var queueIdAsString : string = taskLibrary.getInput(taskConstants.QueueID, false);
+    var queueIdAsString: string = taskLibrary.getInput(taskConstants.QueueID, false);
     if (queueIdAsString !== null && queueIdAsString !== "" && queueIdAsString !== undefined) {
         queueid = parseInt(queueIdAsString, 10);
     }

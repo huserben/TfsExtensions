@@ -188,8 +188,10 @@ function parseInputs() {
             parsedDemands.push(demand.replace("=", " -equals "));
         });
         demands = parsedDemands;
-        console.log(`Will trigger build with following demands:`);
-        demands.forEach(demand => console.log(demand));
+        if (demands.length > 0) {
+            console.log(`Will trigger build with following demands:`);
+            demands.forEach(demand => console.log(demand));
+        }
     }
     if (queueid !== undefined) {
         console.log(`Will trigger build in following agent queue: ${queueid}`);
