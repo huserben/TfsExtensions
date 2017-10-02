@@ -27,6 +27,7 @@ let downloadBuildArtifacts;
 let dropDirectory;
 let storeInVariable;
 let demands;
+let queueid;
 let buildParameters;
 let ignoreSslCertificateErrors;
 let authenticationMethod;
@@ -95,7 +96,7 @@ function triggerBuilds() {
     return __awaiter(this, void 0, void 0, function* () {
         var queuedBuildIds = new Array();
         for (let build of buildDefinitionsToTrigger) {
-            var queuedBuildId = yield tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, buildParameters);
+            var queuedBuildId = yield tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, queueid, buildParameters);
             queuedBuildIds.push(queuedBuildId);
             console.log(`Queued new Build for definition ${build}: ${tfsServer}/_build/index?buildId=${queuedBuildId}`);
         }
@@ -190,6 +191,9 @@ function parseInputs() {
         console.log(`Will trigger build with following demands:`);
         demands.forEach(demand => console.log(demand));
     }
+    if (queueid !== undefined) {
+        console.log(`Will trigger build in following agent queue: ${queueid}`);
+    }
     if (buildParameters !== null) {
         console.log(`Will trigger build with following parameters: ${buildParameters}`);
     }
@@ -242,6 +246,10 @@ function getInputs() {
     dropDirectory = common.trimValue(taskLibrary.getInput(taskConstants.DropDirectory, false));
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
     demands = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
+    var queueIdAsString = taskLibrary.getInput(taskConstants.QueueID, false);
+    if (queueIdAsString !== null && queueIdAsString !== "" && queueIdAsString !== undefined) {
+        queueid = parseInt(queueIdAsString, 10);
+    }
     buildParameters = common.trimValue(taskLibrary.getInput(taskConstants.BuildParametersInput, false));
     // authentication
     authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);

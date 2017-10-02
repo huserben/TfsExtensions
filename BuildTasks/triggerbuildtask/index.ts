@@ -18,6 +18,7 @@ let downloadBuildArtifacts: boolean;
 let dropDirectory: string;
 let storeInVariable: boolean;
 let demands : string[];
+let queueid : number;
 let buildParameters: string;
 let ignoreSslCertificateErrors: boolean;
 let authenticationMethod: string;
@@ -94,7 +95,8 @@ async function triggerBuilds(): Promise<string[]> {
 
     for (let build of buildDefinitionsToTrigger) {
         var queuedBuildId: string =
-            await tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, buildParameters);
+            await tfsRestService.triggerBuild(
+                build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, queueid, buildParameters);
 
         queuedBuildIds.push(queuedBuildId);
 
@@ -217,6 +219,10 @@ function parseInputs(): void {
         demands.forEach(demand => console.log(demand));
     }
 
+    if (queueid !== undefined) {
+        console.log(`Will trigger build in following agent queue: ${queueid}`);
+    }
+
     if (buildParameters !== null) {
         console.log(`Will trigger build with following parameters: ${buildParameters}`);
     }
@@ -281,6 +287,12 @@ function getInputs(): void {
 
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
     demands = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
+
+    var queueIdAsString : string = taskLibrary.getInput(taskConstants.QueueID, false);
+    if (queueIdAsString !== null && queueIdAsString !== "" && queueIdAsString !== undefined) {
+        queueid = parseInt(queueIdAsString, 10);
+    }
+
     buildParameters = common.trimValue(taskLibrary.getInput(taskConstants.BuildParametersInput, false));
 
     // authentication

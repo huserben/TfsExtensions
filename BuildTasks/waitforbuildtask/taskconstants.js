@@ -14,6 +14,7 @@ exports.DownloadBuildArtifacts = "downloadBuildArtifacts";
 exports.DropDirectory = "dropDirectory";
 exports.StoreInEnvironmentVariableInput = "storeInEnvironmentVariable";
 exports.DemandsVariableInput = "demands";
+exports.QueueID = "queueid";
 exports.BuildParametersInput = "buildParameters";
 exports.IgnoreSslCertificateErrorsInput = "ignoreSslCertificateErrors";
 exports.AuthenticationMethodInput = "authenticationMethod";

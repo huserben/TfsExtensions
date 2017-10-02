@@ -106,8 +106,13 @@ export async function getBuildsByStatus(buildDefinitionName: string, statusFilte
 }
 
 export async function triggerBuild(
-    buildDefinitionName: string, branch: string, requestedFor: string, sourceVersion: string, demands : string[], buildParameters: string)
-: Promise<string> {
+    buildDefinitionName: string,
+    branch: string,
+    requestedFor: string,
+    sourceVersion: string,
+    demands: string[],
+    queueId: number,
+    buildParameters: string): Promise<string> {
     var buildId: string = await getBuildDefinitionId(buildDefinitionName);
     var queueBuildUrl: string = "build/builds?api-version=2.0";
 
@@ -122,6 +127,10 @@ export async function triggerBuild(
 
     if (sourceVersion !== undefined) {
         queueBuildBody += `, ${sourceVersion}`;
+    }
+
+    if (queueId !== undefined) {
+        queueBuildBody += `, queue: { id: ${queueId}}`;
     }
 
     if (demands !== null) {
@@ -145,15 +154,7 @@ export async function triggerBuild(
 
     // if we are not able to fetch the expected JSON it means something went wrong and we got back some exception from TFS.
     if (triggeredBuildID === undefined) {
-        var validationResults: IValidationResult[] = resultAsJson.ValidationResults;
-        console.error("Could not queue the build because there were validation errors or warnings:");
-        validationResults.forEach(validation => {
-            if (validation.result !== "ok") {
-                console.error(`${validation.result}: ${validation.message}`);
-            }
-        });
-
-        throw new Error(`Could not Trigger build. See console for more Information.`);
+        handleValidationError(resultAsJson);
     }
 
     return triggeredBuildID;
@@ -253,7 +254,7 @@ async function getBuildDefinitionId(buildDefinitionName: string): Promise<string
 
     var result: ITfsGetResponse<IBuild> = await WebRequest.json<ITfsGetResponse<IBuild>>(requestUrl, options);
 
-    if (result.value === undefined) {
+    if (result === undefined || result.value === undefined) {
         console.log("Authentication failed - please make sure your settings are correct.");
         console.log("If you use the OAuth Token, make sure you enabled the access to it on the Build Definition.");
         console.log("If you use a Personal Access Token, make sure it did not expire.");
@@ -268,4 +269,30 @@ async function getBuildDefinitionId(buildDefinitionName: string): Promise<string
     }
 
     return result.value[0].id;
+}
+
+function handleValidationError(resultAsJson: any): void {
+    var validationResults: IValidationResult[] = resultAsJson.ValidationResults;
+    if (validationResults === undefined) {
+        // in case something else failed try fetch just a message:
+        var errorMessage: string = resultAsJson.message;
+
+        if (errorMessage !== undefined) {
+            console.error(errorMessage);
+        }else {
+            console.error("Unknown error - printing complete return value from server.");
+            console.error(`Consider raising an issue at github if problem cannot be solved:
+            https://github.com/huserben/TfsExtensions/issues`);
+            console.error(resultAsJson);
+        }
+    }else {
+        console.error("Could not queue the build because there were validation errors or warnings:");
+        validationResults.forEach(validation => {
+            if (validation.result !== "ok") {
+                console.error(`${validation.result}: ${validation.message}`);
+            }
+        });
+    }
+
+    throw new Error(`Could not Trigger build. See console for more Information.`);
 }

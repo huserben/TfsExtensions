@@ -1,11 +1,13 @@
 # Release Notes
 
 ## Version 2.3
-- Fixed issue that task failed when it was built for a label ([Build from label or changeset and use same version causes error](https://github.com/huserben/TfsExtensions/issues/28#issuecomment-332582129))
+- Fixed issue that task failed when it was built for a label ([Build from label or changeset and use same version causes error](https://github.com/huserben/TfsExtensions/issues/28#issuecomment-332582129))  
+- Added option to specify Queue ID ([Add option to specify Queue ID](https://github.com/huserben/TfsExtensions/issues/30)).
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
 - [**@JohnHennesey**](https://github.com/JohnHennesey)  
+- [**@user273835**](https://github.com/user273835)  
 
 ## Version 2.2
 - Added option to specify demands for triggered build. This for example allows the possibility to filter for a specific build agent ([Possibility to add Demands](https://github.com/huserben/TfsExtensions/issues/27)).
