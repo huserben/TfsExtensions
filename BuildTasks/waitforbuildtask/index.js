@@ -88,8 +88,7 @@ function getInputs() {
     dropDirectory = common.trimValue(taskLibrary.getInput(taskConstants.DropDirectory, false));
     var tasksToTrigger = taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
     if (tasksToTrigger === undefined) {
-        throw Error(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under
-        Advanced Configuration for all the Triggered Builds you want to await.`);
+        throw Error(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under Advanced Configuration for all the Triggered Builds you want to await.`);
     }
     triggeredBuilds = tasksToTrigger.split(",");
     console.log(`Following Builds are awaited: {triggeredBuilds}`);

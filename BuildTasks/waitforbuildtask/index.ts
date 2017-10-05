@@ -88,8 +88,7 @@ function getInputs(): void {
 
     var tasksToTrigger : string = taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
     if (tasksToTrigger === undefined) {
-        throw Error(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under
-        Advanced Configuration for all the Triggered Builds you want to await.`);
+        throw Error(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under Advanced Configuration for all the Triggered Builds you want to await.`);
     }
 
     triggeredBuilds = tasksToTrigger.split(",");

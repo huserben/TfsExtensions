@@ -18,6 +18,11 @@ interface ITfsGetResponse<T> {
     value: T[];
 }
 
+interface IQueue {
+    id: number;
+    name: string;
+}
+
 interface IArtifact {
     id: string;
     name: string;
@@ -129,7 +134,7 @@ export async function triggerBuild(
         queueBuildBody += `, ${sourceVersion}`;
     }
 
-    if (queueId !== undefined) {
+    if (queueId !== null && queueId !== undefined) {
         queueBuildBody += `, queue: { id: ${queueId}}`;
     }
 
@@ -235,6 +240,26 @@ export async function downloadArtifacts(buildId: string, downloadDirectory: stri
     }
 }
 
+export async function getQueueIdByName(buildQueue: string): Promise<number> {
+    var requestUrl: string = `distributedtask/queues`;
+    var result: ITfsGetResponse<IQueue> = await WebRequest.json<ITfsGetResponse<IQueue>>(requestUrl, options);
+
+    throwIfAuthenticationError(result);
+
+    for (let queue of result.value) {
+        if (queue.name.toLowerCase() === buildQueue.toLowerCase()) {
+            return queue.id;
+        }
+    }
+
+    console.error(`No queue found with the name: ${buildQueue}. Following Queues were found (Name (id)):`);
+    for (let queue of result.value) {
+        console.error(`${queue.name} (${queue.id})`);
+    }
+
+    throw new Error(`Could not find any Queue with the name ${buildQueue}`);
+}
+
 async function isBuildFinished(buildId: string): Promise<boolean> {
     var requestUrl: string = `build/builds/${buildId}?api-version=2.0`;
     var result: IBuild = await WebRequest.json<IBuild>(requestUrl, options);
@@ -254,14 +279,7 @@ async function getBuildDefinitionId(buildDefinitionName: string): Promise<string
 
     var result: ITfsGetResponse<IBuild> = await WebRequest.json<ITfsGetResponse<IBuild>>(requestUrl, options);
 
-    if (result === undefined || result.value === undefined) {
-        console.log("Authentication failed - please make sure your settings are correct.");
-        console.log("If you use the OAuth Token, make sure you enabled the access to it on the Build Definition.");
-        console.log("If you use a Personal Access Token, make sure it did not expire.");
-        console.log("If you use Basic Authentication, make sure alternate credentials are enabled on your TFS/VSTS.");
-
-        throw new Error(`Authentication with TFS Server failed. Please check your settings.`);
-    }
+    throwIfAuthenticationError(result);
 
     if (result.count === 0) {
         throw new Error(`Did not find any build definition with this name: ${buildDefinitionName}
@@ -279,13 +297,13 @@ function handleValidationError(resultAsJson: any): void {
 
         if (errorMessage !== undefined) {
             console.error(errorMessage);
-        }else {
+        } else {
             console.error("Unknown error - printing complete return value from server.");
             console.error(`Consider raising an issue at github if problem cannot be solved:
             https://github.com/huserben/TfsExtensions/issues`);
             console.error(resultAsJson);
         }
-    }else {
+    } else {
         console.error("Could not queue the build because there were validation errors or warnings:");
         validationResults.forEach(validation => {
             if (validation.result !== "ok") {
@@ -295,4 +313,14 @@ function handleValidationError(resultAsJson: any): void {
     }
 
     throw new Error(`Could not Trigger build. See console for more Information.`);
+}
+
+function throwIfAuthenticationError<T>(result: ITfsGetResponse<T>): void {
+    if (result === undefined || result.value === undefined) {
+        console.log("Authentication failed - please make sure your settings are correct.");
+        console.log("If you use the OAuth Token, make sure you enabled the access to it on the Build Definition.");
+        console.log("If you use a Personal Access Token, make sure it did not expire.");
+        console.log("If you use Basic Authentication, make sure alternate credentials are enabled on your TFS/VSTS.");
+        throw new Error(`Authentication with TFS Server failed. Please check your settings.`);
+    }
 }

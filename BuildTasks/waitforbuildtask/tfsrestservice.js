@@ -91,7 +91,7 @@ function triggerBuild(buildDefinitionName, branch, requestedFor, sourceVersion, 
         if (sourceVersion !== undefined) {
             queueBuildBody += `, ${sourceVersion}`;
         }
-        if (queueId !== undefined) {
+        if (queueId !== null && queueId !== undefined) {
             queueBuildBody += `, queue: { id: ${queueId}}`;
         }
         if (demands !== null) {
@@ -179,6 +179,24 @@ function downloadArtifacts(buildId, downloadDirectory) {
     });
 }
 exports.downloadArtifacts = downloadArtifacts;
+function getQueueIdByName(buildQueue) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var requestUrl = `distributedtask/queues`;
+        var result = yield WebRequest.json(requestUrl, options);
+        throwIfAuthenticationError(result);
+        for (let queue of result.value) {
+            if (queue.name.toLowerCase() === buildQueue.toLowerCase()) {
+                return queue.id;
+            }
+        }
+        console.error(`No queue found with the name: ${buildQueue}. Following Queues were found (Name (id)):`);
+        for (let queue of result.value) {
+            console.error(`${queue.name} (${queue.id})`);
+        }
+        throw new Error(`Could not find any Queue with the name ${buildQueue}`);
+    });
+}
+exports.getQueueIdByName = getQueueIdByName;
 function isBuildFinished(buildId) {
     return __awaiter(this, void 0, void 0, function* () {
         var requestUrl = `build/builds/${buildId}?api-version=2.0`;
@@ -197,13 +215,7 @@ function getBuildDefinitionId(buildDefinitionName) {
     return __awaiter(this, void 0, void 0, function* () {
         var requestUrl = `build/definitions?api-version=2.0&name=${encodeURIComponent(buildDefinitionName)}`;
         var result = yield WebRequest.json(requestUrl, options);
-        if (result === undefined || result.value === undefined) {
-            console.log("Authentication failed - please make sure your settings are correct.");
-            console.log("If you use the OAuth Token, make sure you enabled the access to it on the Build Definition.");
-            console.log("If you use a Personal Access Token, make sure it did not expire.");
-            console.log("If you use Basic Authentication, make sure alternate credentials are enabled on your TFS/VSTS.");
-            throw new Error(`Authentication with TFS Server failed. Please check your settings.`);
-        }
+        throwIfAuthenticationError(result);
         if (result.count === 0) {
             throw new Error(`Did not find any build definition with this name: ${buildDefinitionName}
         - checked following url: ${options.baseUrl}${requestUrl}`);
@@ -235,4 +247,13 @@ function handleValidationError(resultAsJson) {
         });
     }
     throw new Error(`Could not Trigger build. See console for more Information.`);
+}
+function throwIfAuthenticationError(result) {
+    if (result === undefined || result.value === undefined) {
+        console.log("Authentication failed - please make sure your settings are correct.");
+        console.log("If you use the OAuth Token, make sure you enabled the access to it on the Build Definition.");
+        console.log("If you use a Personal Access Token, make sure it did not expire.");
+        console.log("If you use Basic Authentication, make sure alternate credentials are enabled on your TFS/VSTS.");
+        throw new Error(`Authentication with TFS Server failed. Please check your settings.`);
+    }
 }
