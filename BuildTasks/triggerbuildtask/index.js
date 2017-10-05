@@ -27,7 +27,8 @@ let downloadBuildArtifacts;
 let dropDirectory;
 let storeInVariable;
 let demands;
-let queueid;
+let buildQueue;
+let buildQueueId;
 let buildParameters;
 let ignoreSslCertificateErrors;
 let authenticationMethod;
@@ -46,7 +47,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             getInputs();
-            parseInputs();
+            yield parseInputs();
             var conditionsFulfilled = yield checkConditions();
             if (conditionsFulfilled) {
                 var triggeredBuilds = yield triggerBuilds();
@@ -96,7 +97,7 @@ function triggerBuilds() {
     return __awaiter(this, void 0, void 0, function* () {
         var queuedBuildIds = new Array();
         for (let build of buildDefinitionsToTrigger) {
-            var queuedBuildId = yield tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, queueid, buildParameters);
+            var queuedBuildId = yield tfsRestService.triggerBuild(build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, buildQueueId, buildParameters);
             queuedBuildIds.push(queuedBuildId);
             console.log(`Queued new Build for definition ${build}: ${tfsServer}/_build/index?buildId=${queuedBuildId}`);
         }
@@ -149,80 +150,90 @@ function checkConditions() {
     });
 }
 function parseInputs() {
-    if (definitionIsInCurrentTeamProject) {
-        console.log("Using current Team Project Url");
-        tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
-    }
-    else {
-        console.log("Using Custom Team Project Url");
-    }
-    console.log("Path to Server: " + tfsServer);
-    tfsRestService.initialize(authenticationMethod, username, password, tfsServer, ignoreSslCertificateErrors);
-    if (queueBuildForUserThatTriggeredBuild) {
-        let user = `${process.env[tfsConstants.RequestedForUsername]}`;
-        let userId = `${process.env[tfsConstants.RequestedForUserId]}`;
-        console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
-        requestedForBody = `requestedFor: { id: \"${userId}\"}`;
-    }
-    if (useSameSourceVersion) {
-        let sourceVersion = `${process.env[tfsConstants.SourceVersion]}`;
-        let repositoryType = `${process.env[tfsConstants.RepositoryType]}`;
-        console.log(`Source Version: ${sourceVersion}`);
-        // if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
-        // if we use the latest version, the source version will not have a C prepended, so we have to do that manually...
-        // in case it starts with an L it means it's a label and its fine.
-        // shelvesets are prepended with a C as well, so the logic still holds
-        if (!sourceVersion.startsWith("C") && !sourceVersion.startsWith("L") && repositoryType === tfsConstants.TfsRepositoryType) {
-            sourceVersion = `C${sourceVersion}`;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (definitionIsInCurrentTeamProject) {
+            console.log("Using current Team Project Url");
+            tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
         }
-        console.log(`Triggered Build will use the same source version: ${sourceVersion}`);
-        sourceVersionBody = `sourceVersion: \"${sourceVersion}\"`;
-    }
-    if (useSameBranch) {
-        branchToUse = `${process.env[tfsConstants.SourceBranch]}`;
-        console.log(`Using same branch as source version: ${branchToUse}`);
-    }
-    if (demands != null) {
-        var parsedDemands = [];
-        demands.forEach(demand => {
-            parsedDemands.push(demand.replace("=", " -equals "));
-        });
-        demands = parsedDemands;
-        if (demands.length > 0) {
-            console.log(`Will trigger build with following demands:`);
-            demands.forEach(demand => console.log(demand));
+        else {
+            console.log("Using Custom Team Project Url");
         }
-    }
-    if (queueid !== undefined) {
-        console.log(`Will trigger build in following agent queue: ${queueid}`);
-    }
-    if (buildParameters !== null) {
-        console.log(`Will trigger build with following parameters: ${buildParameters}`);
-    }
-    if (enableBuildInQueueCondition) {
-        console.log("Build in Queue Condition is enabled");
-        if (includeCurrentBuildDefinition) {
-            let currentBuildDefinition = `${process.env[tfsConstants.CurrentBuildDefinition]}`;
-            console.log("Current Build Definition shall be included");
-            blockingBuilds.push(currentBuildDefinition);
+        console.log("Path to Server: " + tfsServer);
+        tfsRestService.initialize(authenticationMethod, username, password, tfsServer, ignoreSslCertificateErrors);
+        if (queueBuildForUserThatTriggeredBuild) {
+            let user = `${process.env[tfsConstants.RequestedForUsername]}`;
+            let userId = `${process.env[tfsConstants.RequestedForUserId]}`;
+            console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
+            requestedForBody = `requestedFor: { id: \"${userId}\"}`;
         }
-        console.log("Following builds are blocking:");
-        blockingBuilds.forEach(blockingBuild => {
-            console.log(`${blockingBuild}`);
-        });
-    }
-    if (dependentOnSuccessfulBuildCondition) {
-        console.log("Dependant Build Condition is enabled - Following builds are checked:");
-        dependentBuildsList.forEach(element => {
-            console.log(`${element}`);
-        });
-    }
-    if (dependentOnFailedBuildCondition) {
-        console.log("Dependant Failing Build Condition is enabled - Following builds are checked:");
-        dependentFailingBuildsList.forEach(dependantBuild => {
-            console.log(`${dependantBuild}`);
-        });
-    }
+        if (useSameSourceVersion) {
+            let sourceVersion = `${process.env[tfsConstants.SourceVersion]}`;
+            let repositoryType = `${process.env[tfsConstants.RepositoryType]}`;
+            console.log(`Source Version: ${sourceVersion}`);
+            // if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
+            // if we use the latest version, the source version will not have a C prepended, so we have to do that manually...
+            // in case it starts with an L it means it's a label and its fine.
+            // shelvesets are prepended with a C as well, so the logic still holds
+            if (!sourceVersion.startsWith("C") && !sourceVersion.startsWith("L") && repositoryType === tfsConstants.TfsRepositoryType) {
+                sourceVersion = `C${sourceVersion}`;
+            }
+            console.log(`Triggered Build will use the same source version: ${sourceVersion}`);
+            sourceVersionBody = `sourceVersion: \"${sourceVersion}\"`;
+        }
+        if (useSameBranch) {
+            branchToUse = `${process.env[tfsConstants.SourceBranch]}`;
+            console.log(`Using same branch as source version: ${branchToUse}`);
+        }
+        if (demands != null) {
+            var parsedDemands = [];
+            demands.forEach(demand => {
+                parsedDemands.push(demand.replace("=", " -equals "));
+            });
+            demands = parsedDemands;
+            if (demands.length > 0) {
+                console.log(`Will trigger build with following demands:`);
+                demands.forEach(demand => console.log(demand));
+            }
+        }
+        if (buildQueue !== null) {
+            if (isNaN(Number(buildQueue))) {
+                console.log(`Build Queue was specified as string: ${buildQueue} - trying to fetch Queue ID for the queue...`);
+                buildQueueId = yield tfsRestService.getQueueIdByName(buildQueue);
+                console.log(`Found id of queue ${buildQueue}: ${buildQueueId}`);
+            }
+            else {
+                buildQueueId = parseInt(buildQueue, 10);
+            }
+            console.log(`Will trigger build in following agent queue: ${buildQueueId}`);
+        }
+        if (buildParameters !== null) {
+            console.log(`Will trigger build with following parameters: ${buildParameters}`);
+        }
+        if (enableBuildInQueueCondition) {
+            console.log("Build in Queue Condition is enabled");
+            if (includeCurrentBuildDefinition) {
+                let currentBuildDefinition = `${process.env[tfsConstants.CurrentBuildDefinition]}`;
+                console.log("Current Build Definition shall be included");
+                blockingBuilds.push(currentBuildDefinition);
+            }
+            console.log("Following builds are blocking:");
+            blockingBuilds.forEach(blockingBuild => {
+                console.log(`${blockingBuild}`);
+            });
+        }
+        if (dependentOnSuccessfulBuildCondition) {
+            console.log("Dependant Build Condition is enabled - Following builds are checked:");
+            dependentBuildsList.forEach(element => {
+                console.log(`${element}`);
+            });
+        }
+        if (dependentOnFailedBuildCondition) {
+            console.log("Dependant Failing Build Condition is enabled - Following builds are checked:");
+            dependentFailingBuildsList.forEach(dependantBuild => {
+                console.log(`${dependantBuild}`);
+            });
+        }
+    });
 }
 /// Fetch all the inputs and set them to the variables to be used within the script.
 function getInputs() {
@@ -248,10 +259,7 @@ function getInputs() {
     dropDirectory = common.trimValue(taskLibrary.getInput(taskConstants.DropDirectory, false));
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
     demands = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
-    var queueIdAsString = taskLibrary.getInput(taskConstants.QueueID, false);
-    if (queueIdAsString !== null && queueIdAsString !== "" && queueIdAsString !== undefined) {
-        queueid = parseInt(queueIdAsString, 10);
-    }
+    buildQueue = common.trimValue(taskLibrary.getInput(taskConstants.QueueID, false));
     buildParameters = common.trimValue(taskLibrary.getInput(taskConstants.BuildParametersInput, false));
     // authentication
     authenticationMethod = taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);

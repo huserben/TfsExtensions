@@ -11,8 +11,8 @@
     "author": "Benjamin Huser",
 	"version": {
 		"Major": 2,
-		"Minor": 3,
-		"Patch": 1
+		"Minor": 4,
+		"Patch": 0
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
     "groups": [
@@ -184,7 +184,7 @@
 			"label":  "Define which build queue should be used.",
 			"defaultValue":  "",
 			"required":  false,
-			"helpMarkDown":  "The ID of the queue. This is optional. If not specified, the default queue for the definition will be used.",
+			"helpMarkDown":  "The name or the ID of the queue. This is optional. If not specified, the default queue for the definition will be used.",
 			"groupName":  "advancedConfiguration"
 		},
 		{

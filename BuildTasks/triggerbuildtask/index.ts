@@ -18,7 +18,8 @@ let downloadBuildArtifacts: boolean;
 let dropDirectory: string;
 let storeInVariable: boolean;
 let demands: string[];
-let queueid: number;
+let buildQueue: string;
+let buildQueueId: number;
 let buildParameters: string;
 let ignoreSslCertificateErrors: boolean;
 let authenticationMethod: string;
@@ -38,7 +39,7 @@ let sourceVersionBody: string;
 async function run(): Promise<void> {
     try {
         getInputs();
-        parseInputs();
+        await parseInputs();
 
         var conditionsFulfilled: boolean = await checkConditions();
         if (conditionsFulfilled) {
@@ -96,7 +97,7 @@ async function triggerBuilds(): Promise<string[]> {
     for (let build of buildDefinitionsToTrigger) {
         var queuedBuildId: string =
             await tfsRestService.triggerBuild(
-                build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, queueid, buildParameters);
+                build.trim(), branchToUse, requestedForBody, sourceVersionBody, demands, buildQueueId, buildParameters);
 
         queuedBuildIds.push(queuedBuildId);
 
@@ -165,7 +166,7 @@ async function checkConditions(): Promise<boolean> {
     return true;
 }
 
-function parseInputs(): void {
+async function parseInputs(): Promise<void> {
     if (definitionIsInCurrentTeamProject) {
         console.log("Using current Team Project Url");
         tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
@@ -222,8 +223,15 @@ function parseInputs(): void {
         }
     }
 
-    if (queueid !== undefined) {
-        console.log(`Will trigger build in following agent queue: ${queueid}`);
+    if (buildQueue !== null) {
+        if (isNaN(Number(buildQueue))) {
+            console.log(`Build Queue was specified as string: ${buildQueue} - trying to fetch Queue ID for the queue...`);
+            buildQueueId = await tfsRestService.getQueueIdByName(buildQueue);
+            console.log(`Found id of queue ${buildQueue}: ${buildQueueId}`);
+        }else {
+            buildQueueId = parseInt(buildQueue, 10);
+        }
+        console.log(`Will trigger build in following agent queue: ${buildQueueId}`);
     }
 
     if (buildParameters !== null) {
@@ -291,11 +299,7 @@ function getInputs(): void {
     storeInVariable = taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
     demands = common.trimValues(taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
 
-    var queueIdAsString: string = taskLibrary.getInput(taskConstants.QueueID, false);
-    if (queueIdAsString !== null && queueIdAsString !== "" && queueIdAsString !== undefined) {
-        queueid = parseInt(queueIdAsString, 10);
-    }
-
+    buildQueue = common.trimValue(taskLibrary.getInput(taskConstants.QueueID, false));
     buildParameters = common.trimValue(taskLibrary.getInput(taskConstants.BuildParametersInput, false));
 
     // authentication
