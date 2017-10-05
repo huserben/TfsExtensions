@@ -22,6 +22,10 @@ The interface including mainly stays the same. Your configuration will work as b
 #### Removed Default Credentials Options
 The option to authenticate via default credentials was removed as it is not well supported within Node.js. Please do switch to another authentication method. The task currently automatically will switch to OAuth if Default is still used - however this option will be removed in an upcoming version.
 
+#### Stored Environment Variable
+The Powershell version stored the triggered build id as an environment variable that was available even after the build. The new script will only use variables in scope of the build, however if there is still an id stored from the previous version, you have to delete it manually. If you have access to the Agent(s) directly you can simply delete the environment variable "TriggeredBuildIds".  
+Otherwise you can as well run the following command in a Powershell script (this only has to be done once and then the variable is cleared) as part of the build:  
+` [Environment]::SetEnvironmentVariable("TriggeredBuildIds", ",", "User")`
 
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)
