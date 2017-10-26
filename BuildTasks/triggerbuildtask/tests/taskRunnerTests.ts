@@ -1020,6 +1020,343 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.Times.once());
     });
 
+    it("should fetch queue id by name if string was specified", async () => {
+        const QueueID: number = 7;
+        const QueueName: string = "My Favorite Queue";
+        setupBuildConfiguration(["build"]);
+
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.QueueID, false))
+            .returns(() => QueueName);
+
+        tfsRestServiceMock.setup(srv => srv.getQueueIdByName(QueueName))
+            .returns(async () => QueueID);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                "build",
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                QueueID,
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(
+            `Build Queue was specified as string: ${QueueName} - trying to fetch Queue ID for the queue...`));
+        assert(consoleLogSpy.calledWith(`Found id of queue ${QueueName}: ${QueueID}`));
+        assert(consoleLogSpy.calledWith(`Will trigger build in following agent queue: ${QueueID}`));
+    });
+
+    it("should pass build queue id if specified as integer", async () => {
+        const QueueID: number = 7;
+        setupBuildConfiguration(["build"]);
+
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.QueueID, false))
+            .returns(() => QueueID.toString());
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                "build",
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                QueueID,
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Will trigger build in following agent queue: ${QueueID}`));
+    });
+
+    it("should check if any builds are queued if build in queue condition is true", async () => {
+        var blockingBuilds: string[] = ["Build1", "Build2"];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus(TypeMoq.It.isAny(), tfsConstants.BuildStateNotStarted))
+            .returns(async () => []);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.getBuildsByStatus("Build1", tfsConstants.BuildStateNotStarted), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(
+            srv => srv.getBuildsByStatus("Build2", tfsConstants.BuildStateNotStarted), TypeMoq.Times.once());
+
+        assert(consoleLogSpy.calledWith("Build in Queue Condition is enabled"));
+        assert(consoleLogSpy.calledWith("Following builds are blocking:"));
+        assert(consoleLogSpy.calledWith("Build1"));
+        assert(consoleLogSpy.calledWith("Build2"));
+    });
+
+    it("should include current build definition in blocking builds list if enabled", async () => {
+        const CurrentBuildDefinition: string = "My Build";
+        var blockingBuilds: string[] = [];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+
+        process.env[tfsConstants.CurrentBuildDefinition] = CurrentBuildDefinition;
+
+        await subject.run();
+
+        assert(consoleLogSpy.calledWith("Build in Queue Condition is enabled"));
+        assert(consoleLogSpy.calledWith("Following builds are blocking:"));
+        assert(consoleLogSpy.calledWith("Current Build Definition shall be included"));
+        assert(consoleLogSpy.calledWith(CurrentBuildDefinition));
+    });
+
+    it("should not trigger build if build is in queue", async () => {
+        var blockingBuilds: string[] = ["Build"];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+
+        var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", tfsConstants.BuildStateNotStarted))
+            .returns(async () => [buildMock.object]);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
+    });
+
+    it("should trigger new build if no build is in queue", async () => {
+        var blockingBuilds: string[] = ["Build"];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", tfsConstants.BuildStateNotStarted))
+            .returns(async () => []);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith("None of the blocking builds is queued - proceeding"));
+    });
+
+    it(`should not trigger build if dependant on successful build condition is enabled and
+    last build was not successful`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+            buildMock.setup(b => b.result).returns(() => "Failed");
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
+                .returns(async () => [buildMock.object]);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.never());
+            assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were successful"));
+            assert(consoleLogSpy.calledWith("Checking build Build"));
+        });
+
+    it(`should trigger build if dependant on successful build condition is enabled and
+        last build was successful`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+            buildMock.setup(b => b.result).returns(() => tfsConstants.BuildResultSucceeded);
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
+                .returns(async () => [buildMock.object]);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.once());
+            assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were failing - proceeding"));
+        });
+
+    it(`should trigger build if dependant on successful build condition is enabled and
+                there is no build found to check`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
+                .returns(async () => []);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.once());
+        });
+
+    it(`should not trigger build if dependant on failed build condition is enabled and
+        last build was not failed`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+            buildMock.setup(b => b.result).returns(() => tfsConstants.BuildResultSucceeded);
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
+                .returns(async () => [buildMock.object]);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.never());
+            assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were NOT successful"));
+        });
+
+    it(`should trigger build if dependant on failed build condition is enabled and
+            last build was not successful`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+            buildMock.setup(b => b.result).returns(() => "Failed");
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
+                .returns(async () => [buildMock.object]);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.once());
+            assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were successful - proceeding"));
+        });
+
+    it(`should trigger build if dependant on failed build condition is enabled and
+                    there is no build found to check`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
+                .returns(async () => []);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.once());
+        });
+
     function areEqual(a: string[], b: string[]): boolean {
         a.forEach(element => {
             if (b.indexOf(element) < 0) {
@@ -1045,15 +1382,15 @@ describe("Task Runner Tests", function (): void {
     function setupBuildConfiguration(
         buildsToTrigger: string[]
     ): void {
-        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", TypeMoq.It.isAny()))
             .returns(() => buildsToTrigger);
         generalFunctionsMock.setup(gf => gf.trimValues(buildsToTrigger)).returns(() => buildsToTrigger);
 
-        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, true))
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
             .returns(() => false);
-        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, true))
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
             .returns(() => false);
-        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, true))
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
             .returns(() => false);
     }
 
@@ -1063,20 +1400,20 @@ describe("Task Runner Tests", function (): void {
         password: string,
         tfsServer: string,
         IgnoreSslCertificateErrorsInput: boolean): void {
-        tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
+        tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, TypeMoq.It.isAny()))
             .returns(() => false);
-        tasklibraryMock.setup(lib => lib.getInput(taskConstants.ServerUrlInput, false))
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.ServerUrlInput, TypeMoq.It.isAny()))
             .returns(() => tfsServer);
         generalFunctionsMock.setup(gf => gf.trimValue(tfsServer)).returns(() => tfsServer);
 
-        tasklibraryMock.setup(lib => lib.getInput(taskConstants.AuthenticationMethodInput, true))
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.AuthenticationMethodInput, TypeMoq.It.isAny()))
             .returns(() => authenticationMethod);
-        tasklibraryMock.setup(lib => lib.getInput(taskConstants.UsernameInput, false))
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.UsernameInput, TypeMoq.It.isAny()))
             .returns(() => username);
-        tasklibraryMock.setup(lib => lib.getInput(taskConstants.PasswordInput, false))
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.PasswordInput, TypeMoq.It.isAny()))
             .returns(() => password);
 
-        tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true))
+        tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, TypeMoq.It.isAny()))
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
