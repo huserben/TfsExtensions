@@ -9,7 +9,7 @@ gulp.task('scripts', () => {
   const tsResult = tsProject.src()
   .pipe(tsProject());
   return tsResult.js.pipe(gulp.dest(''))
-    .pipe(mocha({reporter: "list"}));
+    .pipe(mocha({reporter: "min"}));
 });
 //set up a watcher to watch over changes
 gulp.task('watch', ['scripts'], () => {

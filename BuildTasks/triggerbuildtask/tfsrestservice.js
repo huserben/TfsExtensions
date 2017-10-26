@@ -12,34 +12,19 @@ const WebRequest = require("web-request");
 const fs = require("fs");
 const url = require("url");
 const tfsConstants = require("./tfsconstants");
-const taskConstants = require("./taskconstants");
 class TfsRestService {
     initialize(authenticationMethod, username, password, tfsServer, ignoreSslError) {
-        var baseUrl = `${encodeURI(tfsServer)}/${taskConstants.ApiUrl}/`;
-        if (authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            authenticationMethod = taskConstants.AuthenticationMethodOAuthToken;
-            password = "";
-        }
+        var baseUrl = `${encodeURI(tfsServer)}/${tfsConstants.ApiUrl}/`;
         switch (authenticationMethod) {
-            case taskConstants.AuthenticationMethodOAuthToken:
+            case tfsConstants.AuthenticationMethodOAuthToken:
                 console.log("Using OAuth Access Token");
-                var authenticationToken;
-                if (password === null || password === "") {
-                    console.log("Trying to fetch authentication token from system...");
-                    authenticationToken = `${process.env[tfsConstants.OAuthAccessToken]}`;
-                }
-                else {
-                    authenticationToken = password;
-                }
                 this.options = {
                     baseUrl: baseUrl, auth: {
-                        bearer: authenticationToken
+                        bearer: password
                     }
                 };
                 break;
-            case taskConstants.AuthenticationMethodBasicAuthentication:
+            case tfsConstants.AuthenticationMethodBasicAuthentication:
                 console.log("Using Basic Authentication");
                 this.options = {
                     baseUrl: baseUrl, auth: {
@@ -48,7 +33,7 @@ class TfsRestService {
                     }
                 };
                 break;
-            case taskConstants.AuthenticationMethodPersonalAccessToken:
+            case tfsConstants.AuthenticationMethodPersonalAccessToken:
                 console.log("Using Personal Access Token");
                 this.options = {
                     baseUrl: baseUrl,
@@ -195,14 +180,14 @@ class TfsRestService {
         return __awaiter(this, void 0, void 0, function* () {
             var requestUrl = `build/builds/${buildId}?api-version=2.0`;
             var result = yield WebRequest.json(requestUrl, this.options);
-            return result.status === taskConstants.BuildStateCompleted;
+            return result.status === tfsConstants.BuildStateCompleted;
         });
     }
     wasBuildSuccessful(buildId) {
         return __awaiter(this, void 0, void 0, function* () {
             var requestUrl = `build/builds/${buildId}?api-version=2.0`;
             var result = yield WebRequest.json(requestUrl, this.options);
-            return result.result === taskConstants.BuildResultSucceeded;
+            return result.result === tfsConstants.BuildResultSucceeded;
         });
     }
     getBuildDefinitionId(buildDefinitionName) {

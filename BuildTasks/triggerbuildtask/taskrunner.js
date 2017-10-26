@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const tfsConstants = require("./tfsconstants");
 const taskConstants = require("./taskconstants");
-const common = require("./generalfunctions");
 const tl = require("./tasklibrary");
 class TaskRunner {
-    constructor(tfsRestService, taskLibrary) {
+    constructor(tfsRestService, taskLibrary, generalFunctions) {
         this.tfsRestService = tfsRestService;
         this.taskLibrary = taskLibrary;
+        this.generalFunctions = generalFunctions;
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -42,7 +42,7 @@ class TaskRunner {
                 while (!areBuildsFinished) {
                     areBuildsFinished = yield this.tfsRestService.waitForBuildsToFinish(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
                     if (!areBuildsFinished) {
-                        yield common.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
+                        yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                     }
                 }
                 if (this.downloadBuildArtifacts) {
@@ -84,7 +84,7 @@ class TaskRunner {
                 console.log("Checking if blocking builds are queued");
                 for (let blockingBuild of this.blockingBuilds) {
                     console.log(`Checking build ${blockingBuild}`);
-                    let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, `${taskConstants.BuildStateNotStarted}`);
+                    let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, `${tfsConstants.BuildStateNotStarted}`);
                     if (queuedBuilds.length > 0) {
                         console.log(`${blockingBuild} is queued - will not trigger new build.`);
                         return false;
@@ -98,7 +98,7 @@ class TaskRunner {
                 for (let element of this.dependentBuildsList) {
                     console.log(`Checking build ${element}`);
                     let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(element, ""));
-                    if (lastBuilds.length > 0 && lastBuilds[0].result !== taskConstants.BuildResultSucceeded) {
+                    if (lastBuilds.length > 0 && lastBuilds[0].result !== tfsConstants.BuildResultSucceeded) {
                         console.log(`Last build of definition ${element} was not successful
                     (state is ${lastBuilds[0].result}) - will not trigger new build`);
                         return false;
@@ -111,7 +111,7 @@ class TaskRunner {
                 console.log("Checking if dependant build definitions last builds were NOT successful");
                 for (let build of this.dependentFailingBuildsList) {
                     let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(build, ""));
-                    if (lastBuilds.length > 0 && lastBuilds[0].result === taskConstants.BuildResultSucceeded) {
+                    if (lastBuilds.length > 0 && lastBuilds[0].result === tfsConstants.BuildResultSucceeded) {
                         console.log(`Last build of definition ${build} was successful
                 (state is ${lastBuilds[0].result}) - will not trigger new build`);
                         return false;
@@ -125,15 +125,7 @@ class TaskRunner {
     }
     parseInputs() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.definitionIsInCurrentTeamProject) {
-                console.log("Using current Team Project Url");
-                this.tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
-            }
-            else {
-                console.log("Using Custom Team Project Url");
-            }
-            console.log("Path to Server: " + this.tfsServer);
-            this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.ignoreSslCertificateErrors);
+            this.initializeTfsRestService();
             if (this.queueBuildForUserThatTriggeredBuild) {
                 let user = `${process.env[tfsConstants.RequestedForUsername]}`;
                 let userId = `${process.env[tfsConstants.RequestedForUserId]}`;
@@ -209,19 +201,41 @@ class TaskRunner {
             }
         });
     }
+    initializeTfsRestService() {
+        if (this.definitionIsInCurrentTeamProject) {
+            console.log("Using current Team Project Url");
+            this.tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
+        }
+        else {
+            console.log("Using Custom Team Project Url");
+        }
+        console.log("Path to Server: " + this.tfsServer);
+        if (this.authenticationMethod === tfsConstants.AuthenticationMethodDefaultCredentials) {
+            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
+            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
+            this.authenticationMethod = tfsConstants.AuthenticationMethodOAuthToken;
+            this.password = "";
+        }
+        if (this.authenticationMethod === tfsConstants.AuthenticationMethodOAuthToken &&
+            (this.password === null || this.password === "")) {
+            console.log("Trying to fetch authentication token from system...");
+            this.password = `${process.env[tfsConstants.OAuthAccessToken]}`;
+        }
+        this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.ignoreSslCertificateErrors);
+    }
     /// Fetch all the inputs and set them to the variables to be used within the script.
     getInputs() {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
-        this.tfsServer = common.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
+        this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
         this.buildDefinitionsToTrigger =
-            common.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true));
+            this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true));
         this.ignoreSslCertificateErrors = this.taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
         // advanced Configuration
         this.queueBuildForUserThatTriggeredBuild = this.taskLibrary.getBoolInput(taskConstants.QueueBuildForUserInput, true);
         this.useSameSourceVersion = this.taskLibrary.getBoolInput(taskConstants.UseSameSourceVersionInput, true);
         this.useSameBranch = this.taskLibrary.getBoolInput(taskConstants.UseSameBranchInput, true);
-        this.branchToUse = common.trimValue(this.taskLibrary.getInput(taskConstants.BranchToUseInput, false));
+        this.branchToUse = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BranchToUseInput, false));
         this.waitForQueuedBuildsToFinish = this.taskLibrary.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true);
         this.waitForQueuedBuildsToFinishRefreshTime =
             parseInt(this.taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
@@ -232,11 +246,11 @@ class TaskRunner {
         else {
             this.downloadBuildArtifacts = false;
         }
-        this.dropDirectory = common.trimValue(this.taskLibrary.getInput(taskConstants.DropDirectory, false));
+        this.dropDirectory = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.DropDirectory, false));
         this.storeInVariable = this.taskLibrary.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true);
-        this.demands = common.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
-        this.buildQueue = common.trimValue(this.taskLibrary.getInput(taskConstants.QueueID, false));
-        this.buildParameters = common.trimValue(this.taskLibrary.getInput(taskConstants.BuildParametersInput, false));
+        this.demands = this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
+        this.buildQueue = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.QueueID, false));
+        this.buildParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BuildParametersInput, false));
         // authentication
         this.authenticationMethod = this.taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);
         this.username = this.taskLibrary.getInput(taskConstants.UsernameInput, false);
@@ -244,14 +258,15 @@ class TaskRunner {
         // conditions
         this.enableBuildInQueueCondition = this.taskLibrary.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, true);
         this.includeCurrentBuildDefinition = this.taskLibrary.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, false);
-        this.blockingBuilds = common.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false));
+        this.blockingBuilds =
+            this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false));
         this.dependentOnSuccessfulBuildCondition =
             this.taskLibrary.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, true);
         this.dependentBuildsList =
-            common.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", false));
+            this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", false));
         this.dependentOnFailedBuildCondition = this.taskLibrary.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, true);
         this.dependentFailingBuildsList =
-            common.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false));
+            this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false));
     }
 }
 exports.TaskRunner = TaskRunner;

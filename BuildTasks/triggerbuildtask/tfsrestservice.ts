@@ -2,7 +2,6 @@ import * as WebRequest from "web-request";
 import fs = require("fs");
 import url = require("url");
 import tfsConstants = require("./tfsconstants");
-import taskConstants = require("./taskconstants");
 
 export interface IBuild {
     name: string;
@@ -57,34 +56,18 @@ export class TfsRestService implements  ITfsRestService {
     options: WebRequest.RequestOptions;
 
     public initialize(authenticationMethod: string, username: string, password: string, tfsServer: string, ignoreSslError: boolean): void {
-        var baseUrl: string = `${encodeURI(tfsServer)}/${taskConstants.ApiUrl}/`;
-
-        if (authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            authenticationMethod = taskConstants.AuthenticationMethodOAuthToken;
-            password = "";
-        }
+        var baseUrl: string = `${encodeURI(tfsServer)}/${tfsConstants.ApiUrl}/`;
 
         switch (authenticationMethod) {
-            case taskConstants.AuthenticationMethodOAuthToken:
+            case tfsConstants.AuthenticationMethodOAuthToken:
                 console.log("Using OAuth Access Token");
-
-                var authenticationToken: string;
-                if (password === null || password === "") {
-                    console.log("Trying to fetch authentication token from system...");
-                    authenticationToken = `${process.env[tfsConstants.OAuthAccessToken]}`;
-                } else {
-                    authenticationToken = password;
-                }
-
                 this.options = {
                     baseUrl: baseUrl, auth: {
-                        bearer: authenticationToken
+                        bearer: password
                     }
                 };
                 break;
-            case taskConstants.AuthenticationMethodBasicAuthentication:
+            case tfsConstants.AuthenticationMethodBasicAuthentication:
                 console.log("Using Basic Authentication");
                 this.options = {
                     baseUrl: baseUrl, auth: {
@@ -94,7 +77,7 @@ export class TfsRestService implements  ITfsRestService {
                 };
 
                 break;
-            case taskConstants.AuthenticationMethodPersonalAccessToken:
+            case tfsConstants.AuthenticationMethodPersonalAccessToken:
                 console.log("Using Personal Access Token");
 
                 this.options = {
@@ -283,7 +266,7 @@ export class TfsRestService implements  ITfsRestService {
         var result: IBuild =
             await WebRequest.json<IBuild>(requestUrl, this.options);
 
-        return result.status === taskConstants.BuildStateCompleted;
+        return result.status === tfsConstants.BuildStateCompleted;
     }
 
     private async wasBuildSuccessful(buildId: string): Promise<boolean> {
@@ -291,7 +274,7 @@ export class TfsRestService implements  ITfsRestService {
         var result: IBuild =
             await WebRequest.json<IBuild>(requestUrl, this.options);
 
-        return result.result === taskConstants.BuildResultSucceeded;
+        return result.result === tfsConstants.BuildResultSucceeded;
     }
 
     private async getBuildDefinitionId(buildDefinitionName: string): Promise<string> {

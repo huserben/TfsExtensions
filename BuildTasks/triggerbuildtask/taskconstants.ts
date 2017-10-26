@@ -27,16 +27,3 @@ export const DependentOnFailedBuildConditionInput : string = "dependentOnFailedB
 export const DependentOnFailedBuildsInput : string = "dependentFailingBuildsList";
 
 export const TriggeredBuildIdsEnvironmentVariableName : string = "TriggeredBuildIds";
-
-export const BuildStateNotStarted : string = "notStarted";
-export const BuildStateInProgress : string = "inProgress";
-export const BuildStateCompleted : string = "completed";
-
-export const BuildResultSucceeded : string = "succeeded";
-
-export const ApiUrl : string = "_apis";
-
-export const AuthenticationMethodDefaultCredentials : string = "Default Credentials";
-export const AuthenticationMethodOAuthToken : string = "OAuth Token";
-export const AuthenticationMethodBasicAuthentication : string = "Basic Authentication";
-export const AuthenticationMethodPersonalAccessToken : string = "Personal Access Token";
