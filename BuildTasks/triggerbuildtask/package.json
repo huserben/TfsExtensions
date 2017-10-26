@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "mocha tests/_suite.js --debug-brk"
   },
   "author": "",
   "license": "MIT",
@@ -13,8 +14,12 @@
     "vsts-task-lib": "^2.0.6"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.41",
+    "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.20",
-    "@types/q": "^1.0.2"
+    "@types/q": "^1.0.2",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^4.3.1",
+    "gulp-typescript": "^3.2.3",
+    "typescript": "^2.5.3"
   }
 }
