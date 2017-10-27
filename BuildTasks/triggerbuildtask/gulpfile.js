@@ -11,6 +11,14 @@ gulp.task('scripts', () => {
   return tsResult.js.pipe(gulp.dest(''))
     .pipe(mocha({reporter: "min"}));
 });
+
+gulp.task('build', () => {
+  const tsResult = tsProject.src()
+  .pipe(tsProject());
+  return tsResult.js.pipe(gulp.dest(''))
+    .pipe(mocha({reporter: "nyan"}));
+});
+
 //set up a watcher to watch over changes
 gulp.task('watch', ['scripts'], () => {
   gulp.watch('**/*.ts', ['scripts']);
