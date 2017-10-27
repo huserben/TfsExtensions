@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests"
   },
   "author": "",
   "license": "MIT",
@@ -13,7 +13,18 @@
     "vsts-task-lib": "^2.0.6"
   },
   "devDependencies": {
+    "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.15",
-    "@types/q": "^1.0.2"
+    "@types/q": "^1.0.2",
+    "@types/sinon": "^2.3.7",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^4.3.1",
+    "gulp-typescript": "^3.2.3",
+    "mocha": "^4.0.1",
+    "sinon": "^4.0.2",
+    "tfsrestservice": "^1.0.4",
+    "typemoq": "^2.0.1",
+    "typescript": "^2.5.3",
+    "web-request": "^1.0.7"
   }
 }
