@@ -1,4 +1,4 @@
-import tfsRestService = require("./tfsrestservice");
+import tfsRestService = require("tfsrestservice");
 import common = require("./generalfunctions");
 import tr = require("./taskrunner");
 import tl = require("./tasklibrary");

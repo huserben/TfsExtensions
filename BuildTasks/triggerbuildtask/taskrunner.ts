@@ -1,5 +1,4 @@
-import tfsService = require("./tfsrestservice");
-import tfsConstants = require("./tfsconstants");
+import tfsService = require("tfsrestservice");
 import taskConstants = require("./taskconstants");
 import common = require("./generalfunctions");
 import tl = require("./tasklibrary");
@@ -35,8 +34,8 @@ export class TaskRunner {
     dependentOnFailedBuildCondition: boolean;
     dependentFailingBuildsList: string[];
 
-    requestedForBody: string;
-    sourceVersionBody: string;
+    userId: string;
+    sourceVersion: string;
 
     tfsRestService: tfsService.ITfsRestService;
     taskLibrary: tl.ITaskLibrary;
@@ -73,7 +72,7 @@ export class TaskRunner {
 
             var areBuildsFinished: boolean = false;
             while (!areBuildsFinished) {
-                areBuildsFinished = await this.tfsRestService.waitForBuildsToFinish(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
+                areBuildsFinished = await this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
 
                 if (!areBuildsFinished) {
                     await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
@@ -114,8 +113,8 @@ export class TaskRunner {
                 await this.tfsRestService.triggerBuild(
                     build.trim(),
                     this.branchToUse,
-                    this.requestedForBody,
-                    this.sourceVersionBody,
+                    this.userId,
+                    this.sourceVersion,
                     this.demands,
                     this.buildQueueId,
                     this.buildParameters);
@@ -137,7 +136,7 @@ export class TaskRunner {
                 let queuedBuilds: tfsService.IBuild[]
                     = await this.tfsRestService.getBuildsByStatus(
                         blockingBuild,
-                        `${tfsConstants.BuildStateNotStarted}`);
+                        `${tfsService.BuildStateNotStarted}`);
 
                 if (queuedBuilds.length > 0) {
                     console.log(`${blockingBuild} is queued - will not trigger new build.`);
@@ -157,7 +156,7 @@ export class TaskRunner {
 
                 let lastBuilds: tfsService.IBuild[] = (await this.tfsRestService.getBuildsByStatus(element, ""));
 
-                if (lastBuilds.length > 0 && lastBuilds[0].result !== tfsConstants.BuildResultSucceeded) {
+                if (lastBuilds.length > 0 && lastBuilds[0].result !== tfsService.BuildResultSucceeded) {
                     console.log(
                         `Last build of definition ${element} was not successful
                     (state is ${lastBuilds[0].result}) - will not trigger new build`);
@@ -174,7 +173,7 @@ export class TaskRunner {
             for (let build of this.dependentFailingBuildsList) {
                 let lastBuilds: tfsService.IBuild[] = (await this.tfsRestService.getBuildsByStatus(build, ""));
 
-                if (lastBuilds.length > 0 && lastBuilds[0].result === tfsConstants.BuildResultSucceeded) {
+                if (lastBuilds.length > 0 && lastBuilds[0].result === tfsService.BuildResultSucceeded) {
                     console.log(`Last build of definition ${build} was successful
                 (state is ${lastBuilds[0].result}) - will not trigger new build`);
                     return false;
@@ -191,33 +190,31 @@ export class TaskRunner {
         this.initializeTfsRestService();
 
         if (this.queueBuildForUserThatTriggeredBuild) {
-            let user: string = `${process.env[tfsConstants.RequestedForUsername]}`;
-            let userId: string = `${process.env[tfsConstants.RequestedForUserId]}`;
+            let user: string = `${process.env[tfsService.RequestedForUsername]}`;
+            this.userId = `${process.env[tfsService.RequestedForUserId]}`;
             console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
-
-            this.requestedForBody = `requestedFor: { id: \"${userId}\"}`;
         }
 
         if (this.useSameSourceVersion) {
-            let sourceVersion: string = `${process.env[tfsConstants.SourceVersion]}`;
-            let repositoryType: string = `${process.env[tfsConstants.RepositoryType]}`;
+            this.sourceVersion = `${process.env[tfsService.SourceVersion]}`;
+            let repositoryType: string = `${process.env[tfsService.RepositoryType]}`;
 
-            console.log(`Source Version: ${sourceVersion}`);
+            console.log(`Source Version: ${this.sourceVersion}`);
 
             // if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
             // if we use the latest version, the source version will not have a C prepended, so we have to do that manually...
             // in case it starts with an L it means it's a label and its fine.
             // shelvesets are prepended with a C as well, so the logic still holds
-            if (!sourceVersion.startsWith("C") && !sourceVersion.startsWith("L") && repositoryType === tfsConstants.TfsRepositoryType) {
-                sourceVersion = `C${sourceVersion}`;
+            if (!this.sourceVersion.startsWith("C") && !this.sourceVersion.startsWith("L")
+            && repositoryType === tfsService.TfsRepositoryType) {
+                this.sourceVersion = `C${this.sourceVersion}`;
             }
 
-            console.log(`Triggered Build will use the same source version: ${sourceVersion}`);
-            this.sourceVersionBody = `sourceVersion: \"${sourceVersion}\"`;
+            console.log(`Triggered Build will use the same source version: ${this.sourceVersion}`);
         }
 
         if (this.useSameBranch) {
-            this.branchToUse = `${process.env[tfsConstants.SourceBranch]}`;
+            this.branchToUse = `${process.env[tfsService.SourceBranch]}`;
             console.log(`Using same branch as source version: ${this.branchToUse}`);
         }
 
@@ -255,7 +252,7 @@ export class TaskRunner {
             console.log("Build in Queue Condition is enabled");
 
             if (this.includeCurrentBuildDefinition) {
-                let currentBuildDefinition: string = `${process.env[tfsConstants.CurrentBuildDefinition]}`;
+                let currentBuildDefinition: string = `${process.env[tfsService.CurrentBuildDefinition]}`;
                 console.log("Current Build Definition shall be included");
                 this.blockingBuilds.push(currentBuildDefinition);
             }
@@ -285,23 +282,23 @@ export class TaskRunner {
     private initializeTfsRestService(): void {
         if (this.definitionIsInCurrentTeamProject) {
             console.log("Using current Team Project Url");
-            this.tfsServer = `${process.env[tfsConstants.TeamFoundationCollectionUri]}${process.env[tfsConstants.TeamProject]}`;
+            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
         }else {
             console.log("Using Custom Team Project Url");
         }
         console.log("Path to Server: " + this.tfsServer);
 
-        if (this.authenticationMethod === tfsConstants.AuthenticationMethodDefaultCredentials) {
+        if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
             console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
             console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            this.authenticationMethod = tfsConstants.AuthenticationMethodOAuthToken;
+            this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
             this.password = "";
         }
 
-        if (this.authenticationMethod === tfsConstants.AuthenticationMethodOAuthToken &&
+        if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
             (this.password === null || this.password === "")) {
             console.log("Trying to fetch authentication token from system...");
-            this.password = `${process.env[tfsConstants.OAuthAccessToken]}`;
+            this.password = `${process.env[tfsService.OAuthAccessToken]}`;
         }
 
         this.tfsRestService.initialize(

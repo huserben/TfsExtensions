@@ -11,8 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sinon = require("sinon");
 const assert = require("assert");
 const tr = require("../taskrunner");
+const tfsService = require("tfsrestservice");
 const taskConstants = require("../taskconstants");
-const tfsConstants = require("../tfsconstants");
 const TypeMoq = require("typemoq");
 describe("Task Runner Tests", function () {
     let subject;
@@ -276,29 +276,29 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
             .returns(() => true);
         setupRestServiceConfiguration(authenticationMethod, username, password, "", ignoreSSLErrors);
-        process.env[tfsConstants.TeamFoundationCollectionUri] = teamFoundationCollection;
-        process.env[tfsConstants.TeamProject] = teamProject;
+        process.env[tfsService.TeamFoundationCollectionUri] = teamFoundationCollection;
+        process.env[tfsService.TeamProject] = teamProject;
         var expectedTfsAddress = `${teamFoundationCollection}${teamProject}`;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, expectedTfsAddress, ignoreSSLErrors), TypeMoq.Times.once());
     }));
     it("should use OAuth method if default credentials authentication is used", () => __awaiter(this, void 0, void 0, function* () {
-        var authenticationMethod = tfsConstants.AuthenticationMethodDefaultCredentials;
+        var authenticationMethod = taskConstants.AuthenticationMethodDefaultCredentials;
         var username = "User1";
         var password = "P4s5W0rd";
         var ignoreSSLErrors = true;
         var tfsServer = "https://MyServer";
         setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, ignoreSSLErrors);
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.initialize(tfsConstants.AuthenticationMethodOAuthToken, username, TypeMoq.It.isAny(), tfsServer, ignoreSSLErrors), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.initialize(tfsService.AuthenticationMethodOAuthToken, username, TypeMoq.It.isAny(), tfsServer, ignoreSSLErrors), TypeMoq.Times.once());
     }));
     it("should try to fetch OAuth access token when using OAuth method and not having set a password", () => __awaiter(this, void 0, void 0, function* () {
         var tfsServer = "https://MyServer";
         var expectedOAuthToken = "fadsljlakdfsj12093ui1203";
-        setupRestServiceConfiguration(tfsConstants.AuthenticationMethodOAuthToken, "", "", tfsServer, true);
-        process.env[tfsConstants.OAuthAccessToken] = expectedOAuthToken;
+        setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, true);
+        process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.initialize(tfsConstants.AuthenticationMethodOAuthToken, "", expectedOAuthToken, tfsServer, true), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.initialize(tfsService.AuthenticationMethodOAuthToken, "", expectedOAuthToken, tfsServer, true), TypeMoq.Times.once());
     }));
     it("should trigger build for all build definitions when no conditions are specified", () => __awaiter(this, void 0, void 0, function* () {
         var buildDefinition1 = "build1";
@@ -368,10 +368,10 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
-        tfsRestServiceMock.setup(srv => srv.waitForBuildsToFinish([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.waitForBuildsToFinish([BuildID], true), TypeMoq.Times.never());
+        tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.never());
     }));
     it("should wait for build to finish if configured", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
@@ -384,10 +384,10 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
-        tfsRestServiceMock.setup(srv => srv.waitForBuildsToFinish([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.waitForBuildsToFinish([BuildID], true), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.once());
     }));
     it("should wait and sleep for configured time while builds are not finished", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
@@ -400,9 +400,9 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
-        tfsRestServiceMock.setup(srv => srv.waitForBuildsToFinish([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return false; }));
-        tfsRestServiceMock.setup(srv => srv.waitForBuildsToFinish([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
         generalFunctionsMock.verify(gf => gf.sleep(WaitTime * 1000), TypeMoq.Times.once());
@@ -423,7 +423,7 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.DropDirectory, false))
             .returns(() => DropDirectory);
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
-        tfsRestServiceMock.setup(srv => srv.waitForBuildsToFinish([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.downloadArtifacts(BuildID, DropDirectory), TypeMoq.Times.never());
@@ -444,7 +444,7 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.DropDirectory, false))
             .returns(() => DropDirectory);
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
-        tfsRestServiceMock.setup(srv => srv.waitForBuildsToFinish([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.downloadArtifacts(BuildID, DropDirectory), TypeMoq.Times.once());
@@ -455,11 +455,10 @@ describe("Task Runner Tests", function () {
         setupBuildConfiguration(["build"]);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.QueueBuildForUserInput, true))
             .returns(() => true);
-        var expectedRequestBody = `requestedFor: { id: \"${UserID}\"}`;
-        process.env[tfsConstants.RequestedForUsername] = UserName;
-        process.env[tfsConstants.RequestedForUserId] = UserID;
+        process.env[tfsService.RequestedForUsername] = UserName;
+        process.env[tfsService.RequestedForUserId] = UserID;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), expectedRequestBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), UserID, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current build: ${UserName}`));
     }));
     it("should NOT trigger build for user that trigger original build if not configured", () => __awaiter(this, void 0, void 0, function* () {
@@ -469,8 +468,8 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.QueueBuildForUserInput, true))
             .returns(() => false);
         var expectedRequestBody = `requestedFor: { id: \"${UserID}\"}`;
-        process.env[tfsConstants.RequestedForUsername] = UserName;
-        process.env[tfsConstants.RequestedForUserId] = UserID;
+        process.env[tfsService.RequestedForUsername] = UserName;
+        process.env[tfsService.RequestedForUserId] = UserID;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), expectedRequestBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
         assert(!consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current build: ${UserName}`));
@@ -480,7 +479,7 @@ describe("Task Runner Tests", function () {
         setupBuildConfiguration(["build"]);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameBranchInput, true))
             .returns(() => true);
-        process.env[tfsConstants.SourceBranch] = BranchToUse;
+        process.env[tfsService.SourceBranch] = BranchToUse;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild("build", BranchToUse, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Using same branch as source version: ${BranchToUse}`));
@@ -490,7 +489,7 @@ describe("Task Runner Tests", function () {
         setupBuildConfiguration(["build"]);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameBranchInput, true))
             .returns(() => false);
-        process.env[tfsConstants.SourceBranch] = BranchToUse;
+        process.env[tfsService.SourceBranch] = BranchToUse;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild("build", BranchToUse, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
         assert(!consoleLogSpy.calledWith(`Using same branch as source version: ${BranchToUse}`));
@@ -510,11 +509,10 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
             .returns(() => true);
         setupBuildConfiguration(["build"]);
-        process.env[tfsConstants.SourceVersion] = SourceVersion;
-        process.env[tfsConstants.RepositoryType] = RepoType;
-        var expectedSourceVersionBody = `sourceVersion: \"${SourceVersion}\"`;
+        process.env[tfsService.SourceVersion] = SourceVersion;
+        process.env[tfsService.RepositoryType] = RepoType;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), expectedSourceVersionBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), SourceVersion, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Source Version: ${SourceVersion}`));
         assert(consoleLogSpy.calledWith(`Triggered Build will use the same source version: ${SourceVersion}`));
     }));
@@ -524,11 +522,10 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
             .returns(() => false);
         setupBuildConfiguration(["build"]);
-        process.env[tfsConstants.SourceVersion] = SourceVersion;
-        process.env[tfsConstants.RepositoryType] = RepoType;
-        var expectedSourceVersionBody = `sourceVersion: \"${SourceVersion}\"`;
+        process.env[tfsService.SourceVersion] = SourceVersion;
+        process.env[tfsService.RepositoryType] = RepoType;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), expectedSourceVersionBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), SourceVersion, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
         assert(!consoleLogSpy.calledWith(`Source Version: ${SourceVersion}`));
         assert(!consoleLogSpy.calledWith(`Triggered Build will use the same source version: ${SourceVersion}`));
     }));
@@ -537,33 +534,30 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
             .returns(() => true);
         setupBuildConfiguration(["build"]);
-        process.env[tfsConstants.SourceVersion] = SourceVersion;
-        process.env[tfsConstants.RepositoryType] = tfsConstants.TfsRepositoryType;
-        var expectedSourceVersionBody = `sourceVersion: \"C${SourceVersion}\"`;
+        process.env[tfsService.SourceVersion] = SourceVersion;
+        process.env[tfsService.RepositoryType] = tfsService.TfsRepositoryType;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), expectedSourceVersionBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), `C${SourceVersion}`, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
     }));
     it("should not prepend source version with C in TFS Repo if already starts with C", () => __awaiter(this, void 0, void 0, function* () {
         const SourceVersion = "C1234";
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
             .returns(() => true);
         setupBuildConfiguration(["build"]);
-        process.env[tfsConstants.SourceVersion] = SourceVersion;
-        process.env[tfsConstants.RepositoryType] = tfsConstants.TfsRepositoryType;
-        var expectedSourceVersionBody = `sourceVersion: \"${SourceVersion}\"`;
+        process.env[tfsService.SourceVersion] = SourceVersion;
+        process.env[tfsService.RepositoryType] = tfsService.TfsRepositoryType;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), expectedSourceVersionBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), SourceVersion, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
     }));
     it("should not prepend source version with C in TFS Repo if starts with L", () => __awaiter(this, void 0, void 0, function* () {
         const SourceVersion = "L1234";
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
             .returns(() => true);
         setupBuildConfiguration(["build"]);
-        process.env[tfsConstants.SourceVersion] = SourceVersion;
-        process.env[tfsConstants.RepositoryType] = tfsConstants.TfsRepositoryType;
-        var expectedSourceVersionBody = `sourceVersion: \"${SourceVersion}\"`;
+        process.env[tfsService.SourceVersion] = SourceVersion;
+        process.env[tfsService.RepositoryType] = tfsService.TfsRepositoryType;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), expectedSourceVersionBody, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), SourceVersion, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
     }));
     it("should trigger build with demands specified", () => __awaiter(this, void 0, void 0, function* () {
         var expectedDemands = ["demand1", "demand2"];
@@ -624,11 +618,11 @@ describe("Task Runner Tests", function () {
             .returns(() => false);
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
             .returns(() => blockingBuilds);
-        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus(TypeMoq.It.isAny(), tfsConstants.BuildStateNotStarted))
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus(TypeMoq.It.isAny(), tfsService.BuildStateNotStarted))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return []; }));
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.getBuildsByStatus("Build1", tfsConstants.BuildStateNotStarted), TypeMoq.Times.once());
-        tfsRestServiceMock.verify(srv => srv.getBuildsByStatus("Build2", tfsConstants.BuildStateNotStarted), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.getBuildsByStatus("Build1", tfsService.BuildStateNotStarted), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.getBuildsByStatus("Build2", tfsService.BuildStateNotStarted), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith("Build in Queue Condition is enabled"));
         assert(consoleLogSpy.calledWith("Following builds are blocking:"));
         assert(consoleLogSpy.calledWith("Build1"));
@@ -643,7 +637,7 @@ describe("Task Runner Tests", function () {
             .returns(() => true);
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
             .returns(() => blockingBuilds);
-        process.env[tfsConstants.CurrentBuildDefinition] = CurrentBuildDefinition;
+        process.env[tfsService.CurrentBuildDefinition] = CurrentBuildDefinition;
         yield subject.run();
         assert(consoleLogSpy.calledWith("Build in Queue Condition is enabled"));
         assert(consoleLogSpy.calledWith("Following builds are blocking:"));
@@ -659,7 +653,7 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
             .returns(() => blockingBuilds);
         var buildMock = TypeMoq.Mock.ofType();
-        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", tfsConstants.BuildStateNotStarted))
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", tfsService.BuildStateNotStarted))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return [buildMock.object]; }));
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.never());
@@ -675,7 +669,7 @@ describe("Task Runner Tests", function () {
             .returns(() => blockingBuilds);
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
             .returns(() => ["dsfalk"]);
-        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", tfsConstants.BuildStateNotStarted))
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", tfsService.BuildStateNotStarted))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return []; }));
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
@@ -707,7 +701,7 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
             .returns(() => ["dsfalk"]);
         var buildMock = TypeMoq.Mock.ofType();
-        buildMock.setup(b => b.result).returns(() => tfsConstants.BuildResultSucceeded);
+        buildMock.setup(b => b.result).returns(() => tfsService.BuildResultSucceeded);
         tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return [buildMock.object]; }));
         yield subject.run();
@@ -736,7 +730,7 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
             .returns(() => ["dsfalk"]);
         var buildMock = TypeMoq.Mock.ofType();
-        buildMock.setup(b => b.result).returns(() => tfsConstants.BuildResultSucceeded);
+        buildMock.setup(b => b.result).returns(() => tfsService.BuildResultSucceeded);
         tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build", ""))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return [buildMock.object]; }));
         yield subject.run();

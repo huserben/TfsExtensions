@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "mocha tests/_suite.js --debug-brk"
+    "test": "mocha"
   },
   "author": "",
   "license": "MIT",
@@ -17,12 +17,15 @@
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.20",
     "@types/q": "^1.0.2",
+    "@types/sinon": "^2.3.7",
     "gulp": "^3.9.1",
     "gulp-mocha": "^4.3.1",
     "gulp-typescript": "^3.2.3",
     "mocha-sinon": "^2.0.0",
     "sinon": "^4.0.2",
+    "tfsrestservice": "^1.0.4",
     "typemoq": "^2.0.1",
-    "typescript": "^2.5.3"
+    "typescript": "^2.5.3",
+    "web-request": "^1.0.7"
   }
 }
