@@ -16,7 +16,7 @@ gulp.task('build', () => {
   const tsResult = tsProject.src()
   .pipe(tsProject());
   return tsResult.js.pipe(gulp.dest(''))
-    .pipe(mocha({reporter: "nyan"}));
+    .pipe(mocha({reporter: "list"}));
 });
 
 //set up a watcher to watch over changes
