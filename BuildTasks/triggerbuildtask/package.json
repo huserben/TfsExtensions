@@ -20,9 +20,10 @@
     "gulp": "^3.9.1",
     "gulp-mocha": "^4.3.1",
     "gulp-typescript": "^3.2.3",
+    "linqts": "^1.10.0",
     "mocha-sinon": "^2.0.0",
     "sinon": "^4.0.2",
-    "tfsrestservice": "^1.0.4",
+    "tfsrestservice": "^1.2.1",
     "typemoq": "^2.0.1",
     "typescript": "^2.5.3",
     "web-request": "^1.0.7"
