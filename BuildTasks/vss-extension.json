@@ -49,7 +49,22 @@
 	},
     "files": [
         {
-            "path": "triggerbuildtask"
+            "path": "triggerbuildtask/generalfunctions.js"
+        },
+        {
+            "path": "triggerbuildtask/index.js"
+        },
+        {
+            "path": "triggerbuildtask/task.json"
+        },
+        {
+            "path": "triggerbuildtask/taskconstants.js"
+        },
+        {
+            "path": "triggerbuildtask/tasklibrary.js"
+        },
+        {
+            "path": "triggerbuildtask/taskrunner.js"
         },
 		{
             "path": "waitforbuildtask"

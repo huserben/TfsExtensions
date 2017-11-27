@@ -10,7 +10,10 @@
   "license": "MIT",
   "dependencies": {
     "request": "^2.83.0",
-    "vsts-task-lib": "^2.1.0"
+    "vsts-task-lib": "^2.1.0",
+    "linqts": "^1.10.0",
+    "tfsrestservice": "^1.2.1",
+    "web-request": "^1.0.7"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.44",
@@ -20,12 +23,9 @@
     "gulp": "^3.9.1",
     "gulp-mocha": "^4.3.1",
     "gulp-typescript": "^3.2.3",
-    "linqts": "^1.10.0",
     "mocha": "^4.0.1",
     "sinon": "^4.1.2",
-    "tfsrestservice": "^1.2.1",
     "typemoq": "^2.1.0",
-    "typescript": "^2.6.1",
-    "web-request": "^1.0.7"
+    "typescript": "^2.6.1"
   }
 }
