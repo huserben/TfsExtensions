@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
     "name": "Trigger Build Task",
-    "version": "2.4.1",
+    "version": "2.4.2",
     "publisher": "benjhuser",
     "targets": [
         {
@@ -49,22 +49,7 @@
 	},
     "files": [
         {
-            "path": "triggerbuildtask/generalfunctions.js"
-        },
-        {
-            "path": "triggerbuildtask/index.js"
-        },
-        {
-            "path": "triggerbuildtask/task.json"
-        },
-        {
-            "path": "triggerbuildtask/taskconstants.js"
-        },
-        {
-            "path": "triggerbuildtask/tasklibrary.js"
-        },
-        {
-            "path": "triggerbuildtask/taskrunner.js"
+            "path": "triggerbuildtask"
         },
 		{
             "path": "waitforbuildtask"
