@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
     "name": "Trigger Build Task",
-    "version": "2.4.2",
+    "version": "2.4.3",
     "publisher": "benjhuser",
     "targets": [
         {
