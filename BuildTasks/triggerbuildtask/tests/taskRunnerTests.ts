@@ -605,6 +605,28 @@ describe("Task Runner Tests", function (): void {
             srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.once());
     });
 
+    it("should fail task if configured and build was not successful", async () => {
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        setupBuildConfiguration(["someBuild"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+
+        setupBuildIdForTriggeredBuild("someBuild", BuildID);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .throws(new Error("builds were apparently not finished..."));
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, TypeMoq.It.isAny()), TypeMoq.Times.once());
+    });
+
     it("should wait and sleep for configured time while builds are not finished", async () => {
         const WaitTime: number = 10;
         const BuildID: string = "12";

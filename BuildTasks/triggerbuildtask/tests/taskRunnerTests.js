@@ -12,6 +12,7 @@ const sinon = require("sinon");
 const assert = require("assert");
 const tr = require("../taskrunner");
 const tfsService = require("tfsrestservice");
+const tl = require("../tasklibrary");
 const taskConstants = require("../taskconstants");
 const TypeMoq = require("typemoq");
 describe("Task Runner Tests", function () {
@@ -388,6 +389,24 @@ describe("Task Runner Tests", function () {
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.once());
+    }));
+    it("should fail task if configured and build was not successful", () => __awaiter(this, void 0, void 0, function* () {
+        const WaitTime = 10;
+        const BuildID = "12";
+        setupBuildConfiguration(["someBuild"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        setupBuildIdForTriggeredBuild("someBuild", BuildID);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .throws(new Error("builds were apparently not finished..."));
+        yield subject.run();
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, TypeMoq.It.isAny()), TypeMoq.Times.once());
     }));
     it("should wait and sleep for configured time while builds are not finished", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
@@ -805,4 +824,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

@@ -1,8 +1,10 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build Test
+SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/GitTest
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
-SET INPUT_failTaskIfBuildsNotSuccessful=false
+SET INPUT_failTaskIfBuildsNotSuccessful=true
+SET INPUT_downloadBuildArtifacts=false
+SET INPUT_dropDirectory=
 SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
 SET INPUT_password=sww3otrtvfaqi4sqcqqjceq23lxgvlyjfoftqox7272qc3vxyi2q

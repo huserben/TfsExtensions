@@ -36,6 +36,22 @@ export class TaskLibrary implements ITaskLibrary {
     }
 
     public setResult(result: TaskResult, message: string): void {
-        taskLibrary.setResult(result, message);
+        var actualResult: taskLibrary.TaskResult = taskLibrary.TaskResult.Failed;
+
+        switch (result) {
+            case TaskResult.Failed:
+                actualResult = taskLibrary.TaskResult.Failed;
+                break;
+            case TaskResult.SucceededWithIssues:
+                actualResult = taskLibrary.TaskResult.SucceededWithIssues;
+                break;
+            case TaskResult.Succeeded:
+                actualResult = taskLibrary.TaskResult.Succeeded;
+                break;
+            default:
+                throw new Error(`Unknown result type`);
+        }
+
+        taskLibrary.setResult(actualResult, message);
     }
 }
