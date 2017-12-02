@@ -9,20 +9,6 @@ describe("General Functions Tests", function (): void {
         this.timeout(1000);
     });
 
-    it("should wait for the specified amount when doing sleep", async () => {
-        let sleepTime: number = 300;
-
-        var startTime: number = Date.now();
-
-        // act
-        await generalFunctions.sleep(sleepTime);
-
-        // assert
-        var endTime: number = Date.now();
-        var timeDiff: any = endTime - startTime;
-        assert(timeDiff > sleepTime, "Sleep did not wait long enough");
-    });
-
     it("should remove trailing whitespace of a value", () => {
         let testString: string = "blergon";
 

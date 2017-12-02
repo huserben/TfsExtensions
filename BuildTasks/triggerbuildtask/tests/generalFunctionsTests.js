@@ -16,16 +16,6 @@ describe("General Functions Tests", function () {
         generalFunctions = new common.GeneralFunctions();
         this.timeout(1000);
     }));
-    it("should wait for the specified amount when doing sleep", () => __awaiter(this, void 0, void 0, function* () {
-        let sleepTime = 300;
-        var startTime = Date.now();
-        // act
-        yield generalFunctions.sleep(sleepTime);
-        // assert
-        var endTime = Date.now();
-        var timeDiff = endTime - startTime;
-        assert(timeDiff > sleepTime, "Sleep did not wait long enough");
-    }));
     it("should remove trailing whitespace of a value", () => {
         let testString = "blergon";
         var actual = generalFunctions.trimValue(`${testString}   `);
@@ -75,3 +65,4 @@ describe("General Functions Tests", function () {
         assert.equal(undefined, actualValues[2]);
     });
 });
+//# sourceMappingURL=generalFunctionsTests.js.map
