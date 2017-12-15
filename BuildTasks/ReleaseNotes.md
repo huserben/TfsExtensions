@@ -6,7 +6,8 @@
 - Added possibility to specify the Queue by name and not only by ID ([Specify Queue by Name](https://github.com/huserben/TfsExtensions/issues/33))
 - Fixed issue that when no demands where specified original demands specified by build definitions were overwritten ([Demands defined by the build definition aren't honored by queued builds](https://github.com/huserben/TfsExtensions/issues/35))  
 - Fixed invalid release package ([Task crashes - Cannot find module 'tfsrestservice'](https://github.com/huserben/TfsExtensions/issues/37))
-- Fixed issue that when Task was failing due to an error the result was still seen as "Succeeded" ([Task Result is not set properly when Task has an Error](https://github.com/huserben/TfsExtensions/issues/38))
+- Fixed issue that when Task was failing due to an error the result was still seen as "Succeeded" ([Task Result is not set properly when Task has an Error](https://github.com/huserben/TfsExtensions/issues/38))  
+- Fixed issue that "use current changeset" had no effect on triggered build (["Use same source branch as triggered build"/"Use current changeset for the triggered build" doesn't sync to correct commit](https://github.com/huserben/TfsExtensions/issues/40))  
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
@@ -16,6 +17,7 @@ Thank you goes to all of the following users, who contributed feedback, bug repo
 - [**@ItielBeeri**](https://github.com/ItielBeeri)  
 - [**@dtzar**](https://github.com/dtzar)  
 - [**@rfennell**](https://github.com/rfennell)  
+- [**@cdacamar**](https://github.com/cdacamar)  
 
 
 ## Version 2.3
