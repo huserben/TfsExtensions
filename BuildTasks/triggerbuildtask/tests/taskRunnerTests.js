@@ -346,6 +346,21 @@ describe("Task Runner Tests", function () {
             .verify(tl => tl.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, `${PreviousValue},${TriggeredBuildID}`), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Following value is already stored in the variable: '${PreviousValue}'`));
     }));
+    it("should read existing values as comma separated values", () => __awaiter(this, void 0, void 0, function* () {
+        const TriggeredBuildID = "1337";
+        const PreviousValue1 = "42";
+        const PreviousValue2 = "12";
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
+            .returns(() => `${PreviousValue1},${PreviousValue2}`);
+        setupBuildIdForTriggeredBuild("build", TriggeredBuildID);
+        yield subject.run();
+        tasklibraryMock
+            .verify(tl => tl.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, `${PreviousValue1},${PreviousValue2},${TriggeredBuildID}`), TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Following value is already stored in the variable: '${PreviousValue1},${PreviousValue2}'`));
+    }));
     it("should write queued build id's comma separated to variable if specified", () => __awaiter(this, void 0, void 0, function* () {
         const TriggeredBuildID1 = "1337";
         const TriggeredBuildID2 = "42";
@@ -824,4 +839,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

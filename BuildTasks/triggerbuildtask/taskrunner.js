@@ -61,7 +61,9 @@ class TaskRunner {
             if (previousValue !== undefined) {
                 // concatenate variable values
                 console.log(`Following value is already stored in the variable: '${previousValue}'`);
-                triggeredBuilds.splice(0, 0, previousValue);
+                for (let value of previousValue.split(",").reverse()) {
+                    triggeredBuilds.splice(0, 0, value);
+                }
             }
             this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, triggeredBuilds.join(","));
             console.log(`New Value of variable: '${this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)}'`);
@@ -269,4 +271,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map

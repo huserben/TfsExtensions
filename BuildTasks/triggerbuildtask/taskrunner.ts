@@ -97,7 +97,9 @@ export class TaskRunner {
                 // concatenate variable values
                 console.log(`Following value is already stored in the variable: '${previousValue}'`);
 
-                triggeredBuilds.splice(0, 0, previousValue);
+                for (let value of previousValue.split(",").reverse()) {
+                    triggeredBuilds.splice(0, 0, value);
+                }
             }
 
             this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, triggeredBuilds.join(","));
@@ -206,7 +208,7 @@ export class TaskRunner {
             // in case it starts with an L it means it's a label and its fine.
             // shelvesets are prepended with a C as well, so the logic still holds
             if (!this.sourceVersion.startsWith("C") && !this.sourceVersion.startsWith("L")
-            && repositoryType === tfsService.TfsRepositoryType) {
+                && repositoryType === tfsService.TfsRepositoryType) {
                 this.sourceVersion = `C${this.sourceVersion}`;
             }
 
@@ -283,7 +285,7 @@ export class TaskRunner {
         if (this.definitionIsInCurrentTeamProject) {
             console.log("Using current Team Project Url");
             this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
-        }else {
+        } else {
             console.log("Using Custom Team Project Url");
         }
         console.log("Path to Server: " + this.tfsServer);

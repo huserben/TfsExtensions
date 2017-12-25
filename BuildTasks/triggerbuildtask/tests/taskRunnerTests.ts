@@ -545,6 +545,29 @@ describe("Task Runner Tests", function (): void {
         assert(consoleLogSpy.calledWith(`Following value is already stored in the variable: '${PreviousValue}'`));
     });
 
+    it("should read existing values as comma separated values", async () => {
+        const TriggeredBuildID: string = "1337";
+        const PreviousValue1: string = "42";
+        const PreviousValue2: string = "12";
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
+            .returns(() => `${PreviousValue1},${PreviousValue2}`);
+
+        setupBuildIdForTriggeredBuild("build", TriggeredBuildID);
+
+        await subject.run();
+
+        tasklibraryMock
+            .verify(tl => tl.setVariable(
+                taskConstants.TriggeredBuildIdsEnvironmentVariableName, `${PreviousValue1},${PreviousValue2},${TriggeredBuildID}`),
+            TypeMoq.Times.once());
+
+        assert(consoleLogSpy.calledWith(`Following value is already stored in the variable: '${PreviousValue1},${PreviousValue2}'`));
+    });
+
     it("should write queued build id's comma separated to variable if specified", async () => {
         const TriggeredBuildID1: string = "1337";
         const TriggeredBuildID2: string = "42";
