@@ -8,6 +8,8 @@
 - Fixed invalid release package ([Task crashes - Cannot find module 'tfsrestservice'](https://github.com/huserben/TfsExtensions/issues/37))
 - Fixed issue that when Task was failing due to an error the result was still seen as "Succeeded" ([Task Result is not set properly when Task has an Error](https://github.com/huserben/TfsExtensions/issues/38))  
 - Fixed issue that "use current changeset" had no effect on triggered build (["Use same source branch as triggered build"/"Use current changeset for the triggered build" doesn't sync to correct commit](https://github.com/huserben/TfsExtensions/issues/40))  
+- Changed TriggerBuildTask to interpret previously stored build id's correctly when there is more than one existing value (["Trigger Build extension losing track of successful builds](https://github.com/huserben/TfsExtensions/issues/43))  
+
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
@@ -18,6 +20,7 @@ Thank you goes to all of the following users, who contributed feedback, bug repo
 - [**@dtzar**](https://github.com/dtzar)  
 - [**@rfennell**](https://github.com/rfennell)  
 - [**@cdacamar**](https://github.com/cdacamar)  
+- [**@patnolan**](https://github.com/patnolan)  
 
 
 ## Version 2.3
