@@ -21,6 +21,7 @@ export const PasswordInput : string = "password";
 export const EnableBuildInQueueConditionInput : string = "enableBuildInQueueCondition";
 export const IncludeCurrentBuildDefinitionInput : string = "includeCurrentBuildDefinition";
 export const BlockingBuildsInput : string = "blockingBuildsList";
+export const BlockInProgressBuilds : string = "blockInProgressBuilds";
 export const DependentOnSuccessfulBuildConditionInput : string = "dependentOnSuccessfulBuildCondition";
 export const DependentOnSuccessfulBuildsInput : string = "dependentBuildsList";
 export const DependentOnFailedBuildConditionInput : string = "dependentOnFailedBuildCondition";

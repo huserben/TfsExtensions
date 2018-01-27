@@ -11,8 +11,8 @@
     "author": "Benjamin Huser",
 	"version": {
 		"Major": 2,
-		"Minor": 4,
-		"Patch": 5
+		"Minor": 5,
+		"Patch": 0
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
     "groups": [
@@ -257,6 +257,16 @@
 			"required":  false,
 			"visibleRule": "enableBuildInQueueCondition = true",
 			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if they are currently waiting in a queue.",
+			"groupName":  "conditions"
+		},
+		{
+			"name":  "blockInProgressBuilds",
+			"type":  "boolean",
+			"label":  "Include builds that are currently in progress",
+			"defaultValue":  false,
+			"required":  false,
+			"visibleRule": "enableBuildInQueueCondition = true",
+			"helpMarkDown": "If enabled, the condition will check as well for builds that are currently running.",
 			"groupName":  "conditions"
 		},
 		{

@@ -28,6 +28,7 @@ export class TaskRunner {
     password: string;
     enableBuildInQueueCondition: boolean;
     includeCurrentBuildDefinition: boolean;
+    blockInProgressBuilds: boolean;
     blockingBuilds: string[];
     dependentOnSuccessfulBuildCondition: boolean;
     dependentBuildsList: string[];
@@ -133,12 +134,17 @@ export class TaskRunner {
         if (this.enableBuildInQueueCondition) {
             console.log("Checking if blocking builds are queued");
 
+            var buildStatesToCheck: string = tfsService.BuildStateNotStarted;
+            if (this.blockInProgressBuilds){
+                buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
+            }
+
             for (let blockingBuild of this.blockingBuilds) {
                 console.log(`Checking build ${blockingBuild}`);
                 let queuedBuilds: tfsService.IBuild[]
                     = await this.tfsRestService.getBuildsByStatus(
                         blockingBuild,
-                        `${tfsService.BuildStateNotStarted}`);
+                        buildStatesToCheck);
 
                 if (queuedBuilds.length > 0) {
                     console.log(`${blockingBuild} is queued - will not trigger new build.`);
@@ -259,6 +265,10 @@ export class TaskRunner {
                 this.blockingBuilds.push(currentBuildDefinition);
             }
 
+            if (this.blockInProgressBuilds){
+                console.log("Will treat in progress builds as blocking.");
+            }
+
             console.log("Following builds are blocking:");
             this.blockingBuilds.forEach(blockingBuild => {
                 console.log(`${blockingBuild}`);
@@ -353,6 +363,7 @@ export class TaskRunner {
         this.includeCurrentBuildDefinition = this.taskLibrary.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, false);
         this.blockingBuilds =
             this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false));
+        this.blockInProgressBuilds = this.taskLibrary.getBoolInput(taskConstants.BlockInProgressBuilds, false);
 
         this.dependentOnSuccessfulBuildCondition =
             this.taskLibrary.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, true);

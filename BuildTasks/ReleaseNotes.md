@@ -1,5 +1,13 @@
 # Release Notes
 
+## Version 2.5
+- Added option for Build in Queue Condition to treat In Progress Builds as blocking (["Consider option for blocking against inProgress builds"](https://github.com/huserben/TfsExtensions/issues/46))  
+
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@cbaxter**](https://github.com/cbaxter)
+
 ## Version 2.4
 - Updated documentation for fixing problems with persisted Build ID from Version 1.* script ([Version 2 TiggerBuildTask Setting TriggeredBuildIds Environment Variable Differently Than Version 1](https://github.com/huserben/TfsExtensions/issues/29))  
 - Added better logging/error message when Wait For Build Task is used without having at least one Triggered Build Task that has storage of the variable enabled ([Wait for build to finish error](https://github.com/huserben/TfsExtensions/issues/32))

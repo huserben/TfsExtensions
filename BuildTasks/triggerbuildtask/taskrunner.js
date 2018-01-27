@@ -84,9 +84,13 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.enableBuildInQueueCondition) {
                 console.log("Checking if blocking builds are queued");
+                var buildStatesToCheck = tfsService.BuildStateNotStarted;
+                if (this.blockInProgressBuilds) {
+                    buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
+                }
                 for (let blockingBuild of this.blockingBuilds) {
                     console.log(`Checking build ${blockingBuild}`);
-                    let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, `${tfsService.BuildStateNotStarted}`);
+                    let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, buildStatesToCheck);
                     if (queuedBuilds.length > 0) {
                         console.log(`${blockingBuild} is queued - will not trigger new build.`);
                         return false;
@@ -183,6 +187,9 @@ class TaskRunner {
                     console.log("Current Build Definition shall be included");
                     this.blockingBuilds.push(currentBuildDefinition);
                 }
+                if (this.blockInProgressBuilds) {
+                    console.log("Will treat in progress builds as blocking.");
+                }
                 console.log("Following builds are blocking:");
                 this.blockingBuilds.forEach(blockingBuild => {
                     console.log(`${blockingBuild}`);
@@ -261,6 +268,7 @@ class TaskRunner {
         this.includeCurrentBuildDefinition = this.taskLibrary.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, false);
         this.blockingBuilds =
             this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", false));
+        this.blockInProgressBuilds = this.taskLibrary.getBoolInput(taskConstants.BlockInProgressBuilds, false);
         this.dependentOnSuccessfulBuildCondition =
             this.taskLibrary.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, true);
         this.dependentBuildsList =
@@ -271,4 +279,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map
