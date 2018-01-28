@@ -711,6 +711,28 @@ describe("Task Runner Tests", function () {
         assert(consoleLogSpy.calledWith("Will treat in progress builds as blocking."));
         assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
     }));
+    it("should not check if is in progress for current build definition", () => __awaiter(this, void 0, void 0, function* () {
+        var blockingBuilds = [];
+        const CurrentBuildDefinition = "My Build";
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.BlockInProgressBuilds, TypeMoq.It.isAny()))
+            .returns(() => true);
+        process.env[tfsService.CurrentBuildDefinition] = CurrentBuildDefinition;
+        var buildMock = TypeMoq.Mock.ofType();
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus(CurrentBuildDefinition, tfsService.BuildStateNotStarted))
+            .returns(() => __awaiter(this, void 0, void 0, function* () { return [buildMock.object]; }));
+        // act
+        yield subject.run();
+        // assert
+        tfsRestServiceMock.verify(srv => srv.getBuildsByStatus(CurrentBuildDefinition, tfsService.BuildStateNotStarted), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.getBuildsByStatus(CurrentBuildDefinition, `${tfsService.BuildStateNotStarted},${tfsService.BuildStateInProgress}`), TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith("Is current build definition - will not check for builds in progress"));
+    }));
     it("should trigger new build if no build is in queue", () => __awaiter(this, void 0, void 0, function* () {
         var blockingBuilds = ["Build"];
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
@@ -857,4 +879,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

@@ -1218,6 +1218,39 @@ describe("Task Runner Tests", function (): void {
         assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
     });
 
+    it("should not check if is in progress for current build definition", async () => {
+        var blockingBuilds: string[] = [];
+        const CurrentBuildDefinition: string = "My Build";
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.BlockInProgressBuilds, TypeMoq.It.isAny()))
+            .returns(() => true);
+
+        process.env[tfsService.CurrentBuildDefinition] = CurrentBuildDefinition;
+
+        var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus(CurrentBuildDefinition, tfsService.BuildStateNotStarted))
+            .returns(async () => [buildMock.object]);
+
+        // act
+        await subject.run();
+
+        // assert
+        tfsRestServiceMock.verify(
+            srv => srv.getBuildsByStatus(CurrentBuildDefinition, tfsService.BuildStateNotStarted), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(
+            srv => srv.getBuildsByStatus(CurrentBuildDefinition, `${tfsService.BuildStateNotStarted},${tfsService.BuildStateInProgress}`),
+            TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith("Is current build definition - will not check for builds in progress"));
+    });
+
     it("should trigger new build if no build is in queue", async () => {
         var blockingBuilds: string[] = ["Build"];
 

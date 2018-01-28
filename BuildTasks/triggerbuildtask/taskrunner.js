@@ -88,9 +88,16 @@ class TaskRunner {
                 if (this.blockInProgressBuilds) {
                     buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
                 }
+                var currentBuildDefinition = `${process.env[tfsService.CurrentBuildDefinition]}`;
                 for (let blockingBuild of this.blockingBuilds) {
                     console.log(`Checking build ${blockingBuild}`);
-                    let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, buildStatesToCheck);
+                    var stateToCheck = buildStatesToCheck;
+                    if (this.includeCurrentBuildDefinition && blockingBuild === currentBuildDefinition) {
+                        // current build is always in progress --> only check whether is queued.
+                        console.log("Is current build definition - will not check for builds in progress");
+                        stateToCheck = tfsService.BuildStateNotStarted;
+                    }
+                    let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, stateToCheck);
                     if (queuedBuilds.length > 0) {
                         console.log(`${blockingBuild} is queued - will not trigger new build.`);
                         return false;
@@ -279,4 +286,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map

@@ -153,7 +153,7 @@ The build tasks supports two different kinds of conditions.
 ### Build In Queue Condition
 The first condition is called *Build In Queue* condition.  
 If you enable this condition, you can specify a list of build definitions that will prevent the trigger of a new build if any of those are currently in a queue waiting to be built.  
-Additionally there is the option that the condition should take into account builds that are currently being run.
+Additionally there is the option that the condition should take into account builds that are currently being run. A small exception of that rule is if the current build definition is blocking. This one will always just be checked for additional builds in the queue, as there will always be one in progress.
 
 As with the build to trigger, you specify the builds by name. You can add multiple builds separated by a comma. If you want to include the build you are currently modifying you can do this via the provided checkbox.  
 This condition could be used in order to implement a "two-build" continuous integration scenario. If you have a CI build that should run fast you can trigger at the end of this build another build that runs more expensive and 

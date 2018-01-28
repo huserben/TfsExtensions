@@ -135,16 +135,26 @@ export class TaskRunner {
             console.log("Checking if blocking builds are queued");
 
             var buildStatesToCheck: string = tfsService.BuildStateNotStarted;
-            if (this.blockInProgressBuilds){
+            if (this.blockInProgressBuilds) {
                 buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
             }
 
+            var currentBuildDefinition : string = `${process.env[tfsService.CurrentBuildDefinition]}`;
+
             for (let blockingBuild of this.blockingBuilds) {
                 console.log(`Checking build ${blockingBuild}`);
+                var stateToCheck : string = buildStatesToCheck;
+
+                if (this.includeCurrentBuildDefinition && blockingBuild === currentBuildDefinition) {
+                    // current build is always in progress --> only check whether is queued.
+                    console.log("Is current build definition - will not check for builds in progress");
+                    stateToCheck = tfsService.BuildStateNotStarted;
+                }
+
                 let queuedBuilds: tfsService.IBuild[]
                     = await this.tfsRestService.getBuildsByStatus(
                         blockingBuild,
-                        buildStatesToCheck);
+                        stateToCheck);
 
                 if (queuedBuilds.length > 0) {
                     console.log(`${blockingBuild} is queued - will not trigger new build.`);
