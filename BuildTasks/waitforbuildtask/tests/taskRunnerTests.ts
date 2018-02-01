@@ -199,9 +199,9 @@ describe("Task Runner Tests", function (): void {
         var ignoreSSLErrors: boolean = true;
 
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
-        .returns(() => "7");
+            .returns(() => "7");
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-        .returns(async () => true);
+            .returns(async () => true);
         setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, ignoreSSLErrors);
 
         await subject.run();
@@ -220,9 +220,9 @@ describe("Task Runner Tests", function (): void {
         var ignoreSSLErrors: boolean = true;
 
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
-        .returns(() => "7");
+            .returns(() => "7");
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-        .returns(async () => true);
+            .returns(async () => true);
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
             .returns(() => true);
         setupRestServiceConfiguration(authenticationMethod, username, password, "", ignoreSSLErrors);
@@ -230,6 +230,61 @@ describe("Task Runner Tests", function (): void {
         process.env[tfsService.TeamFoundationCollectionUri] = teamFoundationCollection;
         process.env[tfsService.TeamProject] = teamProject;
         var expectedTfsAddress: string = `${teamFoundationCollection}${teamProject}`;
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(srv => srv.initialize(
+            authenticationMethod, username, password, expectedTfsAddress, ignoreSSLErrors), TypeMoq.Times.once());
+    });
+
+    it("should read tfs server url from input when definition is not in current project", async () => {
+        const expectedTfsAddress: string = "https://myUrl.com/DefaultCollection/My Project";
+
+        var authenticationMethod: string = "Basic";
+        var username: string = "User1";
+        var password: string = "P4s5W0rd";
+        var ignoreSSLErrors: boolean = true;
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
+            .returns(() => "7");
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+            .returns(async () => true);
+        tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
+            .returns(() => false);
+        tasklibraryMock.setup((lib) => lib.getInput(taskConstants.ServerUrlInput, false))
+            .returns(() => expectedTfsAddress);
+        setupRestServiceConfiguration(authenticationMethod, username, password, "", ignoreSSLErrors);
+
+        process.env[tfsService.TeamFoundationCollectionUri] = "";
+        process.env[tfsService.TeamProject] = "";
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(srv => srv.initialize(
+            authenticationMethod, username, password, expectedTfsAddress, ignoreSSLErrors), TypeMoq.Times.once());
+    });
+
+    it("should unescape spaces from tfs server input", async () => {
+        const inputTfsAddress: string = "https://myUrl.com/DefaultCollection/My%20Project";
+        const expectedTfsAddress: string = "https://myUrl.com/DefaultCollection/My Project";
+
+        var authenticationMethod: string = "Basic";
+        var username: string = "User1";
+        var password: string = "P4s5W0rd";
+        var ignoreSSLErrors: boolean = true;
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
+            .returns(() => "7");
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+            .returns(async () => true);
+        tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
+            .returns(() => false);
+        tasklibraryMock.setup((lib) => lib.getInput(taskConstants.ServerUrlInput, false))
+            .returns(() => inputTfsAddress);
+        setupRestServiceConfiguration(authenticationMethod, username, password, "", ignoreSSLErrors);
+
+        process.env[tfsService.TeamFoundationCollectionUri] = "";
+        process.env[tfsService.TeamProject] = "";
 
         await subject.run();
 
@@ -245,9 +300,9 @@ describe("Task Runner Tests", function (): void {
         var tfsServer: string = "https://MyServer";
 
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
-        .returns(() => "7");
+            .returns(() => "7");
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-        .returns(async () => true);
+            .returns(async () => true);
         setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, ignoreSSLErrors);
 
         await subject.run();
@@ -261,9 +316,9 @@ describe("Task Runner Tests", function (): void {
         var expectedOAuthToken: string = "fadsljlakdfsj12093ui1203";
 
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
-        .returns(() => "7");
+            .returns(() => "7");
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
-        .returns(async () => true);
+            .returns(async () => true);
         setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, true);
         process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
 

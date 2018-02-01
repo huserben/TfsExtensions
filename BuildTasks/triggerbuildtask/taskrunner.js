@@ -223,6 +223,7 @@ class TaskRunner {
         }
         else {
             console.log("Using Custom Team Project Url");
+            this.tfsServer = decodeURI(this.tfsServer);
         }
         console.log("Path to Server: " + this.tfsServer);
         if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {

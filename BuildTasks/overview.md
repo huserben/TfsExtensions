@@ -56,6 +56,19 @@ If you do not select this option, it depends on the method of authentication (se
  - **Basic Authentication**: Specified User 
 
 The **Ignore SSL Certificate Errors** flag can be used if you need to ignore SSL errors caused by untrusted certificates.
+
+### Important Configuration Options when Triggered Build is not located on the VSTS/TFS Instance or Team Project
+If the target build is on a different TFS some special circumstances apply. First and foremost the authentication options (see below) are limited. You cannot use OAuth authentication, either use a Personal Access Token (recommended) or Basic Authentication.  
+**Important:** The Acess Token or Basic Authentication must be setup on the VSTS/TFS that hosts the Target Build!  
+
+As well it's not possible to have conditions based on builds of the current VSTS/TFS, due to the authentication being setup for the VSTS/TFS Instance that hosts the triggered build. Conditions based on builds of this Instance however would be possible.  
+Additionally the option *Queue Build for User that triggered original build* does not work as this user might not exist on the target VSTS/TFS. Please do not check this option in that case. See above for whom the build will be triggered depending on the specified authentication method.
+
+If you want to trigger a build from a different Team Project but within the same VSTS/TFS instance you can still use OAuth Authentication.  
+
+In any case if you trigger a build from a different team project, no matter if on the same or a different server instance, the following *Advanced Configuration* options shall not be enabled to prevent issues:  
+- Use current changeset for the triggered build  
+- Use same source branch as triggered build
   
 ## Advanced Configuration
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  

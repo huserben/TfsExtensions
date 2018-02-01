@@ -68,6 +68,7 @@ export class TaskRunner {
             this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
         } else {
             console.log("Using Custom Team Project Url");
+            this.tfsServer = decodeURI(this.tfsServer);
         }
         console.log("Path to Server: " + this.tfsServer);
 
