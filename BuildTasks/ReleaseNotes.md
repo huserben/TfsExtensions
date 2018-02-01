@@ -2,11 +2,14 @@
 
 ## Version 2.5
 - Added option for Build in Queue Condition to treat In Progress Builds as blocking (["Consider option for blocking against inProgress builds"](https://github.com/huserben/TfsExtensions/issues/46))  
+- Fixed bug that task was not able to access the server if a different Team Project/Server was used and the specified URL contained escaped spaces (["Use different Team Project with escaped URL fails"](https://github.com/huserben/TfsExtensions/issues/41))  
 
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
-- [**@cbaxter**](https://github.com/cbaxter)
+- [**@cbaxter**](https://github.com/cbaxter)  
+- [**@dhanashivam**](https://github.com/dhanashivam)  
+- [**@Kyle-Gray**](https://github.com/Kyle-Gray)  
 
 ## Version 2.4
 - Updated documentation for fixing problems with persisted Build ID from Version 1.* script ([Version 2 TiggerBuildTask Setting TriggeredBuildIds Environment Variable Differently Than Version 1](https://github.com/huserben/TfsExtensions/issues/29))  
