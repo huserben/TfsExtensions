@@ -4,16 +4,16 @@ SET INPUT_buildDefinition=CI Test
 SET INPUT_queueBuildForUserThatTriggeredBuild=false
 SET INPUT_useSameSourceVersion=false
 SET INPUT_useSameBranch=false
-SET INPUT_branchToUse=
+SET INPUT_branchToUse=null
 SET INPUT_waitForQueuedBuildsToFinish=false
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
 SET INPUT_failTaskIfBuildsNotSuccessful=false
 SET INPUT_downloadBuildArtifacts=false
 SET INPUT_dropDirectory=
 SET INPUT_storeInEnvironmentVariable=false
-SET INPUT_demands=
+SET INPUT_demands=Test1
 SET INPUT_queueid=
-SET INPUT_buildParameters=
+SET INPUT_buildParameters=\"BuildConfiguration\" : \"$(BuildConfiguration)\", \"BuildPlatform\": \"x64\"
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
@@ -26,7 +26,6 @@ SET INPUT_dependentOnSuccessfulBuildCondition=false
 SET INPUT_dependentBuildsList=
 SET INPUT_dependentOnFailedBuildCondition=false
 SET INPUT_dependentFailingBuildsList=
-
 
 
 node index.js
