@@ -11,7 +11,7 @@
   "dependencies": {
     "linqts": "^1.10.0",
     "request": "^2.83.0",
-    "tfsrestservice": "^1.3.0",
+    "tfsrestservice": "^1.4.0",
     "vsts-task-lib": "^2.2.1",
     "web-request": "^1.0.7"
   },
