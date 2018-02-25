@@ -1,5 +1,16 @@
 # Release Notes
 
+## Version 2.6.0
+- Build Parameters are now properly escaped to produce a valid JSON format ([Special Characters are not escaped in JSON that is sent to Server](https://github.com/huserben/TfsExtensions/issues/47) and [Build Trigger failing for paths](https://github.com/huserben/TfsExtensions/issues/51))  
+- Build can now be triggered even if there are now active Build Agents at the moment. Validation Warnings are shown if there are any, even if the build was successfully triggered. ([Build not Triggered if there are no active Build Agents](https://github.com/huserben/TfsExtensions/issues/50))  
+
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@jfinnegan3**](https://github.com/jfinnegan3)  
+- [**@Tadimsky**](https://github.com/Tadimsky)  
+- [**@JeffRausch**](https://github.com/JeffRausch) 
+
 ## Version 2.5
 - Added option for Build in Queue Condition to treat In Progress Builds as blocking ([Consider option for blocking against inProgress builds](https://github.com/huserben/TfsExtensions/issues/46))  
 - Fixed bug that task was not able to access the server if a different Team Project/Server was used and the specified URL contained escaped spaces ([Use different Team Project with escaped URL fails](https://github.com/huserben/TfsExtensions/issues/41))  

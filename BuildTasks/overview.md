@@ -125,11 +125,10 @@ Specify here the name or the id of the agent queue that you want to use. If not 
 ### Build Parameters
 This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
 You need to specify first the name of the variable you want to set, as you can see it in the Variables Tab of the build you want to trigger. Then the value can be set after a *:*   
-**All** variable names and values must be enclosed by a *\\"*  
-\\"VariableIWantToSet\\" : \\"WhateverValue\\"  
+**VariableIWantToSet: WhateverValue**  
 You can specify multiple parameters, just append a *,* after the value and then specify the next variable-value pair.  
 It is as well possible to make use of the build variables of the build that is running. For example if you want to reuse the Build Configuration for the triggered build, you can do so by using the following syntax for the value part:  
-\"$(BuildConfiguration)\"  
+*$(BuildConfiguration)*  
 This will work with every variable you have defined in your build.  
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the follwing error:  
