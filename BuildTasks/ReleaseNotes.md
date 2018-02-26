@@ -1,5 +1,16 @@
 # Release Notes
 
+## Version 2.6.2
+- Reverted updated dependency packages that caused an error on some agents ([Error regarding Unexpected token](https://github.com/huserben/TfsExtensions/issues/55)   
+- Build Parameters that have a comma in the value itself are now properly parsed ([Trigger Build failing for path-like branches](https://github.com/huserben/TfsExtensions/issues/54))  
+
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@cdacamar**](https://github.com/cdacamar)  
+- [**@pavlo-pryimak**](https://github.com/pavlo-pryimak)  
+- [**@Studentblanchard**](https://github.com/Studentblanchard) 
+
 ## Version 2.6.0
 - Build Parameters are now properly escaped to produce a valid JSON format ([Special Characters are not escaped in JSON that is sent to Server](https://github.com/huserben/TfsExtensions/issues/47) and [Build Trigger failing for paths](https://github.com/huserben/TfsExtensions/issues/51))  
 - Build can now be triggered even if there are now active Build Agents at the moment. Validation Warnings are shown if there are any, even if the build was successfully triggered. ([Build not Triggered if there are no active Build Agents](https://github.com/huserben/TfsExtensions/issues/50))  

@@ -130,6 +130,16 @@ You can specify multiple parameters, just append a *,* after the value and then 
 It is as well possible to make use of the build variables of the build that is running. For example if you want to reuse the Build Configuration for the triggered build, you can do so by using the following syntax for the value part:  
 *$(BuildConfiguration)*  
 This will work with every variable you have defined in your build.  
+
+**Caution:** Be cautios when you have a variable value that contains itself a comma. As this is used in the task for separating the parameter key's and values it can cause some issues. However it is supported that you have Variable values that include a comma, however then your parameter cannot contain a colon.  
+For example these will work:  
+- **VariableKey**: *MyValue1, MyValue2*  
+- **VariableKey**: *C:\Test\Something, otherValue*  
+
+However, the following will not work:  
+- **VariableKey**: *C:\Test\Something, C:\Test\SomethingElse*
+
+Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the follwing error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
