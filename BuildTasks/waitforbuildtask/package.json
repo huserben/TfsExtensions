@@ -9,10 +9,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "linqts": "^1.10.1",
+    "linqts": "^1.10.0",
     "request": "^2.83.0",
     "tfsrestservice": "^1.5.0",
-    "vsts-task-lib": "^2.3.0",
+    "vsts-task-lib": "^2.2.1",
     "web-request": "^1.0.7"
   },
   "devDependencies": {
