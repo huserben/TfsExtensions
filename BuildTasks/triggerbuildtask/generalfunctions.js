@@ -25,3 +25,4 @@ class GeneralFunctions {
     }
 }
 exports.GeneralFunctions = GeneralFunctions;
+//# sourceMappingURL=generalfunctions.js.map
