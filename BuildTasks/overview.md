@@ -139,7 +139,7 @@ For example these will work:
 However, the following will not work:  
 - **VariableKey**: *C:\Test\Something, C:\Test\SomethingElse*
 
-Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.
+Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54#issuecomment-368578707) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the follwing error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
