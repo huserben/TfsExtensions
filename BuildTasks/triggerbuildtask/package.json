@@ -9,9 +9,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "linqts": "^1.10.2",
+    "linqts": "1.10.0",
     "request": "^2.81.0",
-    "tfsrestservice": "^1.5.3",
+    "tfsrestservice": "^1.5.5",
     "vsts-task-lib": "^2.2.1"
   },
   "devDependencies": {
