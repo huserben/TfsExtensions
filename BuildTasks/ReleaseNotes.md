@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version 2.6.2
+## Version 2.6.2 - 2.6.4
 - Reverted updated dependency packages that caused an error on some agents ([Error regarding Unexpected token](https://github.com/huserben/TfsExtensions/issues/55)   
 - Build Parameters that have a comma in the value itself are now properly parsed ([Trigger Build failing for path-like branches](https://github.com/huserben/TfsExtensions/issues/54))  
 
@@ -9,7 +9,11 @@
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
 - [**@cdacamar**](https://github.com/cdacamar)  
 - [**@pavlo-pryimak**](https://github.com/pavlo-pryimak)  
-- [**@Studentblanchard**](https://github.com/Studentblanchard) 
+- [**@Studentblanchard**](https://github.com/Studentblanchard)  
+- [**@Paul-Clewell**](https://github.com/Paul-Clewell)  
+- [**@timsiefert**](https://github.com/timsiefert) 
+
+Special thanks goes out to the people of the [linqts](https://github.com/kutyel/linq.ts) library, especially to [**@kutyel**](https://github.com/kutyel) for the support in resolving [Issue 55](https://github.com/huserben/TfsExtensions/issues/55).
 
 ## Version 2.6.0
 - Build Parameters are now properly escaped to produce a valid JSON format ([Special Characters are not escaped in JSON that is sent to Server](https://github.com/huserben/TfsExtensions/issues/47) and [Build Trigger failing for paths](https://github.com/huserben/TfsExtensions/issues/51))  
