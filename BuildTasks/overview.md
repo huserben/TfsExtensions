@@ -4,6 +4,7 @@ It makes use of the built-in TFS API to queue a new build of any build definitio
 
 ## Supported TFS Versions
 The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 updwards.  
+**Please check the following guide on [github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
 
 ## Release Notes
 ### Version 2.0 task is written in Node.js and thus supports Linux Agents as well! The PowerShell Task will not be maintained anymore - Please do update to the latest version as soon as you can.
