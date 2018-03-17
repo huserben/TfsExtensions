@@ -6,3 +6,4 @@ const common = require("./generalfunctions");
 const tr = require("./taskrunner");
 var taskRunner = new tr.TaskRunner(new tfsRestService.TfsRestService(), new tl.TaskLibrary(), new common.GeneralFunctions());
 taskRunner.run();
+//# sourceMappingURL=index.js.map
