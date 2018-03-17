@@ -13,6 +13,37 @@ const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
+        this.definitionIsInCurrentTeamProject = false;
+        this.tfsServer = "";
+        this.buildDefinitionsToTrigger = [];
+        this.queueBuildForUserThatTriggeredBuild = false;
+        this.useSameSourceVersion = false;
+        this.useSameBranch = false;
+        this.branchToUse = "";
+        this.waitForQueuedBuildsToFinish = false;
+        this.waitForQueuedBuildsToFinishRefreshTime = 60;
+        this.failTaskIfBuildsNotSuccessful = false;
+        this.downloadBuildArtifacts = false;
+        this.dropDirectory = "";
+        this.storeInVariable = false;
+        this.demands = [];
+        this.buildQueue = "";
+        this.buildQueueId = 0;
+        this.buildParameters = "";
+        this.ignoreSslCertificateErrors = false;
+        this.authenticationMethod = "";
+        this.username = "";
+        this.password = "";
+        this.enableBuildInQueueCondition = false;
+        this.includeCurrentBuildDefinition = false;
+        this.blockInProgressBuilds = false;
+        this.blockingBuilds = [];
+        this.dependentOnSuccessfulBuildCondition = false;
+        this.dependentBuildsList = [];
+        this.dependentOnFailedBuildCondition = false;
+        this.dependentFailingBuildsList = [];
+        this.userId = "";
+        this.sourceVersion = "";
         this.tfsRestService = tfsRestService;
         this.taskLibrary = taskLibrary;
         this.generalFunctions = generalFunctions;
@@ -38,13 +69,22 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.waitForQueuedBuildsToFinish) {
                 console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
+                console.log("Following Builds will be awaited:");
+                for (let buildId of queuedBuildIds) {
+                    var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
+                    console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
+                }
                 var areBuildsFinished = false;
+                process.stdout.write("Waiting for builds to finish");
                 while (!areBuildsFinished) {
                     areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
                     if (!areBuildsFinished) {
+                        // indicate progress by appending "." to the current line of the console while sleeping
+                        process.stdout.write(".");
                         yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                     }
                 }
+                console.log("All builds are finished");
                 if (this.downloadBuildArtifacts) {
                     console.log(`Downloading build artifacts to ${this.dropDirectory}`);
                     for (let buildId of queuedBuildIds) {

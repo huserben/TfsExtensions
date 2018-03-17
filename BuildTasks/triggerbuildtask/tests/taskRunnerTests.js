@@ -11,8 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sinon = require("sinon");
 const assert = require("assert");
 const tr = require("../taskrunner");
-const tfsService = require("tfsrestservice");
 const tl = require("../tasklibrary");
+const tfsService = require("tfsrestservice");
 const taskConstants = require("../taskconstants");
 const TypeMoq = require("typemoq");
 describe("Task Runner Tests", function () {
@@ -21,8 +21,6 @@ describe("Task Runner Tests", function () {
     let tasklibraryMock;
     let generalFunctionsMock;
     let consoleLogSpy;
-    let consoleWarnSpy;
-    let consoleErrorSpy;
     beforeEach(() => __awaiter(this, void 0, void 0, function* () {
         tfsRestServiceMock = TypeMoq.Mock.ofType();
         tasklibraryMock = TypeMoq.Mock.ofType();
@@ -32,15 +30,11 @@ describe("Task Runner Tests", function () {
         generalFunctionsMock.setup(gf => gf.trimValues(TypeMoq.It.isAny()))
             .returns(val => val);
         consoleLogSpy = sinon.spy(console, "log");
-        consoleWarnSpy = sinon.spy(console, "warn");
-        consoleErrorSpy = sinon.spy(console, "error");
         subject = new tr.TaskRunner(tfsRestServiceMock.object, tasklibraryMock.object, generalFunctionsMock.object);
         this.timeout(1000);
     }));
     afterEach(() => __awaiter(this, void 0, void 0, function* () {
         consoleLogSpy.restore();
-        consoleWarnSpy.restore();
-        consoleErrorSpy.restore();
     }));
     /* -------------------------------------------------------------------------
      *  Tests for reading Inputs
@@ -435,8 +429,29 @@ describe("Task Runner Tests", function () {
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
+        setupBuildInfoMock(BuildID, "someBuild", "");
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.once());
+    }));
+    it("should log info for awaited builds", () => __awaiter(this, void 0, void 0, function* () {
+        const WaitTime = 10;
+        const BuildID = "12";
+        const DefinitionName = "someBuild";
+        const ExpectedLink = `http://someLink.ToTheBuild.expected
+        `;
+        setupBuildConfiguration([DefinitionName]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        setupBuildIdForTriggeredBuild(DefinitionName, BuildID);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
+        setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
+        yield subject.run();
+        assert(consoleLogSpy.calledWith(`Build ${BuildID} (${DefinitionName}): ${ExpectedLink.trim()}`));
     }));
     it("should fail task if configured and build was not successful", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
@@ -471,6 +486,7 @@ describe("Task Runner Tests", function () {
             .returns(() => __awaiter(this, void 0, void 0, function* () { return false; }));
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
+        setupBuildInfoMock(BuildID, "someBuild", "");
         yield subject.run();
         generalFunctionsMock.verify(gf => gf.sleep(WaitTime * 1000), TypeMoq.Times.once());
     }));
@@ -510,6 +526,7 @@ describe("Task Runner Tests", function () {
             .returns(() => WaitTime.toString());
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.DropDirectory, false))
             .returns(() => DropDirectory);
+        setupBuildInfoMock(BuildID, "someBuild", "someLink");
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
@@ -895,6 +912,18 @@ describe("Task Runner Tests", function () {
             .returns(() => false);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
             .returns(() => false);
+    }
+    function setupBuildInfoMock(buildID, definition, link) {
+        var buildInfoMock = TypeMoq.Mock.ofType();
+        var definitionObj = { name: definition };
+        buildInfoMock.setup(bi => bi.definition).returns(() => definitionObj);
+        var links = {
+            web: {
+                href: link
+            }
+        };
+        buildInfoMock.setup(bi => bi._links).returns(() => links);
+        tfsRestServiceMock.setup(service => service.getBuildInfo(buildID)).returns(() => __awaiter(this, void 0, void 0, function* () { return buildInfoMock.target; }));
     }
     function setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, IgnoreSslCertificateErrorsInput) {
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, TypeMoq.It.isAny()))

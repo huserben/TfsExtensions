@@ -11,7 +11,7 @@
   "dependencies": {
     "linqts": "1.10.0",
     "request": "^2.81.0",
-    "tfsrestservice": "^1.5.5",
+    "tfsrestservice": "^1.6.0",
     "vsts-task-lib": "^2.2.1"
   },
   "devDependencies": {
@@ -19,6 +19,7 @@
     "@types/node": "^8.9.4",
     "@types/q": "^1.0.7",
     "@types/sinon": "^2.3.7",
+    "mocha": "^5.0.4",
     "gulp": "^3.9.1",
     "gulp-mocha": "^4.3.1",
     "gulp-typescript": "^3.2.4",

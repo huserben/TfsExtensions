@@ -5,7 +5,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class GeneralFunctions {
     sleep(ms) {
-        console.log(`Sleeping for ${ms / 1000} seconds...`);
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     trimValues(values) {

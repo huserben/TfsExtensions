@@ -151,7 +151,11 @@ In this section can be set how you authenticate against your TFS.
 ### Default Credentials
 **This option is not supported anymore - when used the script will automatically try to use the OAuth Token instead to provide support for. However it will create a warning and you should change it yourself to another Authentication Method as this will option will be removed in the future.**  
 ### OAuth Token
-If you want to use OAuth, you can select this option. If you leave the Token field empty, the task will try to access the System.AccessToken environment variable of your build agent.  If you use this option, make sure that you enabled the option *Allow Scripts to Access OAuth Token* in the options of your Build Definition:  
+If you want to use OAuth, you can select this option. If you leave the Token field empty, the task will try to access the System.AccessToken environment variable of your build agent.  If you use this option, make sure that you enabled the option *Allow Scripts to Access OAuth Token* in the options of your Build Definition.  
+On VSTS (newer versions of TFS) this is specified for the *Agent Phase* the task runs under:  
+![Allow Scripts OAuth Token Access for Agent Phase](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/allowscriptstokenaccess_new.png)  
+
+On TFS Instances (2015 - 2018) this is located under the Options of the Build Definition.  
 ![Allow Scripts OAuth Token Access](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/allowscriptstokenaccess.png)  
 Otherwise your build task will fail.
 

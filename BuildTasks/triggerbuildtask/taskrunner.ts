@@ -5,38 +5,38 @@ import tl = require("./tasklibrary");
 
 export class TaskRunner {
 
-    definitionIsInCurrentTeamProject: boolean;
-    tfsServer: string;
-    buildDefinitionsToTrigger: string[];
-    queueBuildForUserThatTriggeredBuild: boolean;
-    useSameSourceVersion: boolean;
-    useSameBranch: boolean;
-    branchToUse: string;
-    waitForQueuedBuildsToFinish: boolean;
-    waitForQueuedBuildsToFinishRefreshTime: number;
-    failTaskIfBuildsNotSuccessful: boolean;
-    downloadBuildArtifacts: boolean;
-    dropDirectory: string;
-    storeInVariable: boolean;
-    demands: string[];
-    buildQueue: string;
-    buildQueueId: number;
-    buildParameters: string;
-    ignoreSslCertificateErrors: boolean;
-    authenticationMethod: string;
-    username: string;
-    password: string;
-    enableBuildInQueueCondition: boolean;
-    includeCurrentBuildDefinition: boolean;
-    blockInProgressBuilds: boolean;
-    blockingBuilds: string[];
-    dependentOnSuccessfulBuildCondition: boolean;
-    dependentBuildsList: string[];
-    dependentOnFailedBuildCondition: boolean;
-    dependentFailingBuildsList: string[];
+    definitionIsInCurrentTeamProject: boolean = false;
+    tfsServer: string = "";
+    buildDefinitionsToTrigger: string[] = [];
+    queueBuildForUserThatTriggeredBuild: boolean = false;
+    useSameSourceVersion: boolean = false;
+    useSameBranch: boolean = false;
+    branchToUse: string = "";
+    waitForQueuedBuildsToFinish: boolean = false;
+    waitForQueuedBuildsToFinishRefreshTime: number = 60;
+    failTaskIfBuildsNotSuccessful: boolean = false;
+    downloadBuildArtifacts: boolean = false;
+    dropDirectory: string = "";
+    storeInVariable: boolean = false;
+    demands: string[] = [];
+    buildQueue: string = "";
+    buildQueueId: number = 0;
+    buildParameters: string = "";
+    ignoreSslCertificateErrors: boolean = false;
+    authenticationMethod: string = "";
+    username: string = "";
+    password: string = "";
+    enableBuildInQueueCondition: boolean = false;
+    includeCurrentBuildDefinition: boolean = false;
+    blockInProgressBuilds: boolean = false;
+    blockingBuilds: string[] = [];
+    dependentOnSuccessfulBuildCondition: boolean = false;
+    dependentBuildsList: string[] = [];
+    dependentOnFailedBuildCondition: boolean = false;
+    dependentFailingBuildsList: string[] = [];
 
-    userId: string;
-    sourceVersion: string;
+    userId: string = "";
+    sourceVersion: string = "";
 
     tfsRestService: tfsService.ITfsRestService;
     taskLibrary: tl.ITaskLibrary;
@@ -70,15 +70,26 @@ export class TaskRunner {
     private async waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
         if (this.waitForQueuedBuildsToFinish) {
             console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
+            console.log("Following Builds will be awaited:");
+
+            for (let buildId of queuedBuildIds) {
+                var buildInfo : tfsService.IBuild = await this.tfsRestService.getBuildInfo(buildId);
+                console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
+            }
 
             var areBuildsFinished: boolean = false;
+            process.stdout.write("Waiting for builds to finish");
             while (!areBuildsFinished) {
                 areBuildsFinished = await this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
 
                 if (!areBuildsFinished) {
+                    // indicate progress by appending "." to the current line of the console while sleeping
+                    process.stdout.write(".");
                     await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                 }
             }
+
+            console.log("All builds are finished");
 
             if (this.downloadBuildArtifacts) {
                 console.log(`Downloading build artifacts to ${this.dropDirectory}`);
@@ -139,11 +150,11 @@ export class TaskRunner {
                 buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
             }
 
-            var currentBuildDefinition : string = `${process.env[tfsService.CurrentBuildDefinition]}`;
+            var currentBuildDefinition: string = `${process.env[tfsService.CurrentBuildDefinition]}`;
 
             for (let blockingBuild of this.blockingBuilds) {
                 console.log(`Checking build ${blockingBuild}`);
-                var stateToCheck : string = buildStatesToCheck;
+                var stateToCheck: string = buildStatesToCheck;
 
                 if (this.includeCurrentBuildDefinition && blockingBuild === currentBuildDefinition) {
                     // current build is always in progress --> only check whether is queued.
@@ -275,7 +286,7 @@ export class TaskRunner {
                 this.blockingBuilds.push(currentBuildDefinition);
             }
 
-            if (this.blockInProgressBuilds){
+            if (this.blockInProgressBuilds) {
                 console.log("Will treat in progress builds as blocking.");
             }
 

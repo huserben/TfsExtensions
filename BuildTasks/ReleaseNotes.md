@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 2.7.0
+- Added guide on how to update Node.js on TFS 2015 Build Agent ([TFS 2015 Build Agent uses unsupported node version](https://github.com/huserben/TfsExtensions/issues/56)   
+- Improved logging while awaiting builds and added option to clear Triggered Build Variables after builds were awaited ([Add option to clear TriggeredBuilds Variable after Build awaited and improve logging](https://github.com/huserben/TfsExtensions/issues/57))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@gtarunr**](https://github.com/gtarunr)  
+- [**@cbaxter**](https://github.com/cbaxter)  
+- [**@jfinnegan3**](https://github.com/jfinnegan3)  
+
 ## Version 2.6.2 - 2.6.4
 - Reverted updated dependency packages that caused an error on some agents ([Error regarding Unexpected token](https://github.com/huserben/TfsExtensions/issues/55)   
 - Build Parameters that have a comma in the value itself are now properly parsed ([Trigger Build failing for path-like branches](https://github.com/huserben/TfsExtensions/issues/54))  
