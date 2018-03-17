@@ -12,6 +12,7 @@ export class TaskRunner {
     failTaskIfBuildsNotSuccessful: boolean;
     downloadBuildArtifacts: boolean;
     dropDirectory: string;
+    clearVariable: boolean;
     authenticationMethod: string;
     username: string;
     password: string;
@@ -42,23 +43,39 @@ export class TaskRunner {
     }
 
     private async waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
-        console.log(`
-             Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
+        console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
+
+        console.log("Following Builds will be awaited:");
+
+        for (let buildId of queuedBuildIds) {
+            var buildInfo: tfsService.IBuild = await this.tfsRestService.getBuildInfo(buildId);
+            console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
+        }
 
         var areBuildsFinished: boolean = false;
+        process.stdout.write("Waiting for builds to finish");
         while (!areBuildsFinished) {
             areBuildsFinished = await this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
 
             if (!areBuildsFinished) {
+                // indicate progress by appending "." to the current line of the console while sleeping
+                process.stdout.write(".");
                 await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
             }
         }
+
+        console.log("All builds are finished");
 
         if (this.downloadBuildArtifacts) {
             console.log(`Downloading build artifacts to ${this.dropDirectory}`);
             for (let buildId of queuedBuildIds) {
                 await this.tfsRestService.downloadArtifacts(buildId, this.dropDirectory);
             }
+        }
+
+        if (this.clearVariable === true) {
+            console.log("Clearing TriggeredBuildIds Variable...");
+            this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, "");
         }
     }
 
@@ -104,7 +121,7 @@ export class TaskRunner {
 
         // task configuration
         this.waitForQueuedBuildsToFinishRefreshTime =
-        parseInt(this.taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
+            parseInt(this.taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
         this.failTaskIfBuildsNotSuccessful = this.taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
 
         if (this.failTaskIfBuildsNotSuccessful) {
@@ -114,6 +131,8 @@ export class TaskRunner {
         }
 
         this.dropDirectory = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.DropDirectory, false));
+
+        this.clearVariable = this.taskLibrary.getBoolInput(taskConstants.ClearVariable, true);
 
         var storedBuildInfo: string = this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
         if (storedBuildInfo === undefined) {

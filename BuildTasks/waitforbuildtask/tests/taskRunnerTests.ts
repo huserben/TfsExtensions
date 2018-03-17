@@ -340,10 +340,37 @@ describe("Task Runner Tests", function (): void {
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(async () => true);
 
+        setupBuildInfoMock(BuildID, "somebuild", "someLink");
+
         await subject.run();
 
         tfsRestServiceMock.verify(
             srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.once());
+    });
+
+    it("should log info for awaited builds", async () => {
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        const DefinitionName: string = "someBuild";
+        const ExpectedLink: string = `http://someLink.ToTheBuild.expected
+        `;
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(async () => false);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(async () => true);
+
+        setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
+
+        await subject.run();
+
+        assert(consoleLogSpy.calledWith(`Build ${BuildID} (${DefinitionName}): ${ExpectedLink.trim()}`));
     });
 
     it("should wait and sleep for configured time while builds are not finished", async () => {
@@ -359,6 +386,8 @@ describe("Task Runner Tests", function (): void {
             .returns(async () => false);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(async () => true);
+
+        setupBuildInfoMock(BuildID, "somebuild", "someLink");
 
         await subject.run();
 
@@ -405,10 +434,64 @@ describe("Task Runner Tests", function (): void {
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
             .returns(async () => true);
 
+        setupBuildInfoMock(BuildID, "somebuild", "someLink");
+
         await subject.run();
 
         tfsRestServiceMock.verify(
             srv => srv.downloadArtifacts(BuildID, DropDirectory), TypeMoq.Times.once());
+    });
+
+    it("should clear variable if configured", async () => {
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        const DefinitionName: string = "someBuild";
+        const ExpectedLink: string = `http://someLink.ToTheBuild.expected
+        `;
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.ClearVariable, true)).returns(() => true);
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(async () => false);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(async () => true);
+
+        setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, ""), TypeMoq.Times.once());
+    });
+
+    it("should NOT clear variable if not configured", async () => {
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        const DefinitionName: string = "someBuild";
+        const ExpectedLink: string = `http://someLink.ToTheBuild.expected
+        `;
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.ClearVariable, true)).returns(() => false);
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(async () => false);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+            .returns(async () => true);
+
+        setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, ""), TypeMoq.Times.never());
     });
 
     function setupRestServiceConfiguration(
@@ -432,5 +515,26 @@ describe("Task Runner Tests", function (): void {
 
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, TypeMoq.It.isAny()))
             .returns(() => IgnoreSslCertificateErrorsInput);
+    }
+
+    function setupBuildInfoMock(
+        buildID: string,
+        definition: string,
+        link: string
+    ): void {
+        var buildInfoMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+
+        var definitionObj: any = { name: definition };
+        buildInfoMock.setup(bi => bi.definition).returns(() => definitionObj);
+
+        var links: any = {
+            web: {
+                href: link
+            }
+        };
+
+        buildInfoMock.setup(bi => bi._links).returns(() => links);
+
+        tfsRestServiceMock.setup(service => service.getBuildInfo(buildID)).returns(async () => buildInfoMock.target);
     }
 });

@@ -31,20 +31,32 @@ class TaskRunner {
     }
     waitForBuildsToFinish(queuedBuildIds) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`
-             Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
+            console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
+            console.log("Following Builds will be awaited:");
+            for (let buildId of queuedBuildIds) {
+                var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
+                console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
+            }
             var areBuildsFinished = false;
+            process.stdout.write("Waiting for builds to finish");
             while (!areBuildsFinished) {
                 areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
                 if (!areBuildsFinished) {
+                    // indicate progress by appending "." to the current line of the console while sleeping
+                    process.stdout.write(".");
                     yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                 }
             }
+            console.log("All builds are finished");
             if (this.downloadBuildArtifacts) {
                 console.log(`Downloading build artifacts to ${this.dropDirectory}`);
                 for (let buildId of queuedBuildIds) {
                     yield this.tfsRestService.downloadArtifacts(buildId, this.dropDirectory);
                 }
+            }
+            if (this.clearVariable === true) {
+                console.log("Clearing TriggeredBuildIds Variable...");
+                this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, "");
             }
         });
     }
@@ -92,6 +104,7 @@ class TaskRunner {
             this.downloadBuildArtifacts = false;
         }
         this.dropDirectory = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.DropDirectory, false));
+        this.clearVariable = this.taskLibrary.getBoolInput(taskConstants.ClearVariable, true);
         var storedBuildInfo = this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
         if (storedBuildInfo === undefined) {
             throw Error(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" 
@@ -102,4 +115,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map

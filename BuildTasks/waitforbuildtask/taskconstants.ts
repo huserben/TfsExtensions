@@ -9,6 +9,7 @@ export const WaitForBuildsToFinishInput : string = "waitForQueuedBuildsToFinish"
 export const WaitForBuildsToFinishRefreshTimeInput : string = "waitForQueuedBuildsToFinishRefreshTime";
 export const FailTaskIfBuildNotSuccessfulInput : string = "failTaskIfBuildsNotSuccessful";
 export const DownloadBuildArtifacts : string = "downloadBuildArtifacts";
+export const ClearVariable : string = "clearVariable";
 export const DropDirectory : string = "dropDirectory";
 export const StoreInEnvironmentVariableInput : string = "storeInEnvironmentVariable";
 export const DemandsVariableInput : string = "demands";

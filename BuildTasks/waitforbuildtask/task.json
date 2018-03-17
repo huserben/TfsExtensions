@@ -11,8 +11,8 @@
     "author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 3,
-		"Patch": 4
+		"Minor": 4,
+		"Patch": 0
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
     "groups": [
@@ -91,6 +91,15 @@
 			"required":  false,
 			"visibleRule": "downloadBuildArtifacts = true",
 			"helpMarkDown":  "Directory where the artifacts should be downloaded to. Variables can be used - e.g. $(agent.workFolder)",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "clearVariable",
+			"type":  "boolean",
+			"label":  "Clear TriggeredBuildIds variable after Task",
+			"defaultValue":  true,
+			"required":  true,
+			"helpMarkDown":  "When set to true, the TriggeredBuildIds variable used as input will be cleared.",
 			"groupName":  "basicConfiguration"
 		},
 		{

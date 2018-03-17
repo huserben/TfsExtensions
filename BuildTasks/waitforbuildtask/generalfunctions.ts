@@ -10,7 +10,6 @@ export interface IGeneralFunctions {
 
 export class GeneralFunctions implements IGeneralFunctions {
     public sleep(ms: number): Promise<void> {
-        console.log(`Sleeping for ${ms / 1000} seconds...`);
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
