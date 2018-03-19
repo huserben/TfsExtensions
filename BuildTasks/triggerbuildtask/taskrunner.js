@@ -85,7 +85,7 @@ class TaskRunner {
         if (this.storeInVariable) {
             console.log(`Storing triggered build id's in variable '${taskConstants.TriggeredBuildIdsEnvironmentVariableName}'`);
             var previousValue = this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
-            if (previousValue !== undefined) {
+            if (previousValue !== undefined && previousValue !== "") {
                 // concatenate variable values
                 console.log(`Following value is already stored in the variable: '${previousValue}'`);
                 for (let value of previousValue.split(",").reverse()) {
@@ -314,4 +314,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map

@@ -359,6 +359,20 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.verify(tl => tl.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, TriggeredBuildID), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Storing triggered build id's in variable '${taskConstants.TriggeredBuildIdsEnvironmentVariableName}'`));
     }));
+    it("should not interpret empty string as existing value", () => __awaiter(this, void 0, void 0, function* () {
+        const TriggeredBuildID = "1337";
+        const PreviousValue = "";
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
+            .returns(() => PreviousValue);
+        setupBuildIdForTriggeredBuild("build", TriggeredBuildID);
+        yield subject.run();
+        tasklibraryMock
+            .verify(tl => tl.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, `${TriggeredBuildID}`), TypeMoq.Times.once());
+        assert(!consoleLogSpy.calledWith(`Following value is already stored in the variable: '${PreviousValue}'`));
+    }));
     it("should concatenate queued build id if previous value is available", () => __awaiter(this, void 0, void 0, function* () {
         const TriggeredBuildID = "1337";
         const PreviousValue = "42";
@@ -941,4 +955,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

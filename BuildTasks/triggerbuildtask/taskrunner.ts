@@ -105,7 +105,7 @@ export class TaskRunner {
             console.log(`Storing triggered build id's in variable '${taskConstants.TriggeredBuildIdsEnvironmentVariableName}'`);
             var previousValue: string = this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
 
-            if (previousValue !== undefined) {
+            if (previousValue !== undefined && previousValue !== "") {
                 // concatenate variable values
                 console.log(`Following value is already stored in the variable: '${previousValue}'`);
 

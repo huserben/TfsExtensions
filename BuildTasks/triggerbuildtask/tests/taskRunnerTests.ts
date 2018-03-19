@@ -565,6 +565,27 @@ describe("Task Runner Tests", function (): void {
             `Storing triggered build id's in variable '${taskConstants.TriggeredBuildIdsEnvironmentVariableName}'`));
     });
 
+    it("should not interpret empty string as existing value", async () => {
+        const TriggeredBuildID: string = "1337";
+        const PreviousValue: string = "";
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
+            .returns(() => PreviousValue);
+
+        setupBuildIdForTriggeredBuild("build", TriggeredBuildID);
+
+        await subject.run();
+
+        tasklibraryMock
+            .verify(tl => tl.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, `${TriggeredBuildID}`),
+                TypeMoq.Times.once());
+
+        assert(!consoleLogSpy.calledWith(`Following value is already stored in the variable: '${PreviousValue}'`));
+    });
+
     it("should concatenate queued build id if previous value is available", async () => {
         const TriggeredBuildID: string = "1337";
         const PreviousValue: string = "42";

@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 2.7.1
+- Fixed Issue empty TriggeredBuildId variable was treated as actual value which caused an issue when new values were appened ([Add option to clear TriggeredBuilds Variable after Build awaited and improve logging](https://github.com/huserben/TfsExtensions/issues/57))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@cbaxter**](https://github.com/cbaxter)  
+
 ## Version 2.7.0
 - Added guide on how to update Node.js on TFS 2015 Build Agent ([TFS 2015 Build Agent uses unsupported node version](https://github.com/huserben/TfsExtensions/issues/56)   
 - Improved logging while awaiting builds and added option to clear Triggered Build Variables after builds were awaited ([Add option to clear TriggeredBuilds Variable after Build awaited and improve logging](https://github.com/huserben/TfsExtensions/issues/57))
