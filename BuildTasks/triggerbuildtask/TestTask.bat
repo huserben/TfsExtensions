@@ -5,7 +5,7 @@ SET INPUT_queueBuildForUserThatTriggeredBuild=false
 SET INPUT_useSameSourceVersion=false
 SET INPUT_useSameBranch=false
 SET INPUT_branchToUse=
-SET INPUT_waitForQueuedBuildsToFinish=true
+SET INPUT_waitForQueuedBuildsToFinish=false
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
 SET INPUT_failTaskIfBuildsNotSuccessful=true
 SET INPUT_downloadBuildArtifacts=false
@@ -27,5 +27,6 @@ SET INPUT_dependentBuildsList=
 SET INPUT_dependentOnFailedBuildCondition=false
 SET INPUT_dependentFailingBuildsList=
 
+SET INPUT_system.debug=true
 
 node index.js

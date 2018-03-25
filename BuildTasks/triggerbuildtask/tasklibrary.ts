@@ -13,10 +13,14 @@ export interface ITaskLibrary {
     setResult(result: TaskResult, message: string): void;
     getVariable(name: string): string;
     setVariable(name: string, value: string): void;
+    debug(message: string): void;
 }
 
 export class TaskLibrary implements ITaskLibrary {
 
+    debug(message: string): void {
+        taskLibrary.debug(message);
+    }
     getDelimitedInput(name: string, delimeter: string, isRequired: boolean): string[] {
         return taskLibrary.getDelimitedInput(name, delimeter, isRequired);
     }

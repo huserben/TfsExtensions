@@ -24,6 +24,7 @@ exports.PasswordInput = "password";
 exports.EnableBuildInQueueConditionInput = "enableBuildInQueueCondition";
 exports.IncludeCurrentBuildDefinitionInput = "includeCurrentBuildDefinition";
 exports.BlockingBuildsInput = "blockingBuildsList";
+exports.BlockInProgressBuilds = "blockInProgressBuilds";
 exports.DependentOnSuccessfulBuildConditionInput = "dependentOnSuccessfulBuildCondition";
 exports.DependentOnSuccessfulBuildsInput = "dependentBuildsList";
 exports.DependentOnFailedBuildConditionInput = "dependentOnFailedBuildCondition";

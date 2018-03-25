@@ -73,18 +73,17 @@ export class TaskRunner {
             console.log("Following Builds will be awaited:");
 
             for (let buildId of queuedBuildIds) {
-                var buildInfo : tfsService.IBuild = await this.tfsRestService.getBuildInfo(buildId);
+                var buildInfo: tfsService.IBuild = await this.tfsRestService.getBuildInfo(buildId);
                 console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
             }
 
             var areBuildsFinished: boolean = false;
-            process.stdout.write("Waiting for builds to finish");
+            console.log("Waiting for builds to finish - This might take a while...");
             while (!areBuildsFinished) {
                 areBuildsFinished = await this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
 
                 if (!areBuildsFinished) {
-                    // indicate progress by appending "." to the current line of the console while sleeping
-                    process.stdout.write(".");
+                    this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
                     await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                 }
             }

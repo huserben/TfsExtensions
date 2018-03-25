@@ -4,5 +4,6 @@ const tfsRestService = require("tfsrestservice");
 const common = require("./generalfunctions");
 const tr = require("./taskrunner");
 const tl = require("./tasklibrary");
-var taskRunner = new tr.TaskRunner(new tfsRestService.TfsRestService(), new tl.TaskLibrary(), new common.GeneralFunctions());
+var taskLibrary = new tl.TaskLibrary();
+var taskRunner = new tr.TaskRunner(new tfsRestService.TfsRestService(true, (message) => taskLibrary.debug(message)), taskLibrary, new common.GeneralFunctions());
 taskRunner.run();

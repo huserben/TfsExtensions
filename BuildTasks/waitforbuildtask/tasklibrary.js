@@ -8,6 +8,9 @@ var TaskResult;
     TaskResult[TaskResult["SucceededWithIssues"] = 2] = "SucceededWithIssues";
 })(TaskResult = exports.TaskResult || (exports.TaskResult = {}));
 class TaskLibrary {
+    debug(message) {
+        taskLibrary.debug(message);
+    }
     getDelimitedInput(name, delimeter, isRequired) {
         return taskLibrary.getDelimitedInput(name, delimeter, isRequired);
     }

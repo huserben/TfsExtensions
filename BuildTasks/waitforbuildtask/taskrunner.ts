@@ -53,13 +53,12 @@ export class TaskRunner {
         }
 
         var areBuildsFinished: boolean = false;
-        process.stdout.write("Waiting for builds to finish");
+        console.log("Waiting for builds to finish - This might take a while...");
         while (!areBuildsFinished) {
             areBuildsFinished = await this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
 
             if (!areBuildsFinished) {
-                // indicate progress by appending "." to the current line of the console while sleeping
-                process.stdout.write(".");
+                this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
                 await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
             }
         }
