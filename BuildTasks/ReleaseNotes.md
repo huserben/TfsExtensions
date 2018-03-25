@@ -1,5 +1,13 @@
 # Release Notes
 
+## Version 2.7.2
+- Improved logging by enabling debug log and writing more info when build is started with system.debug option ([ETIMEOUT happens randomly](https://github.com/huserben/TfsExtensions/issues/59) and [authentication failed](https://github.com/huserben/TfsExtensions/issues/61))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@JeffRausch**](https://github.com/JeffRausch)  
+- [**@userjeff3**](https://github.com/userjeff3)  
+
 ## Version 2.7.1
 - Fixed Issue empty TriggeredBuildId variable was treated as actual value which caused an issue when new values were appened ([Add option to clear TriggeredBuilds Variable after Build awaited and improve logging](https://github.com/huserben/TfsExtensions/issues/57))
 
