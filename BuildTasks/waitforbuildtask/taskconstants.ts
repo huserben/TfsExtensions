@@ -8,6 +8,7 @@ export const BranchToUseInput : string = "branchToUse";
 export const WaitForBuildsToFinishInput : string = "waitForQueuedBuildsToFinish";
 export const WaitForBuildsToFinishRefreshTimeInput : string = "waitForQueuedBuildsToFinishRefreshTime";
 export const FailTaskIfBuildNotSuccessfulInput : string = "failTaskIfBuildsNotSuccessful";
+export const TreatPartiallySucceededBuildAsSuccessfulInput: string = "treatPartiallySucceededBuildAsSuccessful";
 export const DownloadBuildArtifacts : string = "downloadBuildArtifacts";
 export const ClearVariable : string = "clearVariable";
 export const DropDirectory : string = "dropDirectory";

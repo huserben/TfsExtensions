@@ -11,8 +11,8 @@
     "author": "Benjamin Huser",
 	"version": {
 		"Major": 1,
-		"Minor": 4,
-		"Patch": 1
+		"Minor": 5,
+		"Patch": 0
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
     "groups": [
@@ -71,6 +71,16 @@
 			"defaultValue":  true,
 			"required":  true,
 			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "treatPartiallySucceededBuildAsSuccessful",
+			"type":  "boolean",
+			"label":  "Treat a Partially Succeeded Build as Successful",
+			"defaultValue":  false,
+			"required":  true,
+			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
+			"helpMarkDown":  "If enabled the task won't fail if the awaited build was partially successful.",
 			"groupName":  "basicConfiguration"
 		},
 		{

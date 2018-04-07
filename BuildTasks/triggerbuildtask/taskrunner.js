@@ -22,6 +22,7 @@ class TaskRunner {
         this.waitForQueuedBuildsToFinish = false;
         this.waitForQueuedBuildsToFinishRefreshTime = 60;
         this.failTaskIfBuildsNotSuccessful = false;
+        this.treatPartiallySucceededBuildAsSuccessful = false;
         this.downloadBuildArtifacts = false;
         this.storeInVariable = false;
         this.ignoreSslCertificateErrors = false;
@@ -64,7 +65,7 @@ class TaskRunner {
                 var areBuildsFinished = false;
                 console.log("Waiting for builds to finish - This might take a while...");
                 while (!areBuildsFinished) {
-                    areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful);
+                    areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
                     if (!areBuildsFinished) {
                         this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
                         yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
@@ -282,6 +283,7 @@ class TaskRunner {
         this.waitForQueuedBuildsToFinishRefreshTime =
             parseInt(this.taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
         this.failTaskIfBuildsNotSuccessful = this.taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
+        this.treatPartiallySucceededBuildAsSuccessful = this.taskLibrary.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true);
         if (this.failTaskIfBuildsNotSuccessful) {
             this.downloadBuildArtifacts = this.taskLibrary.getBoolInput(taskConstants.DownloadBuildArtifacts, true);
         }

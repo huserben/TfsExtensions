@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 2.8.0
+- Hardened Requests made to Server by retrying up to 5 times to prevent random timeout errors. ([ETIMEOUT happens randomly](https://github.com/huserben/TfsExtensions/issues/59) and [Harden "wait for builds to finish" task?](https://github.com/huserben/TfsExtensions/issues/63))  
+- Added additonal option for awaited builds to not fail the Task if the build was partially successful (["Fail the build" option will fail for partially successful triggered tasks](https://github.com/huserben/TfsExtensions/issues/64))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@JeffRausch**](https://github.com/JeffRausch)  
+- [**@cdacamar**](https://github.com/cdacamar)  
+- [**@burndeal**](https://github.com/burndeal)  
+
 ## Version 2.7.2
 - Improved logging by enabling debug log and writing more info when build is started with system.debug option ([ETIMEOUT happens randomly](https://github.com/huserben/TfsExtensions/issues/59) and [authentication failed](https://github.com/huserben/TfsExtensions/issues/61))
 

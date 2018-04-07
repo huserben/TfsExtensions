@@ -128,7 +128,7 @@ describe("Task Runner Tests", function () {
         const StoredBuildId = "12";
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => StoredBuildId);
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
         assert(consoleLogSpy.calledWith(`Following Builds are awaited: ${StoredBuildId}`));
@@ -144,7 +144,7 @@ describe("Task Runner Tests", function () {
         var ignoreSSLErrors = true;
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, ignoreSSLErrors);
         yield subject.run();
@@ -159,7 +159,7 @@ describe("Task Runner Tests", function () {
         var ignoreSSLErrors = true;
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
             .returns(() => true);
@@ -178,7 +178,7 @@ describe("Task Runner Tests", function () {
         var ignoreSSLErrors = true;
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
             .returns(() => false);
@@ -199,7 +199,7 @@ describe("Task Runner Tests", function () {
         var ignoreSSLErrors = true;
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true))
             .returns(() => false);
@@ -219,7 +219,7 @@ describe("Task Runner Tests", function () {
         var tfsServer = "https://MyServer";
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, ignoreSSLErrors);
         yield subject.run();
@@ -230,7 +230,7 @@ describe("Task Runner Tests", function () {
         var expectedOAuthToken = "fadsljlakdfsj12093ui1203";
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, true);
         process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
@@ -242,14 +242,16 @@ describe("Task Runner Tests", function () {
         const BuildID = "12";
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupBuildInfoMock(BuildID, "somebuild", "someLink");
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true, true), TypeMoq.Times.once());
     }));
     it("should log info for awaited builds", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
@@ -260,11 +262,13 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return false; }));
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
         yield subject.run();
@@ -276,11 +280,13 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return false; }));
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupBuildInfoMock(BuildID, "somebuild", "someLink");
         yield subject.run();
@@ -293,13 +299,15 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DownloadBuildArtifacts, true))
             .returns(() => false);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.DropDirectory, false))
             .returns(() => DropDirectory);
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.downloadArtifacts(BuildID, DropDirectory), TypeMoq.Times.never());
@@ -311,13 +319,15 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DownloadBuildArtifacts, true))
             .returns(() => true);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.DropDirectory, false))
             .returns(() => DropDirectory);
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupBuildInfoMock(BuildID, "somebuild", "someLink");
         yield subject.run();
@@ -332,12 +342,14 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => false);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.ClearVariable, true)).returns(() => true);
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, false))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return false; }));
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, false))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
         yield subject.run();
@@ -352,12 +364,14 @@ describe("Task Runner Tests", function () {
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.ClearVariable, true)).returns(() => false);
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return false; }));
-        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true))
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
         yield subject.run();

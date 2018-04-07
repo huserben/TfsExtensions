@@ -10,6 +10,7 @@ exports.BranchToUseInput = "branchToUse";
 exports.WaitForBuildsToFinishInput = "waitForQueuedBuildsToFinish";
 exports.WaitForBuildsToFinishRefreshTimeInput = "waitForQueuedBuildsToFinishRefreshTime";
 exports.FailTaskIfBuildNotSuccessfulInput = "failTaskIfBuildsNotSuccessful";
+exports.TreatPartiallySucceededBuildAsSuccessfulInput = "treatPartiallySucceededBuildAsSuccessful";
 exports.DownloadBuildArtifacts = "downloadBuildArtifacts";
 exports.ClearVariable = "clearVariable";
 exports.DropDirectory = "dropDirectory";
