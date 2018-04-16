@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 2.8.1
+- Improved handling of wrong parameter format to output a proper error message ([Cannot read property 'trim' of undefined](https://github.com/huserben/TfsExtensions/issues/65))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@thomasonb**](https://github.com/thomasonb)  
+
 ## Version 2.8.0
 - Hardened Requests made to Server by retrying up to 5 times to prevent random timeout errors. ([ETIMEOUT happens randomly](https://github.com/huserben/TfsExtensions/issues/59) and [Harden "wait for builds to finish" task?](https://github.com/huserben/TfsExtensions/issues/63))  
 - Added additonal option for awaited builds to not fail the Task if the build was partially successful (["Fail the build" option will fail for partially successful triggered tasks](https://github.com/huserben/TfsExtensions/issues/64))
