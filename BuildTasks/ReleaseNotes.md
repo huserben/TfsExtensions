@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 2.8.4
+- Fixed issue that prevent task from running successfully if URL read from environment variable was encoded. ([Fail with collection name with space](https://github.com/huserben/TfsExtensions/issues/70))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@G100g**](https://github.com/G100g)  
+
 ## Version 2.8.1
 - Improved handling of wrong parameter format to output a proper error message ([Cannot read property 'trim' of undefined](https://github.com/huserben/TfsExtensions/issues/65))
 
