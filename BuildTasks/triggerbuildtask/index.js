@@ -7,4 +7,3 @@ const tl = require("./tasklibrary");
 var taskLibrary = new tl.TaskLibrary();
 var taskRunner = new tr.TaskRunner(new tfsRestService.TfsRestService(true, (message) => taskLibrary.debug(message)), taskLibrary, new common.GeneralFunctions());
 taskRunner.run();
-//# sourceMappingURL=index.js.map

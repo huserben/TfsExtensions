@@ -1,5 +1,5 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build Test
+SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build%20Test
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
 SET INPUT_failTaskIfBuildsNotSuccessful=true

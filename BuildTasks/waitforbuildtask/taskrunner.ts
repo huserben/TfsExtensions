@@ -86,8 +86,11 @@ export class TaskRunner {
             this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
         } else {
             console.log("Using Custom Team Project Url");
-            this.tfsServer = decodeURI(this.tfsServer);
         }
+
+        /* we decode here because the web request library handles the encoding of the uri.
+         * otherwise we get double-encoded urls which cause problems. */
+        this.tfsServer = decodeURI(this.tfsServer);
         console.log("Path to Server: " + this.tfsServer);
 
         if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
