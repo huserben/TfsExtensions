@@ -22,6 +22,14 @@ class TaskRunner {
             try {
                 this.getInputs();
                 this.parseInputs();
+                if (this.triggeredBuilds === undefined || this.triggeredBuilds.length === 1) {
+                    var triggeredBuild = this.triggeredBuilds[0];
+                    if (triggeredBuild === "") {
+                        console.log(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" 
+                    // under Advanced Configuration for all the Triggered Builds you want to await.`);
+                        return;
+                    }
+                }
                 yield this.cancelBuilds(this.triggeredBuilds);
             }
             catch (err) {
@@ -35,6 +43,7 @@ class TaskRunner {
                 var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
                 console.log(`Cancelling Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
                 yield this.tfsRestService.cancelBuild(buildId);
+                yield this.generalFunctions.sleep(200);
             }
             if (this.clearVariable === true) {
                 console.log("Clearing TriggeredBuildIds Variable...");
@@ -80,8 +89,7 @@ class TaskRunner {
         this.password = this.taskLibrary.getInput(taskConstants.PasswordInput, false);
         var storedBuildInfo = this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
         if (storedBuildInfo === undefined) {
-            throw Error(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" 
-            // under Advanced Configuration for all the Triggered Builds you want to await.`);
+            storedBuildInfo = "";
         }
         this.triggeredBuilds = storedBuildInfo.split(",");
         console.log(`Following Builds are cancelled: ${this.triggeredBuilds}`);

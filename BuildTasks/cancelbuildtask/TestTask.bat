@@ -6,6 +6,6 @@ SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
 SET INPUT_password=sww3otrtvfaqi4sqcqqjceq23lxgvlyjfoftqox7272qc3vxyi2q
 
-SET TriggeredBuildIds=2073
+SET TriggeredBuildIds=
 
 node index.js
