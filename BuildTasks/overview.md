@@ -7,9 +7,8 @@ The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 
 **Please check the following guide on [github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
 
 ## Release Notes
-### Version 2.0 task is written in Node.js and thus supports Linux Agents as well! The PowerShell Task will not be maintained anymore - Please do update to the latest version as soon as you can.
 
-**A new Task "Wait for Builds to finish" is available that can be used to wait for Builds that were triggered by the Trigger Build Task in any previous step**
+**A new Task "Cancel Builds" is available that can be used to cancel builds that were triggered with the Trigger Build Task in any previous step**
   
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 

@@ -1,5 +1,13 @@
 # Release Notes
 
+## Version 2.9.0
+- Added a new task that allows to cancel builds. ([Cancel child build if the parent build fails](https://github.com/huserben/TfsExtensions/issues/72))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@atlesp**](https://github.com/atlesp)  
+
+
 ## Version 2.8.4
 - Fixed issue that prevent task from running successfully if URL read from environment variable was encoded. ([Fail with collection name with space](https://github.com/huserben/TfsExtensions/issues/70))
 

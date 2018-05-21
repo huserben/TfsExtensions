@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
     "name": "Trigger Build Task",
-    "version": "2.8.4",
+    "version": "2.9.0",
     "publisher": "benjhuser",
     "targets": [
         {
@@ -55,6 +55,9 @@
             "path": "waitforbuildtask"
         },
 		{
+            "path": "cancelbuildtask"
+        },
+		{
 			"path": "basic_configuration.PNG"
 		}
     ],
@@ -77,6 +80,17 @@
             ],
             "properties": {
                 "name": "waitforbuildtask"
+            }
+        },
+        
+		{
+            "id": "cancel-build-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "cancelbuildtask"
             }
         }
     ],
