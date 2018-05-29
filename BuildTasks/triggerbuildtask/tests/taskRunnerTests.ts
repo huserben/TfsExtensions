@@ -296,6 +296,14 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.Times.once());
     });
 
+    it("should get input 'fail Task If Conditions Are Not Fulfilled' correct", async () => {
+        await subject.run();
+
+        // assert
+        tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true),
+            TypeMoq.Times.once());
+    });
+
     it("should get input 'include current build definition' correct", async () => {
         await subject.run();
 
@@ -1316,6 +1324,29 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny()),
             TypeMoq.Times.never());
         assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
+    });
+
+    it("should fail task if condition is not fulfilled and fail task option is set", async () => {
+        var blockingBuilds: string[] = ["Build"];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfConditionsAreNotFulfilled, true))
+            .returns(() => true);
+
+        var buildMock: TypeMoq.IMock<tfsService.IBuild> = TypeMoq.Mock.ofType<tfsService.IBuild>();
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", tfsService.BuildStateNotStarted))
+            .returns(async () => [buildMock.object]);
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, "Condition not fulfilled - failing task."), TypeMoq.Times.once());
     });
 
     it("should not trigger new build if build is in proggres", async () => {

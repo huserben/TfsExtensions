@@ -32,6 +32,7 @@ class TaskRunner {
         this.blockInProgressBuilds = false;
         this.dependentOnSuccessfulBuildCondition = false;
         this.dependentOnFailedBuildCondition = false;
+        this.failTaskIfConditionsAreNotFulfilled = false;
         this.tfsRestService = tfsRestService;
         this.taskLibrary = taskLibrary;
         this.generalFunctions = generalFunctions;
@@ -46,6 +47,9 @@ class TaskRunner {
                     var triggeredBuilds = yield this.triggerBuilds();
                     this.writeVariable(triggeredBuilds);
                     yield this.waitForBuildsToFinish(triggeredBuilds);
+                }
+                else if (this.failTaskIfConditionsAreNotFulfilled) {
+                    throw new Error("Condition not fulfilled - failing task.");
                 }
             }
             catch (err) {
@@ -241,6 +245,9 @@ class TaskRunner {
                     console.log(`${dependantBuild}`);
                 });
             }
+            if (this.failTaskIfConditionsAreNotFulfilled) {
+                console.log("Will fail the task if a condition is not fulfilled.");
+            }
         });
     }
     initializeTfsRestService() {
@@ -314,7 +321,7 @@ class TaskRunner {
         this.dependentOnFailedBuildCondition = this.taskLibrary.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, true);
         this.dependentFailingBuildsList =
             this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false));
+        this.failTaskIfConditionsAreNotFulfilled = this.taskLibrary.getBoolInput(taskConstants.FailTaskIfConditionsAreNotFulfilled, true);
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map

@@ -23,10 +23,11 @@ SET INPUT_enableBuildInQueueCondition=false
 SET INPUT_includeCurrentBuildDefinition=false
 SET INPUT_blockingBuildsList=
 SET INPUT_blockInProgressBuilds=false
-SET INPUT_dependentOnSuccessfulBuildCondition=false
-SET INPUT_dependentBuildsList=
+SET INPUT_dependentOnSuccessfulBuildCondition=true
+SET INPUT_dependentBuildsList=CI Test
 SET INPUT_dependentOnFailedBuildCondition=false
 SET INPUT_dependentFailingBuildsList=
+SET INPUT_failTaskIfConditionsAreNotFulfilled=true
 
 SET INPUT_system.debug=false
 
