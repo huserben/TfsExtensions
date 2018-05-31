@@ -13,6 +13,7 @@ const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
+        this.cancelBuildsIfAnyFails = false;
         this.treatPartiallySucceededBuildAsSuccessful = false;
         this.tfsRestService = tfsRestService;
         this.taskLibrary = taskLibrary;
@@ -38,13 +39,26 @@ class TaskRunner {
                 var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
                 console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
             }
+            console.log("Waiting for builds to finish - This might take a while...");
             var areBuildsFinished = false;
             console.log("Waiting for builds to finish - This might take a while...");
             while (!areBuildsFinished) {
-                areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
-                if (!areBuildsFinished) {
-                    this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
-                    yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
+                try {
+                    areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
+                    if (!areBuildsFinished) {
+                        this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
+                        yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
+                    }
+                }
+                catch (err) {
+                    if (this.cancelBuildsIfAnyFails) {
+                        console.log("Awaited build failed - attempting to cancel triggered builds");
+                        for (let buildId of queuedBuildIds) {
+                            console.log(`Cancel build ${buildId}`);
+                            yield this.tfsRestService.cancelBuild(buildId);
+                        }
+                    }
+                    throw err;
                 }
             }
             console.log("All builds are finished");
@@ -99,6 +113,7 @@ class TaskRunner {
         this.waitForQueuedBuildsToFinishRefreshTime =
             parseInt(this.taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
         this.failTaskIfBuildsNotSuccessful = this.taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
+        this.cancelBuildsIfAnyFails = this.taskLibrary.getBoolInput(taskConstants.CancelBuildsIfAnyFailsInput, true);
         this.treatPartiallySucceededBuildAsSuccessful = this.taskLibrary.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true);
         if (this.failTaskIfBuildsNotSuccessful) {
             this.downloadBuildArtifacts = this.taskLibrary.getBoolInput(taskConstants.DownloadBuildArtifacts, true);

@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 1,
 		"Minor": 5,
-		"Patch": 2
+		"Patch": 3
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
     "groups": [
@@ -71,6 +71,16 @@
 			"defaultValue":  true,
 			"required":  true,
 			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "cancelBuildsIfAnyFails",
+			"type":  "boolean",
+			"label":  "Cancel all awaited builds if any of them failed ",
+			"defaultValue":  false,
+			"required":  true,
+			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
+			"helpMarkDown":  "This switch defines whether the task should attempt to cancel all awaited builds if any of the failed.",
 			"groupName":  "basicConfiguration"
 		},
 		{

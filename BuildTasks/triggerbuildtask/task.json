@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 2,
 		"Minor": 8,
-		"Patch": 5
+		"Patch": 6
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
     "groups": [
@@ -138,6 +138,16 @@
 			"required":  true,
 			"visibleRule": "waitForQueuedBuildsToFinish = true",
 			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "cancelBuildsIfAnyFails",
+			"type":  "boolean",
+			"label":  "Cancel all awaited builds if any of them failed ",
+			"defaultValue":  false,
+			"required":  true,
+			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
+			"helpMarkDown":  "This switch defines whether the task should attempt to cancel all awaited builds if any of the failed.",
 			"groupName":  "advancedConfiguration"
 		},
 		{

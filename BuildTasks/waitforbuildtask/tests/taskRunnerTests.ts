@@ -97,6 +97,14 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.Times.once());
     });
 
+    it("should get input 'cancel Builds If Any Fails' correct", async () => {
+        await subject.run();
+
+        // assert
+        tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.CancelBuildsIfAnyFailsInput, true),
+            TypeMoq.Times.once());
+    });
+
     it("should NOT get input 'download build artifacts' if 'fail task if build not successful' was false", async () => {
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => false);
@@ -411,6 +419,83 @@ describe("Task Runner Tests", function (): void {
         await subject.run();
 
         assert(consoleLogSpy.calledWith(`Build ${BuildID} (${DefinitionName}): ${ExpectedLink.trim()}`));
+    });
+
+    it("should fail task if build failes if configured", async () => {
+        const ErrorMessage: string = "Upps, build failed";
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        const DefinitionName: string = "someBuild";
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CancelBuildsIfAnyFailsInput, true))
+            .returns(() => false);
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
+            .throws(new Error(ErrorMessage));
+
+        setupBuildInfoMock(BuildID, DefinitionName, "someLink");
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, ErrorMessage), TypeMoq.Times.once());
+    });
+
+    it("should NOT fail task if build failes if not configured", async () => {
+        const ErrorMessage: string = "Upps, build failed";
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        const DefinitionName: string = "someBuild";
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CancelBuildsIfAnyFailsInput, true))
+            .returns(() => false);
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], false, true))
+            .returns(async () => true);
+
+        setupBuildInfoMock(BuildID, DefinitionName, "someLink");
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, ErrorMessage), TypeMoq.Times.never());
+    });
+
+    it("should cancel awaited builds if one failes", async () => {
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        const DefinitionName: string = "someBuild";
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CancelBuildsIfAnyFailsInput, true))
+            .returns(() => true);
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
+            .throws(new Error("Upps, build failed"));
+
+        setupBuildInfoMock(BuildID, DefinitionName, "someLink");
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(srv => srv.cancelBuild(BuildID), TypeMoq.Times.once());
     });
 
     it("should wait and sleep for configured time while builds are not finished", async () => {

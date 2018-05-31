@@ -157,6 +157,14 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.Times.once());
     });
 
+    it("should get input 'cancel Builds If Any Fails' correct", async () => {
+        await subject.run();
+
+        // assert
+        tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.CancelBuildsIfAnyFails, true),
+            TypeMoq.Times.once());
+    });
+
     it("should NOT get input 'download build artifacts' if 'fail task if build not successful' was false", async () => {
         tasklibraryMock.setup((lib) => lib.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
             .returns(() => false);
@@ -445,7 +453,7 @@ describe("Task Runner Tests", function (): void {
 
     it("should decode spaces from tfs server input when using current team project url", async () => {
         var collectionUrl: string = "https://somevstsinstance.visualstudio.com/DefaultCollection/";
-        var teamProject : string = "Team%20Project";
+        var teamProject: string = "Team%20Project";
         var expectedUrl: string = "https://somevstsinstance.visualstudio.com/DefaultCollection/Team Project";
         var authenticationMethod: string = "Basic";
         var username: string = "User1";
@@ -725,7 +733,6 @@ describe("Task Runner Tests", function (): void {
         setupBuildIdForTriggeredBuild("someBuild", BuildID);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(async () => true);
-        setupBuildInfoMock(BuildID, "someBuild", "");
 
         await subject.run();
 
@@ -750,10 +757,9 @@ describe("Task Runner Tests", function (): void {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
             .returns(() => WaitTime.toString());
 
-        setupBuildIdForTriggeredBuild(DefinitionName, BuildID);
+        setupBuildIdForTriggeredBuild(DefinitionName, BuildID, ExpectedLink);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, false))
             .returns(async () => true);
-        setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
 
         await subject.run();
 
@@ -784,6 +790,33 @@ describe("Task Runner Tests", function (): void {
         tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, TypeMoq.It.isAny()), TypeMoq.Times.once());
     });
 
+    it("should attempt to cancel builds if awaited build was not successful", async () => {
+        const WaitTime: number = 10;
+        const BuildID: string = "12";
+        setupBuildConfiguration(["someBuild"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+
+        setupBuildIdForTriggeredBuild("someBuild", BuildID);
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CancelBuildsIfAnyFails, true))
+            .returns(() => true);
+
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
+            .throws(new Error("builds were apparently not finished..."));
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, TypeMoq.It.isAny()), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.cancelBuild(BuildID), TypeMoq.Times.once());
+    });
+
     it("should wait and sleep for configured time while builds are not finished", async () => {
         const WaitTime: number = 10;
         const BuildID: string = "12";
@@ -802,8 +835,6 @@ describe("Task Runner Tests", function (): void {
             .returns(async () => false);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(async () => true);
-
-        setupBuildInfoMock(BuildID, "someBuild", "");
 
         await subject.run();
 
@@ -856,8 +887,7 @@ describe("Task Runner Tests", function (): void {
         tasklibraryMock.setup(tl => tl.getInput(taskConstants.DropDirectory, false))
             .returns(() => DropDirectory);
 
-        setupBuildInfoMock(BuildID, "someBuild", "someLink");
-        setupBuildIdForTriggeredBuild("someBuild", BuildID);
+        setupBuildIdForTriggeredBuild("someBuild", BuildID, "someLink");
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
             .returns(async () => true);
 
@@ -1634,7 +1664,7 @@ describe("Task Runner Tests", function (): void {
         return true;
     }
 
-    function setupBuildIdForTriggeredBuild(buildConfig: string, buildID: string): void {
+    function setupBuildIdForTriggeredBuild(buildConfig: string, buildID: string, link: string = ""): void {
         tfsRestServiceMock.setup(srv => srv.triggerBuild(
             buildConfig,
             TypeMoq.It.isAny(),
@@ -1644,6 +1674,8 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny()))
             .returns(async () => buildID);
+
+            setupBuildInfoMock(buildID, buildConfig, link);
     }
 
     function setupBuildConfiguration(

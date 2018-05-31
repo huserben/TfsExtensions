@@ -10,6 +10,7 @@ export class TaskRunner {
     triggeredBuilds: string[];
     waitForQueuedBuildsToFinishRefreshTime: number;
     failTaskIfBuildsNotSuccessful: boolean;
+    cancelBuildsIfAnyFails: boolean = false;
     treatPartiallySucceededBuildAsSuccessful: boolean = false;
     downloadBuildArtifacts: boolean;
     dropDirectory: string;
@@ -45,7 +46,6 @@ export class TaskRunner {
 
     private async waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
         console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
-
         console.log("Following Builds will be awaited:");
 
         for (let buildId of queuedBuildIds) {
@@ -53,15 +53,29 @@ export class TaskRunner {
             console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
         }
 
+        console.log("Waiting for builds to finish - This might take a while...");
         var areBuildsFinished: boolean = false;
         console.log("Waiting for builds to finish - This might take a while...");
         while (!areBuildsFinished) {
-            areBuildsFinished = await this.tfsRestService.areBuildsFinished(
-                queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
+            try {
+                areBuildsFinished = await this.tfsRestService.areBuildsFinished(
+                    queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
 
-            if (!areBuildsFinished) {
-                this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
-                await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
+                if (!areBuildsFinished) {
+                    this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
+                    await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
+                }
+            } catch (err) {
+                if (this.cancelBuildsIfAnyFails) {
+                    console.log("Awaited build failed - attempting to cancel triggered builds");
+                    for (let buildId of queuedBuildIds) {
+                        console.log(`Cancel build ${buildId}`);
+                        await this.tfsRestService.cancelBuild(buildId);
+                    }
+
+                }
+
+                throw err;
             }
         }
 
@@ -127,6 +141,7 @@ export class TaskRunner {
         this.waitForQueuedBuildsToFinishRefreshTime =
             parseInt(this.taskLibrary.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true), 10);
         this.failTaskIfBuildsNotSuccessful = this.taskLibrary.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true);
+        this.cancelBuildsIfAnyFails = this.taskLibrary.getBoolInput(taskConstants.CancelBuildsIfAnyFailsInput, true);
         this.treatPartiallySucceededBuildAsSuccessful = this.taskLibrary.getBoolInput(
             taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true);
 

@@ -1,8 +1,9 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build%20Test
+SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build Test
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
 SET INPUT_failTaskIfBuildsNotSuccessful=true
+SET INPUT_cancelBuildsIfAnyFails=true
 SET INPUT_treatPartiallySucceededBuildAsSuccessful=true
 SET INPUT_downloadBuildArtifacts=false
 SET INPUT_dropDirectory=D:\Temp\Whatever
@@ -11,6 +12,6 @@ SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
 SET INPUT_password=sww3otrtvfaqi4sqcqqjceq23lxgvlyjfoftqox7272qc3vxyi2q
 
-SET TriggeredBuildIds=1608
+SET TriggeredBuildIds=2189
 
 node index.js
