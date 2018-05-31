@@ -1,5 +1,14 @@
 # Release Notes
 
+## Version 2.9.1
+- Added option to cancel builds to trigger build and wait task. ([Add option to Cancel Builds when awaited build failed](https://github.com/huserben/TfsExtensions/issues/75))  
+- Added option to fail trigger task if conditions are not fulfilled ([Add option to fail Task if conditions are not fulfilled](https://github.com/huserben/TfsExtensions/issues/76))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@atlesp**](https://github.com/atlesp)  
+- [**abk90007**](https://github.com/abk90007)
+
 ## Version 2.9.0
 - Added a new task that allows to cancel builds. ([Cancel child build if the parent build fails](https://github.com/huserben/TfsExtensions/issues/72))
 

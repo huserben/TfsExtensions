@@ -90,11 +90,16 @@ You can specify the intervall of when the builds are checked, just specify the v
 Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway. Additionaly you can define whether you want to treat a partially successful build as successful to not fail the task.  
 If it is checked that the build is successful it can be specified whether the artifacts of the build(s) shall be downloaded. If so it can be specified where to store them on the build agent for further use. This location can then be used in the subsequent Tasks (for example extracting the downloaded zip and do something with it).
 
+There is as well the option to cancel all awaited builds if you are failing the task due to a build that failed. This will then stop other builds and free up the build queue.
+
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
 ####Wait for Triggered Build Task
-There is a dedicated Task that can be used in order to wait for triggered Builds to finish. When using this Task instead of the above mentioned optionl, you can do other Tasks in between and just start waiting at the latest possible moment.
+There is a dedicated Task that can be used in order to wait for triggered Builds to finish. When using this Task instead of the above mentioned option, you can do other Tasks in between and just start waiting at the latest possible moment.
 The Task uses as an input the Stored Build ID's (see below) of any Trigger Build Task that was running before and that set the option of storing the IDs. The rest of the configuration is as described above.
+
+#### Cancel Build Task
+There is as well a dedicated task to cancel builds. This can be used for example to cancel all builds if anything in the build itself fails after triggering. Just add the task in the end of the build and set it to be executed only if a previous task failed.  The task works against the Stored Build ID's in the same way as teh Wait for Triggered Build Task does.
 
 ###Store Build IDs in Variable
 If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable to the subsequent Tasks. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated. If there is already a value in the variable from a previous Task, it **not** overwritten but keep the original value and append his resulting build id's.   
@@ -199,6 +204,9 @@ The example scenario would be that you have a scheduled build during the night t
 Again you can specify a comma speratated list of build definitions that you would like to have included in the check.
   
 ![Failing Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/failedbuilddependencycondition.PNG)  
+
+### Fail Task if Any Condition is not fulfilled
+This option allows to fail the task if a condition was setup and is not met. It has no effect if you don't specify any of the other conditions.
 
 ## Issues
 In case you have issues, for example exceptions when you run the Task make sure that the Authentication Option selected is valid. If you still have problems, please open a new issue at [github](https://github.com/huserben/TfsExtensions/issues).
