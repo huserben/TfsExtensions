@@ -10,5 +10,8 @@ Use respective gulp files to compile and run the tests.
 **Wait for Build Task**  
 ![Build and Test Wait for Build Task](https://benjsawesometfstest.visualstudio.com/_apis/public/build/definitions/ee00ad4b-0ec2-47cd-bd00-f6849bd54c52/22/badge)
 
+**Cancel Build Task**  
+![Build and Test Cancel Build Task](https://benjsawesometfstest.visualstudio.com/_apis/public/build/definitions/ee00ad4b-0ec2-47cd-bd00-f6849bd54c52/31/badge)
+
 **TFS Rest Service**  
 ![Build TFS Rest Service](https://benjsawesometfstest.visualstudio.com/_apis/public/build/definitions/ee00ad4b-0ec2-47cd-bd00-f6849bd54c52/23/badge)
