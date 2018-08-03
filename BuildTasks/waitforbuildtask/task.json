@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 1,
 		"Minor": 5,
-		"Patch": 3
+		"Patch": 4
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
     "groups": [
@@ -34,6 +34,7 @@
 			"label":  "True if the build to be triggered is defined within the same team project as this build",
 			"defaultValue":  true,
 			"required":  true,
+			"helpMarkDown": "If set to false, the server, collection and Team Project to use must be entered manually. This is needed if you want to point to a different server, collection or team project on the same server.",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -43,7 +44,7 @@
 			"defaultValue":  "",
 			"required":  true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
-			"helpMarkDown":  "The TFS Server the Build you want to trigger is located. Example: https://<YOURACCOUNT>.visualstudio.com/DefaultCollection/<TEAMPROJECT>",
+			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection/myTeamProject or https://www.myOnPremTfs.com/MyCollection/MyProject",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -151,7 +152,7 @@
 			"label":  "The password, Personal Access Token or OAuth Token to authenticate",
 			"defaultValue":  "",
 			"required":  false,
-			"helpMarkDown": "If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options!",
+			"helpMarkDown": "The password or Personal Access Token. Ideally use a (secret) variable here instead putting it in plaintext. Variables can be referenced with the following syntax: $(myToken). If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options! Please check out the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#authentication-options) in case you have problems.",
 			"visibleRule": "authenticationMethod != Default Credentials",
 			"groupName":  "authenticationOptions"
 		}

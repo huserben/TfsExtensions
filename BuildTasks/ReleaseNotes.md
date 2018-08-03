@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 2.9.2
+- Improved help markdown text in general and especially for build parameters. ([Build parameters for "Trigger Build Tasks" are undocumented](https://github.com/huserben/TfsExtensions/issues/77))  
+- Improved label for Authentication Options ([Add more secure options for storing authentication information](https://github.com/huserben/TfsExtensions/issues/82))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@PxlBuzzard**](https://github.com/PxlBuzzard)  
+- [**heikkoe**](https://github.com/heikkoe)
+
+
 ## Version 2.9.1
 - Added option to cancel builds to trigger build and wait task. ([Add option to Cancel Builds when awaited build failed](https://github.com/huserben/TfsExtensions/issues/75))  
 - Added option to fail trigger task if conditions are not fulfilled ([Add option to fail Task if conditions are not fulfilled](https://github.com/huserben/TfsExtensions/issues/76))

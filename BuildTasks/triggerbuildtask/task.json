@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 2,
 		"Minor": 8,
-		"Patch": 6
+		"Patch": 7
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
     "groups": [
@@ -44,6 +44,7 @@
 			"label":  "True if the build to be triggered is defined within the same team project as this build",
 			"defaultValue":  true,
 			"required":  true,
+			"helpMarkDown": "If set to false, the server, collection and Team Project to use must be entered manually. This is needed if you want to point to a different server, collection or team project on the same server.",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -53,7 +54,7 @@
 			"defaultValue":  "",
 			"required":  true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
-			"helpMarkDown":  "The TFS Server the Build you want to trigger is located. Example: https://<YOURACCOUNT>.visualstudio.com/DefaultCollection/<TEAMPROJECT>",
+			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection/myTeamProject or https://www.myOnPremTfs.com/MyCollection/MyProject",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -62,7 +63,7 @@
 			"label":  "Name of the Build Definitions that shall be triggered",
 			"defaultValue":  "",
 			"required":  true,
-			"helpMarkDown":  "Comma-Separated list of names of the definition that we want to queue a new build for.",
+			"helpMarkDown":  "Comma-Separated list of names of the definitions that a new build should be queued for.",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -71,7 +72,7 @@
 			"label":  "Queue Build for user that triggered original build",
 			"defaultValue":  true,
 			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build.",
+			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build. Otherwise the triggered user depends on the means of authentication. Please refer to the (documentation)[https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#basic-configuration].",
 			"groupName":  "basicConfiguration"
 		},
 		{
@@ -89,7 +90,7 @@
 			"label":  "Use current changeset for the triggered build",
 			"defaultValue":  false,
 			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will run with the same source version as the original build. If this is not enabled, the newest version will be used.",
+			"helpMarkDown":  "If this option is enabled, the triggered build will run with the same source version as the original build. Source Versions are either changesets or labels. If this is not enabled, the newest version will be used.",
 			"groupName":  "advancedConfiguration"
 		},
 		{
@@ -98,7 +99,7 @@
 			"label":  "Use same source branch as triggered build",
 			"defaultValue":  true,
 			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will be run with the same source branch as the original build. This only makes sense if the triggered build is within the same project and is cause for error if the branch is not available in the triggered build!",
+			"helpMarkDown":  "If this option is enabled, the triggered build will be run with the same source branch as the original build. This only makes sense in Git projects and if the triggered build is within the same project and is cause for error if the branch is not available in the triggered build!",
 			"groupName":  "advancedConfiguration"
 		},
 		{
@@ -127,7 +128,7 @@
 			"defaultValue":  60,
 			"required":  true,
 			"visibleRule": "waitForQueuedBuildsToFinish = true",
-			"helpMarkDown":  "This value defines how often the tasks checks if the triggered builds are completed already",
+			"helpMarkDown":  "This value defines how frequent the tasks checks if the triggered builds are completed already. A lower value might have an impact on performance or the network, as the server is queried more often.",
 			"groupName":  "advancedConfiguration"
 		},
 		{
@@ -147,7 +148,7 @@
 			"defaultValue":  false,
 			"required":  true,
 			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
-			"helpMarkDown":  "This switch defines whether the task should attempt to cancel all awaited builds if any of the failed.",
+			"helpMarkDown":  "Defines whether the task should attempt to cancel all awaited builds if any of the failed.",
 			"groupName":  "advancedConfiguration"
 		},
 		{
@@ -213,7 +214,7 @@
 			"label":  "Define additional parameters for the build, for example build configuration or platform.",
 			"defaultValue":  "",
 			"required":  false,
-			"helpMarkDown":  "Specify the build parameters.If nothing is specified, the default values will be used. See Build Task description for more info on the format and the usage of variables.",
+			"helpMarkDown":  "Specify the build parameters. If nothing is specified, the default values will be used. See [Build Task description](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#build-parameters) for more info on the format and the usage of variables.",
 			"groupName":  "advancedConfiguration"
 		},
 		{
@@ -246,7 +247,7 @@
 			"label":  "The password, Personal Access Token or OAuth Token to authenticate",
 			"defaultValue":  "",
 			"required":  false,
-			"helpMarkDown": "If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options!",
+			"helpMarkDown": "The password or Personal Access Token. Ideally use a (secret) variable here instead putting it in plaintext. Variables can be referenced with the following syntax: $(myToken). If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options! Please check out the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#authentication-options) in case you have problems.",
 			"visibleRule": "authenticationMethod != Default Credentials",
 			"groupName":  "authenticationOptions"
 		},
