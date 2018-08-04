@@ -6,7 +6,7 @@ import tr = require("./taskrunner");
 var tasklibrary : tl.TaskLibrary = new tl.TaskLibrary();
 
 var taskRunner: tr.TaskRunner = new tr.TaskRunner(
-    new tfsRestService.TfsRestService(true, (message) => tasklibrary.debug(message)),
+    new tfsRestService.TfsRestService(),
     tasklibrary,
     new common.GeneralFunctions());
 

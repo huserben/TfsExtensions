@@ -2,12 +2,14 @@ import tfsService = require("tfsrestservice");
 import taskConstants = require("./taskconstants");
 import common = require("./generalfunctions");
 import tl = require("./tasklibrary");
+import { Build, BuildStatus, BuildResult } from "vso-node-api/interfaces/BuildInterfaces";
 
 export class TaskRunner {
     definitionIsInCurrentTeamProject: boolean;
     tfsServer: string;
+    teamProject: string;
     ignoreSslCertificateErrors: boolean;
-    triggeredBuilds: string[];
+    triggeredBuilds: number[] = [];
     waitForQueuedBuildsToFinishRefreshTime: number;
     failTaskIfBuildsNotSuccessful: boolean;
     cancelBuildsIfAnyFails: boolean = false;
@@ -36,7 +38,7 @@ export class TaskRunner {
     public async run(): Promise<void> {
         try {
             this.getInputs();
-            this.parseInputs();
+            await this.parseInputs();
 
             await this.waitForBuildsToFinish(this.triggeredBuilds);
         } catch (err) {
@@ -44,12 +46,12 @@ export class TaskRunner {
         }
     }
 
-    private async waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
+    private async waitForBuildsToFinish(queuedBuildIds: number[]): Promise<void> {
         console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
         console.log("Following Builds will be awaited:");
 
         for (let buildId of queuedBuildIds) {
-            var buildInfo: tfsService.IBuild = await this.tfsRestService.getBuildInfo(buildId);
+            var buildInfo: Build = await this.tfsRestService.getBuildInfo(buildId);
             console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
         }
 
@@ -94,10 +96,11 @@ export class TaskRunner {
         }
     }
 
-    private parseInputs(): void {
+    private async parseInputs(): Promise<void> {
         if (this.definitionIsInCurrentTeamProject) {
             console.log("Using current Team Project Url");
-            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
+            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
+            this.teamProject = `${process.env[tfsService.TeamProject]}`;
         } else {
             console.log("Using Custom Team Project Url");
         }
@@ -105,14 +108,8 @@ export class TaskRunner {
         /* we decode here because the web request library handles the encoding of the uri.
          * otherwise we get double-encoded urls which cause problems. */
         this.tfsServer = decodeURI(this.tfsServer);
-        console.log("Path to Server: " + this.tfsServer);
-
-        if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
-            this.password = "";
-        }
+        console.log("Server URL: " + this.tfsServer);
+        console.log("Team Project: " + this.teamProject);
 
         if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
             (this.password === null || this.password === "")) {
@@ -120,8 +117,8 @@ export class TaskRunner {
             this.password = `${process.env[tfsService.OAuthAccessToken]}`;
         }
 
-        this.tfsRestService.initialize(
-            this.authenticationMethod, this.username, this.password, this.tfsServer, this.ignoreSslCertificateErrors);
+        await this.tfsRestService.initialize(
+            this.authenticationMethod, this.username, this.password, this.tfsServer, this.teamProject, this.ignoreSslCertificateErrors);
     }
 
     /// Fetch all the inputs and set them to the variables to be used within the script.
@@ -129,6 +126,7 @@ export class TaskRunner {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
         this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
+        this.teamProject = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TeamProjectInput, false));
         this.ignoreSslCertificateErrors = this.taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
 
         // authentication
@@ -161,7 +159,10 @@ export class TaskRunner {
             // under Advanced Configuration for all the Triggered Builds you want to await.`);
         }
 
-        this.triggeredBuilds = storedBuildInfo.split(",");
+        for (let storedBuildId of storedBuildInfo.split(",")){
+            this.triggeredBuilds.push(Number.parseInt(storedBuildId));
+        }
+
         console.log(`Following Builds are awaited: ${this.triggeredBuilds}`);
     }
 }

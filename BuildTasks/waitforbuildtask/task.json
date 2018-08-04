@@ -10,11 +10,12 @@
 		],
     "author": "Benjamin Huser",
 	"version": {
-		"Major": 1,
-		"Minor": 5,
-		"Patch": 4
+		"Major": 2,
+		"Minor": 0,
+		"Patch": 0
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
+	"preview": true,
     "groups": [
 		{
 			"name": "basicConfiguration",
@@ -40,11 +41,21 @@
 		{
 			"name":  "tfsServer",
 			"type":  "string",
-			"label":  "URL to TFS Server (including Collection and Team Project)",
+			"label":  "URL to TFS Server (including Collection)",
 			"defaultValue":  "",
 			"required":  true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
-			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection/myTeamProject or https://www.myOnPremTfs.com/MyCollection/MyProject",
+			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection or https://www.myOnPremTfs.com/MyCollection",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "teamProject",
+			"type":  "string",
+			"label":  "Team Project",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "definitionIsInCurrentTeamProject = false",
+			"helpMarkDown":  "The Team Project the build you want to trigger is in.",
 			"groupName":  "basicConfiguration"
 		},
 		{

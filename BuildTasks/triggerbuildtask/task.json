@@ -58,8 +58,7 @@
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
 			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection or https://www.myOnPremTfs.com/MyCollection",
 			"groupName":  "basicConfiguration"
-		},
-		
+		},		
 		{
 			"name":  "teamProject",
 			"type":  "string",
