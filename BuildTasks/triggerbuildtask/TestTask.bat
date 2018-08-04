@@ -1,5 +1,6 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/Build Test
+SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection
+SET INPUT_teamProject=Build Test
 SET INPUT_buildDefinition=CI Test
 SET INPUT_queueBuildForUserThatTriggeredBuild=false
 SET INPUT_useSameSourceVersion=false

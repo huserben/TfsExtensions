@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefininitionIsInCurrentTeamProjectInput = "definitionIsInCurrentTeamProject";
 exports.ServerUrlInput = "tfsServer";
+exports.TeamProjectInput = "teamProject";
 exports.BuildDefinitionsToTriggerInput = "buildDefinition";
 exports.QueueBuildForUserInput = "queueBuildForUserThatTriggeredBuild";
 exports.UseSameSourceVersionInput = "useSameSourceVersion";
@@ -33,4 +34,3 @@ exports.DependentOnFailedBuildsInput = "dependentFailingBuildsList";
 exports.TriggeredBuildIdsEnvironmentVariableName = "TriggeredBuildIds";
 exports.FailTaskIfConditionsAreNotFulfilled = "failTaskIfConditionsAreNotFulfilled";
 exports.AuthenticationMethodDefaultCredentials = "Default Credentials";
-//# sourceMappingURL=taskconstants.js.map

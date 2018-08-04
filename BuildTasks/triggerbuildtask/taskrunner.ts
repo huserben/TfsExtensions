@@ -2,11 +2,13 @@ import tfsService = require("tfsrestservice");
 import taskConstants = require("./taskconstants");
 import common = require("./generalfunctions");
 import tl = require("./tasklibrary");
+import { Build, BuildStatus, BuildResult } from "./node_modules/vso-node-api/interfaces/BuildInterfaces";
 
 export class TaskRunner {
 
     definitionIsInCurrentTeamProject: boolean = false;
     tfsServer: string = "";
+    teamProject: string = "";
     buildDefinitionsToTrigger: string[] = [];
     queueBuildForUserThatTriggeredBuild: boolean = false;
     useSameSourceVersion: boolean = false;
@@ -61,7 +63,7 @@ export class TaskRunner {
 
             var conditionsFulfilled: boolean = await this.checkConditions();
             if (conditionsFulfilled) {
-                var triggeredBuilds: string[] = await this.triggerBuilds();
+                var triggeredBuilds: number[] = await this.triggerBuilds();
                 this.writeVariable(triggeredBuilds);
                 await this.waitForBuildsToFinish(triggeredBuilds);
             } else if (this.failTaskIfConditionsAreNotFulfilled) {
@@ -72,13 +74,13 @@ export class TaskRunner {
         }
     }
 
-    private async waitForBuildsToFinish(queuedBuildIds: string[]): Promise<void> {
+    private async waitForBuildsToFinish(queuedBuildIds: number[]): Promise<void> {
         if (this.waitForQueuedBuildsToFinish) {
             console.log(`Will wait for queued build to be finished - Refresh time is set to ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
             console.log("Following Builds will be awaited:");
 
             for (let buildId of queuedBuildIds) {
-                var buildInfo: tfsService.IBuild = await this.tfsRestService.getBuildInfo(buildId);
+                var buildInfo: Build = await this.tfsRestService.getBuildInfo(buildId);
                 console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
             }
 
@@ -117,7 +119,7 @@ export class TaskRunner {
         }
     }
 
-    private writeVariable(triggeredBuilds: string[]): void {
+    private writeVariable(triggeredBuilds: number[]): void {
         if (this.storeInVariable) {
             console.log(`Storing triggered build id's in variable '${taskConstants.TriggeredBuildIdsEnvironmentVariableName}'`);
             var previousValue: string = this.taskLibrary.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName);
@@ -127,7 +129,7 @@ export class TaskRunner {
                 console.log(`Following value is already stored in the variable: '${previousValue}'`);
 
                 for (let value of previousValue.split(",").reverse()) {
-                    triggeredBuilds.splice(0, 0, value);
+                    triggeredBuilds.splice(0, 0, Number.parseInt(value));
                 }
             }
 
@@ -136,11 +138,11 @@ export class TaskRunner {
         }
     }
 
-    private async triggerBuilds(): Promise<string[]> {
-        var queuedBuildIds: string[] = new Array();
+    private async triggerBuilds(): Promise<number[]> {
+        var queuedBuildIds: number[] = new Array();
 
         for (let build of this.buildDefinitionsToTrigger) {
-            var queuedBuildId: string =
+            var queuedBuild: Build =
                 await this.tfsRestService.triggerBuild(
                     build.trim(),
                     this.branchToUse,
@@ -150,9 +152,9 @@ export class TaskRunner {
                     this.buildQueueId,
                     this.buildParameters);
 
-            queuedBuildIds.push(queuedBuildId);
+            queuedBuildIds.push(queuedBuild.id);
 
-            console.log(`Queued new Build for definition ${build}: ${this.tfsServer}/_build/index?buildId=${queuedBuildId}`);
+            console.log(`Queued new Build for definition ${build}: ${queuedBuild._links.web.href}`);
         }
 
         return queuedBuildIds;
@@ -162,24 +164,25 @@ export class TaskRunner {
         if (this.enableBuildInQueueCondition) {
             console.log("Checking if blocking builds are queued");
 
-            var buildStatesToCheck: string = tfsService.BuildStateNotStarted;
+            var buildStatesToCheck: BuildStatus = BuildStatus.NotStarted;
             if (this.blockInProgressBuilds) {
-                buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
+                // tslint:disable-next-line:no-bitwise
+                buildStatesToCheck |= BuildStatus.InProgress;
             }
 
             var currentBuildDefinition: string = `${process.env[tfsService.CurrentBuildDefinition]}`;
 
             for (let blockingBuild of this.blockingBuilds) {
                 console.log(`Checking build ${blockingBuild}`);
-                var stateToCheck: string = buildStatesToCheck;
+                var stateToCheck: BuildStatus = buildStatesToCheck;
 
                 if (this.includeCurrentBuildDefinition && blockingBuild === currentBuildDefinition) {
                     // current build is always in progress --> only check whether is queued.
                     console.log("Is current build definition - will not check for builds in progress");
-                    stateToCheck = tfsService.BuildStateNotStarted;
+                    stateToCheck = BuildStatus.NotStarted;
                 }
 
-                let queuedBuilds: tfsService.IBuild[]
+                let queuedBuilds: Build[]
                     = await this.tfsRestService.getBuildsByStatus(
                         blockingBuild,
                         stateToCheck);
@@ -200,9 +203,9 @@ export class TaskRunner {
             for (let element of this.dependentBuildsList) {
                 console.log(`Checking build ${element}`);
 
-                let lastBuilds: tfsService.IBuild[] = (await this.tfsRestService.getBuildsByStatus(element, ""));
+                let lastBuilds: Build[] = (await this.tfsRestService.getBuildsByStatus(element));
 
-                if (lastBuilds.length > 0 && lastBuilds[0].result !== tfsService.BuildResultSucceeded) {
+                if (lastBuilds.length > 0 && lastBuilds[0].result !== BuildResult.Succeeded) {
                     console.log(
                         `Last build of definition ${element} was not successful
                     (state is ${lastBuilds[0].result}) - will not trigger new build`);
@@ -217,9 +220,9 @@ export class TaskRunner {
             console.log("Checking if dependant build definitions last builds were NOT successful");
 
             for (let build of this.dependentFailingBuildsList) {
-                let lastBuilds: tfsService.IBuild[] = (await this.tfsRestService.getBuildsByStatus(build, ""));
+                let lastBuilds: Build[] = (await this.tfsRestService.getBuildsByStatus(build));
 
-                if (lastBuilds.length > 0 && lastBuilds[0].result === tfsService.BuildResultSucceeded) {
+                if (lastBuilds.length > 0 && lastBuilds[0].result === BuildResult.Succeeded) {
                     console.log(`Last build of definition ${build} was successful
                 (state is ${lastBuilds[0].result}) - will not trigger new build`);
                     return false;
@@ -233,7 +236,7 @@ export class TaskRunner {
     }
 
     private async parseInputs(): Promise<void> {
-        this.initializeTfsRestService();
+        await this.initializeTfsRestService();
 
         if (this.queueBuildForUserThatTriggeredBuild) {
             let user: string = `${process.env[tfsService.RequestedForUsername]}`;
@@ -333,18 +336,19 @@ export class TaskRunner {
         }
     }
 
-    private initializeTfsRestService(): void {
+    private async initializeTfsRestService(): Promise<void> {
         if (this.definitionIsInCurrentTeamProject) {
             console.log("Using current Team Project Url");
-            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
+            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
+            this.teamProject = `${process.env[tfsService.TeamProject]}`;
         } else {
             console.log("Using Custom Team Project Url");
         }
-
         /* we decode here because the web request library handles the encoding of the uri.
          * otherwise we get double-encoded urls which cause problems. */
         this.tfsServer = decodeURI(this.tfsServer);
-        console.log("Path to Server: " + this.tfsServer);
+        console.log("Server URL: " + this.tfsServer);
+        console.log("Team Project: " + this.teamProject);
 
         if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
             console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
@@ -359,8 +363,8 @@ export class TaskRunner {
             this.password = `${process.env[tfsService.OAuthAccessToken]}`;
         }
 
-        this.tfsRestService.initialize(
-            this.authenticationMethod, this.username, this.password, this.tfsServer, this.ignoreSslCertificateErrors);
+        await this.tfsRestService.initialize(
+            this.authenticationMethod, this.username, this.password, this.tfsServer, this.teamProject, this.ignoreSslCertificateErrors);
     }
 
     /// Fetch all the inputs and set them to the variables to be used within the script.
@@ -368,6 +372,7 @@ export class TaskRunner {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
         this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
+        this.teamProject = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TeamProjectInput, false));
 
         this.buildDefinitionsToTrigger =
             this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true));

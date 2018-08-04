@@ -11,10 +11,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tfsService = require("tfsrestservice");
 const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
+const BuildInterfaces_1 = require("./node_modules/vso-node-api/interfaces/BuildInterfaces");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
         this.definitionIsInCurrentTeamProject = false;
         this.tfsServer = "";
+        this.teamProject = "";
         this.buildDefinitionsToTrigger = [];
         this.queueBuildForUserThatTriggeredBuild = false;
         this.useSameSourceVersion = false;
@@ -106,7 +108,7 @@ class TaskRunner {
                 // concatenate variable values
                 console.log(`Following value is already stored in the variable: '${previousValue}'`);
                 for (let value of previousValue.split(",").reverse()) {
-                    triggeredBuilds.splice(0, 0, value);
+                    triggeredBuilds.splice(0, 0, Number.parseInt(value));
                 }
             }
             this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, triggeredBuilds.join(","));
@@ -117,9 +119,9 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             var queuedBuildIds = new Array();
             for (let build of this.buildDefinitionsToTrigger) {
-                var queuedBuildId = yield this.tfsRestService.triggerBuild(build.trim(), this.branchToUse, this.userId, this.sourceVersion, this.demands, this.buildQueueId, this.buildParameters);
-                queuedBuildIds.push(queuedBuildId);
-                console.log(`Queued new Build for definition ${build}: ${this.tfsServer}/_build/index?buildId=${queuedBuildId}`);
+                var queuedBuild = yield this.tfsRestService.triggerBuild(build.trim(), this.branchToUse, this.userId, this.sourceVersion, this.demands, this.buildQueueId, this.buildParameters);
+                queuedBuildIds.push(queuedBuild.id);
+                console.log(`Queued new Build for definition ${build}: ${queuedBuild._links.web.href}`);
             }
             return queuedBuildIds;
         });
@@ -128,9 +130,10 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.enableBuildInQueueCondition) {
                 console.log("Checking if blocking builds are queued");
-                var buildStatesToCheck = tfsService.BuildStateNotStarted;
+                var buildStatesToCheck = BuildInterfaces_1.BuildStatus.NotStarted;
                 if (this.blockInProgressBuilds) {
-                    buildStatesToCheck += `,${tfsService.BuildStateInProgress}`;
+                    // tslint:disable-next-line:no-bitwise
+                    buildStatesToCheck |= BuildInterfaces_1.BuildStatus.InProgress;
                 }
                 var currentBuildDefinition = `${process.env[tfsService.CurrentBuildDefinition]}`;
                 for (let blockingBuild of this.blockingBuilds) {
@@ -139,7 +142,7 @@ class TaskRunner {
                     if (this.includeCurrentBuildDefinition && blockingBuild === currentBuildDefinition) {
                         // current build is always in progress --> only check whether is queued.
                         console.log("Is current build definition - will not check for builds in progress");
-                        stateToCheck = tfsService.BuildStateNotStarted;
+                        stateToCheck = BuildInterfaces_1.BuildStatus.NotStarted;
                     }
                     let queuedBuilds = yield this.tfsRestService.getBuildsByStatus(blockingBuild, stateToCheck);
                     if (queuedBuilds.length > 0) {
@@ -154,8 +157,8 @@ class TaskRunner {
                 console.log("Checking if dependant build definitions last builds were successful");
                 for (let element of this.dependentBuildsList) {
                     console.log(`Checking build ${element}`);
-                    let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(element, ""));
-                    if (lastBuilds.length > 0 && lastBuilds[0].result !== tfsService.BuildResultSucceeded) {
+                    let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(element));
+                    if (lastBuilds.length > 0 && lastBuilds[0].result !== BuildInterfaces_1.BuildResult.Succeeded) {
                         console.log(`Last build of definition ${element} was not successful
                     (state is ${lastBuilds[0].result}) - will not trigger new build`);
                         return false;
@@ -167,8 +170,8 @@ class TaskRunner {
             if (this.dependentOnFailedBuildCondition) {
                 console.log("Checking if dependant build definitions last builds were NOT successful");
                 for (let build of this.dependentFailingBuildsList) {
-                    let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(build, ""));
-                    if (lastBuilds.length > 0 && lastBuilds[0].result === tfsService.BuildResultSucceeded) {
+                    let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(build));
+                    if (lastBuilds.length > 0 && lastBuilds[0].result === BuildInterfaces_1.BuildResult.Succeeded) {
                         console.log(`Last build of definition ${build} was successful
                 (state is ${lastBuilds[0].result}) - will not trigger new build`);
                         return false;
@@ -182,7 +185,7 @@ class TaskRunner {
     }
     parseInputs() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.initializeTfsRestService();
+            yield this.initializeTfsRestService();
             if (this.queueBuildForUserThatTriggeredBuild) {
                 let user = `${process.env[tfsService.RequestedForUsername]}`;
                 this.userId = `${process.env[tfsService.RequestedForUserId]}`;
@@ -264,35 +267,39 @@ class TaskRunner {
         });
     }
     initializeTfsRestService() {
-        if (this.definitionIsInCurrentTeamProject) {
-            console.log("Using current Team Project Url");
-            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
-        }
-        else {
-            console.log("Using Custom Team Project Url");
-        }
-        /* we decode here because the web request library handles the encoding of the uri.
-         * otherwise we get double-encoded urls which cause problems. */
-        this.tfsServer = decodeURI(this.tfsServer);
-        console.log("Path to Server: " + this.tfsServer);
-        if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
-            this.password = "";
-        }
-        if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
-            (this.password === null || this.password === "")) {
-            console.log("Trying to fetch authentication token from system...");
-            this.password = `${process.env[tfsService.OAuthAccessToken]}`;
-        }
-        this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.ignoreSslCertificateErrors);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.definitionIsInCurrentTeamProject) {
+                console.log("Using current Team Project Url");
+                this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
+                this.teamProject = `${process.env[tfsService.TeamProject]}`;
+            }
+            else {
+                console.log("Using Custom Team Project Url");
+            }
+            /* we decode here because the web request library handles the encoding of the uri.
+             * otherwise we get double-encoded urls which cause problems. */
+            this.tfsServer = decodeURI(this.tfsServer);
+            console.log("Path to Server: " + this.tfsServer);
+            if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
+                console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
+                console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
+                this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
+                this.password = "";
+            }
+            if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
+                (this.password === null || this.password === "")) {
+                console.log("Trying to fetch authentication token from system...");
+                this.password = `${process.env[tfsService.OAuthAccessToken]}`;
+            }
+            yield this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.teamProject, this.ignoreSslCertificateErrors);
+        });
     }
     /// Fetch all the inputs and set them to the variables to be used within the script.
     getInputs() {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
         this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
+        this.teamProject = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TeamProjectInput, false));
         this.buildDefinitionsToTrigger =
             this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true));
         this.ignoreSslCertificateErrors = this.taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
@@ -339,4 +346,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map
