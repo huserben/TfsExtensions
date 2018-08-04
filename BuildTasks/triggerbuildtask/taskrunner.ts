@@ -344,18 +344,12 @@ export class TaskRunner {
         } else {
             console.log("Using Custom Team Project Url");
         }
+
         /* we decode here because the web request library handles the encoding of the uri.
          * otherwise we get double-encoded urls which cause problems. */
         this.tfsServer = decodeURI(this.tfsServer);
         console.log("Server URL: " + this.tfsServer);
         console.log("Team Project: " + this.teamProject);
-
-        if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
-            this.password = "";
-        }
 
         if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
             (this.password === null || this.password === "")) {

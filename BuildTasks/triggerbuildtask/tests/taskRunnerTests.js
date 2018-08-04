@@ -324,17 +324,6 @@ describe("Task Runner Tests", function () {
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, expectedTfsAddress, TypeMoq.It.isAny(), ignoreSSLErrors), TypeMoq.Times.once());
     }));
-    it("should use OAuth method if default credentials authentication is used", () => __awaiter(this, void 0, void 0, function* () {
-        var authenticationMethod = taskConstants.AuthenticationMethodDefaultCredentials;
-        var username = "User1";
-        var password = "P4s5W0rd";
-        var ignoreSSLErrors = true;
-        var tfsServer = "https://MyServer";
-        var teamProject = "teamProject";
-        setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, teamProject, ignoreSSLErrors);
-        yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.initialize(tfsService.AuthenticationMethodOAuthToken, username, TypeMoq.It.isAny(), tfsServer, teamProject, ignoreSSLErrors), TypeMoq.Times.once());
-    }));
     it("should try to fetch OAuth access token when using OAuth method and not having set a password", () => __awaiter(this, void 0, void 0, function* () {
         var tfsServer = "https://MyServer";
         var teamProject = "teamProject";
@@ -1031,3 +1020,4 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
+//# sourceMappingURL=taskRunnerTests.js.map

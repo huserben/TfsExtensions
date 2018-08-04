@@ -480,23 +480,6 @@ describe("Task Runner Tests", function (): void {
             authenticationMethod, username, password, expectedTfsAddress, TypeMoq.It.isAny(), ignoreSSLErrors), TypeMoq.Times.once());
     });
 
-    it("should use OAuth method if default credentials authentication is used", async () => {
-        var authenticationMethod: string = taskConstants.AuthenticationMethodDefaultCredentials;
-        var username: string = "User1";
-        var password: string = "P4s5W0rd";
-        var ignoreSSLErrors: boolean = true;
-        var tfsServer: string = "https://MyServer";
-        var teamProject: string = "teamProject";
-
-        setupRestServiceConfiguration(authenticationMethod, username, password, tfsServer, teamProject, ignoreSSLErrors);
-
-        await subject.run();
-
-        tfsRestServiceMock.verify(srv => srv.initialize(
-            tfsService.AuthenticationMethodOAuthToken, username, TypeMoq.It.isAny(), tfsServer, teamProject, ignoreSSLErrors),
-            TypeMoq.Times.once());
-    });
-
     it("should try to fetch OAuth access token when using OAuth method and not having set a password", async () => {
         var tfsServer: string = "https://MyServer";
         var teamProject: string = "teamProject";

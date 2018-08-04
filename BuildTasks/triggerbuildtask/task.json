@@ -237,9 +237,8 @@
             "required": true,
             "groupName": "authenticationOptions",
             "defaultValue": "Personal Access Token",
-            "helpMarkDown": "Select your method of authentication (Default Credentials is deprecated and will be removed in later versions - will internally use OAuth Token).",
+            "helpMarkDown": "Select your method of authentication",
             "options": {
-				"Default Credentials": "Default Credentials",
 				"OAuth Token": "OAuth Token",
                 "Personal Access Token": "Personal Access Token",
                 "Basic Authentication": "Basic Authentication"

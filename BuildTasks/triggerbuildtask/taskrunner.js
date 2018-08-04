@@ -279,13 +279,8 @@ class TaskRunner {
             /* we decode here because the web request library handles the encoding of the uri.
              * otherwise we get double-encoded urls which cause problems. */
             this.tfsServer = decodeURI(this.tfsServer);
-            console.log("Path to Server: " + this.tfsServer);
-            if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-                console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-                console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-                this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
-                this.password = "";
-            }
+            console.log("Server URL: " + this.tfsServer);
+            console.log("Team Project: " + this.teamProject);
             if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
                 (this.password === null || this.password === "")) {
                 console.log("Trying to fetch authentication token from system...");
@@ -346,3 +341,4 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
+//# sourceMappingURL=taskrunner.js.map

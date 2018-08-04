@@ -31,5 +31,3 @@ export const DependentOnFailedBuildConditionInput : string = "dependentOnFailedB
 export const DependentOnFailedBuildsInput : string = "dependentFailingBuildsList";
 export const TriggeredBuildIdsEnvironmentVariableName : string = "TriggeredBuildIds";
 export const FailTaskIfConditionsAreNotFulfilled : string = "failTaskIfConditionsAreNotFulfilled";
-
-export const AuthenticationMethodDefaultCredentials : string = "Default Credentials";
