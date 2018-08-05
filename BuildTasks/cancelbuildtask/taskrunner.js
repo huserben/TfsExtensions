@@ -13,6 +13,7 @@ const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
+        this.triggeredBuilds = [];
         this.tfsRestService = tfsRestService;
         this.taskLibrary = taskLibrary;
         this.generalFunctions = generalFunctions;
@@ -21,14 +22,11 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 this.getInputs();
-                this.parseInputs();
-                if (this.triggeredBuilds === undefined || this.triggeredBuilds.length === 1) {
-                    var triggeredBuild = this.triggeredBuilds[0];
-                    if (triggeredBuild === "") {
-                        console.log(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" 
+                yield this.parseInputs();
+                if (this.triggeredBuilds.length === 0) {
+                    console.log(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" 
                     // under Advanced Configuration for all the Triggered Builds you want to await.`);
-                        return;
-                    }
+                    return;
                 }
                 yield this.cancelBuilds(this.triggeredBuilds);
             }
@@ -41,6 +39,11 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             for (let buildId of queuedBuildIds) {
                 var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
+                // TODO: Write test for this
+                if (buildInfo === undefined) {
+                    console.log(`No Build with ID ${buildId} found - skipping`);
+                    continue;
+                }
                 console.log(`Cancelling Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
                 yield this.tfsRestService.cancelBuild(buildId);
                 yield this.generalFunctions.sleep(200);
@@ -52,35 +55,34 @@ class TaskRunner {
         });
     }
     parseInputs() {
-        if (this.definitionIsInCurrentTeamProject) {
-            console.log("Using current Team Project Url");
-            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}${process.env[tfsService.TeamProject]}`;
-        }
-        else {
-            console.log("Using Custom Team Project Url");
-        }
-        /* we decode here because the web request library handles the encoding of the uri.
-         * otherwise we get double-encoded urls which cause problems. */
-        this.tfsServer = decodeURI(this.tfsServer);
-        console.log("Path to Server: " + this.tfsServer);
-        if (this.authenticationMethod === taskConstants.AuthenticationMethodDefaultCredentials) {
-            console.warn("Default Credentials are not supported anymore - will try to use OAuth Token- Please change your configuration");
-            console.warn("Make sure Options-Allow Access To OAuth Token is enabled for your build definition.");
-            this.authenticationMethod = tfsService.AuthenticationMethodOAuthToken;
-            this.password = "";
-        }
-        if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
-            (this.password === null || this.password === "")) {
-            console.log("Trying to fetch authentication token from system...");
-            this.password = `${process.env[tfsService.OAuthAccessToken]}`;
-        }
-        this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.ignoreSslCertificateErrors);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.definitionIsInCurrentTeamProject) {
+                console.log("Using current Team Project Url");
+                this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
+                this.teamProject = `${process.env[tfsService.TeamProject]}`;
+            }
+            else {
+                console.log("Using Custom Team Project Url");
+            }
+            /* we decode here because the web request library handles the encoding of the uri.
+             * otherwise we get double-encoded urls which cause problems. */
+            this.tfsServer = decodeURI(this.tfsServer);
+            console.log("Server URL: " + this.tfsServer);
+            console.log("Team Project: " + this.teamProject);
+            if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
+                (this.password === null || this.password === "")) {
+                console.log("Trying to fetch authentication token from system...");
+                this.password = `${process.env[tfsService.OAuthAccessToken]}`;
+            }
+            yield this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.teamProject, this.ignoreSslCertificateErrors);
+        });
     }
     /// Fetch all the inputs and set them to the variables to be used within the script.
     getInputs() {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
         this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
+        this.teamProject = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TeamProjectInput, false));
         this.ignoreSslCertificateErrors = this.taskLibrary.getBoolInput(taskConstants.IgnoreSslCertificateErrorsInput, true);
         this.clearVariable = this.taskLibrary.getBoolInput(taskConstants.ClearVariable, true);
         // authentication
@@ -91,8 +93,16 @@ class TaskRunner {
         if (storedBuildInfo === undefined) {
             storedBuildInfo = "";
         }
-        this.triggeredBuilds = storedBuildInfo.split(",");
-        console.log(`Following Builds are cancelled: ${this.triggeredBuilds}`);
+        for (let storedBuildId of storedBuildInfo.split(",")) {
+            // TODO: Unit Test
+            if (isNaN(Number(storedBuildId))) {
+                console.log(`Value ${storedBuildId} is not a valid build id - skipping.`);
+            }
+            else {
+                this.triggeredBuilds.push(Number.parseInt(storedBuildId));
+            }
+        }
+        console.log(`Following Builds are awaited: ${this.triggeredBuilds}`);
     }
 }
 exports.TaskRunner = TaskRunner;

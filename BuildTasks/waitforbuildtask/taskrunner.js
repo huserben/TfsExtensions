@@ -38,6 +38,10 @@ class TaskRunner {
             console.log("Following Builds will be awaited:");
             for (let buildId of queuedBuildIds) {
                 var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
+                if (buildInfo === undefined) {
+                    // TODO: Write unit test for this.
+                    throw new Error(`Build with id ${buildId} is not available anymore!`);
+                }
                 console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
             }
             console.log("Waiting for builds to finish - This might take a while...");
@@ -135,3 +139,4 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
+//# sourceMappingURL=taskrunner.js.map

@@ -2,7 +2,7 @@ import tfsService = require("tfsrestservice");
 import taskConstants = require("./taskconstants");
 import common = require("./generalfunctions");
 import tl = require("./tasklibrary");
-import { Build, BuildStatus, BuildResult } from "vso-node-api/interfaces/BuildInterfaces";
+import { Build } from "vso-node-api/interfaces/BuildInterfaces";
 
 export class TaskRunner {
     definitionIsInCurrentTeamProject: boolean;
@@ -52,6 +52,12 @@ export class TaskRunner {
 
         for (let buildId of queuedBuildIds) {
             var buildInfo: Build = await this.tfsRestService.getBuildInfo(buildId);
+
+            if (buildInfo === undefined) {
+                // TODO: Write unit test for this.
+                throw new Error(`Build with id ${buildId} is not available anymore!`);
+            }
+
             console.log(`Build ${buildId} (${buildInfo.definition.name}): ${buildInfo._links.web.href.trim()}`);
         }
 
@@ -159,7 +165,7 @@ export class TaskRunner {
             // under Advanced Configuration for all the Triggered Builds you want to await.`);
         }
 
-        for (let storedBuildId of storedBuildInfo.split(",")){
+        for (let storedBuildId of storedBuildInfo.split(",")) {
             this.triggeredBuilds.push(Number.parseInt(storedBuildId));
         }
 

@@ -1,5 +1,6 @@
 export const DefininitionIsInCurrentTeamProjectInput : string = "definitionIsInCurrentTeamProject";
 export const ServerUrlInput : string = "tfsServer";
+export const TeamProjectInput : string = "teamProject";
 export const BuildDefinitionsToTriggerInput : string = "buildDefinition";
 export const QueueBuildForUserInput : string = "queueBuildForUserThatTriggeredBuild";
 export const UseSameSourceVersionInput : string = "useSameSourceVersion";
@@ -29,5 +30,3 @@ export const DependentOnSuccessfulBuildsInput : string = "dependentBuildsList";
 export const DependentOnFailedBuildConditionInput : string = "dependentOnFailedBuildCondition";
 export const DependentOnFailedBuildsInput : string = "dependentFailingBuildsList";
 export const TriggeredBuildIdsEnvironmentVariableName : string = "TriggeredBuildIds";
-
-export const AuthenticationMethodDefaultCredentials : string = "Default Credentials";
