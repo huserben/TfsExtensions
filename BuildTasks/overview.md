@@ -12,6 +12,16 @@ The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 
   
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
+## Preview of Version 3.* now available
+This version of the tasks are making use now of the official node.js library from microsoft to access the VSTS/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more uptodate with the current state of the REST API and making it easier to extend functionality. 
+
+### Disclaimer 
+The basic functionality was retested and worked fine. However there might be some cases where some things now look  or behave a bit different (for example the logging). If you experience anything please let me know by creating a new issue on github.
+
+### Updating from Version 2.* to 3.*
+There are only slight interface changes. If a custom TFS/VSTS Server address is used, the Team Project has to be specified now in a seperate variable instead of being part of the URL. If you don't use a custom URL, everything stays the same.  
+Moreover, the *Default Authentication* option was now removed completly, after beeing obsolete since version 2.
+
 ## Updating from Version 1.* to 2.0.0
 In order to update your Task from Version 1.* to the new Version 2.0.0, you have to manually switch the Version in the Build Definition:
 ![Update Task](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/updateToVersion2.png)  
@@ -43,8 +53,7 @@ This name **must** match with what you defined as name for your build definition
 
 **Important:** If your build definition name contains a '&', the task will fail (see Known Issues above).
   
-If your build would be in another Team Project, uncheck the checkbox and fill in the URL to this team project. It **must** include the collection it is in and would look something like this:  
-*https://**YOURACCOUNT**.visualstudio.com/DefaultCollection/<TEAMPROJECT>*  
+If your build would be in another Team Project, another collection on the same server or a completly different server, uncheck the checkbox and fill in the URL to the server including the collection and the team project. This would look something like this:  
   
 ![Custom Team Project Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/customteamprojectconfiguration.PNG)  
   
