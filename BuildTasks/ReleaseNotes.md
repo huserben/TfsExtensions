@@ -1,11 +1,13 @@
 # Release Notes
 ## Version 3.0.0
 - Changed underlying service to make use of [vso-node-api](https://github.com/Microsoft/vsts-node-api) instead of custom implementation. This caused slight interface changes for the tasks. Specifically, the team project now needs to be defined in a special field instead of being part of the server url when using a custom address. ([Task is not working behind a proxy. Please respect agent.proxyurl and agent.proxypassword as well as the proxy bypass list](https://github.com/huserben/TfsExtensions/issues/78))  
+- Added new option to specify delay between builds if more than one build is triggered. ([Time between each queued build in same step](https://github.com/huserben/TfsExtensions/issues/85))
 
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
 - [**@gereon77**](https://github.com/gereon77)  
-- [**@LarryRothOakton**](https://github.com/LarryRothOakton)
+- [**@LarryRothOakton**](https://github.com/LarryRothOakton)  
+- [**@hrlourenco**](https://github.com/hrlourenco)
 
 ## Version 2.9.2
 - Improved help markdown text in general and especially for build parameters. ([Build parameters for "Trigger Build Tasks" are undocumented](https://github.com/huserben/TfsExtensions/issues/77))  

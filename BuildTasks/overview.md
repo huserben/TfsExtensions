@@ -136,6 +136,9 @@ The syntax is as follows. If you just want to check if the demand exists on the 
 ### Queue
 Specify here the name or the id of the agent queue that you want to use. If not specified, the default queue will be used. 
 
+### Delay between triggering builds
+Define here if you wish to delay the builds that are triggered by the specified amount of seconds. This might be useful if you have some issues when triggering builds at nearly the same time.
+
 ### Build Parameters
 This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
 You need to specify first the name of the variable you want to set, as you can see it in the Variables Tab of the build you want to trigger. Then the value can be set after a *:*   
