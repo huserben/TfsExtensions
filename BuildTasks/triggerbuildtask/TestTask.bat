@@ -1,7 +1,7 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
 SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection
 SET INPUT_teamProject=Build Test
-SET INPUT_buildDefinition=CI Test
+SET INPUT_buildDefinition=CI Test, CI Test
 SET INPUT_queueBuildForUserThatTriggeredBuild=false
 SET INPUT_useSameSourceVersion=false
 SET INPUT_useSameBranch=false
@@ -17,6 +17,7 @@ SET INPUT_storeInEnvironmentVariable=false
 SET INPUT_demands=
 SET INPUT_queueid=
 SET INPUT_buildParameters=
+SET INPUT_delayBetweenBuilds=
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=

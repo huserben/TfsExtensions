@@ -501,7 +501,7 @@ describe("Task Runner Tests", function (): void {
 
         setupBuildConfiguration(buildsToTrigger);
         setupBuildIdForTriggeredBuild(buildDefinition1, 12);
-        setupBuildIdForTriggeredBuild(buildDefinition1, 42);
+        setupBuildIdForTriggeredBuild(buildDefinition2, 42);
 
         await subject.run();
 
@@ -524,6 +524,39 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny()),
             TypeMoq.Times.once());
+    });
+
+    it("should wait specified amount of time between builds if specified", async () => {
+        const ExpectedWaitTime : number = 10;
+        var buildDefinition1: string = "build1";
+        var buildDefinition2: string = "build2";
+        var buildsToTrigger: string[] = [buildDefinition1, buildDefinition2];
+
+        setupBuildConfiguration(buildsToTrigger);
+        setupBuildIdForTriggeredBuild(buildDefinition1, 12);
+        setupBuildIdForTriggeredBuild(buildDefinition2, 42);
+
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.DelayBetweenBuildsInput, false)).returns(() => ExpectedWaitTime.toString());
+
+        await subject.run();
+
+        generalFunctionsMock.verify(x => x.sleep(ExpectedWaitTime * 1000), TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Waiting for ${ExpectedWaitTime} seconds before triggering next build`));
+    });
+
+    it("should not wait specified amount of time between builds if only one build is triggered", async () => {
+        const ExpectedWaitTime : number = 10;
+        var buildDefinition1: string = "build1";
+        var buildsToTrigger: string[] = [buildDefinition1];
+
+        setupBuildConfiguration(buildsToTrigger);
+        setupBuildIdForTriggeredBuild(buildDefinition1, 12);
+
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.DelayBetweenBuildsInput, false)).returns(() => ExpectedWaitTime.toString());
+
+        await subject.run();
+
+        generalFunctionsMock.verify(x => x.sleep(ExpectedWaitTime * 1000), TypeMoq.Times.never());
     });
 
     it("should NOT write queued build id to variable if not specified", async () => {

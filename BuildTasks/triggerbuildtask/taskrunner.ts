@@ -26,6 +26,7 @@ export class TaskRunner {
     buildQueue: string;
     buildQueueId: number;
     buildParameters: string;
+    delayBetweenBuilds: number;
     ignoreSslCertificateErrors: boolean = false;
     authenticationMethod: string = "";
     username: string;
@@ -141,6 +142,8 @@ export class TaskRunner {
     private async triggerBuilds(): Promise<number[]> {
         var queuedBuildIds: number[] = new Array();
 
+        var index: number = 0;
+
         for (let build of this.buildDefinitionsToTrigger) {
             var queuedBuild: Build =
                 await this.tfsRestService.triggerBuild(
@@ -155,6 +158,13 @@ export class TaskRunner {
             queuedBuildIds.push(queuedBuild.id);
 
             console.log(`Queued new Build for definition ${build}: ${queuedBuild._links.web.href}`);
+
+            if (this.delayBetweenBuilds > 0 && index !== this.buildDefinitionsToTrigger.length - 1) {
+                console.log(`Waiting for ${this.delayBetweenBuilds} seconds before triggering next build`);
+                await this.generalFunctions.sleep(this.delayBetweenBuilds * 1000);
+            }
+
+            index++;
         }
 
         return queuedBuildIds;
@@ -297,6 +307,10 @@ export class TaskRunner {
             console.log(`Will trigger build with following parameters: ${this.buildParameters}`);
         }
 
+        if (this.delayBetweenBuilds > 0) {
+            console.log(`Delay between builds is set to ${this.delayBetweenBuilds} seconds`);
+        }
+
         if (this.enableBuildInQueueCondition) {
             console.log("Build in Queue Condition is enabled");
 
@@ -399,6 +413,12 @@ export class TaskRunner {
 
         this.buildQueue = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.QueueID, false));
         this.buildParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BuildParametersInput, false));
+
+        var delayBetweenBuildsInput: string = this.taskLibrary.getInput(taskConstants.DelayBetweenBuildsInput, false);
+        this.delayBetweenBuilds = parseInt(delayBetweenBuildsInput, 10);
+        if (isNaN(this.delayBetweenBuilds)) {
+            this.delayBetweenBuilds = 0;
+        }
 
         // authentication
         this.authenticationMethod = this.taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);

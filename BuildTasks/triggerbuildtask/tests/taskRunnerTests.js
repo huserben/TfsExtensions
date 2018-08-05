@@ -339,10 +339,33 @@ describe("Task Runner Tests", function () {
         var buildsToTrigger = [buildDefinition1, buildDefinition2];
         setupBuildConfiguration(buildsToTrigger);
         setupBuildIdForTriggeredBuild(buildDefinition1, 12);
-        setupBuildIdForTriggeredBuild(buildDefinition1, 42);
+        setupBuildIdForTriggeredBuild(buildDefinition2, 42);
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild(buildDefinition1, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
         tfsRestServiceMock.verify(srv => srv.triggerBuild(buildDefinition2, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+    }));
+    it("should wait specified amount of time between builds if specified", () => __awaiter(this, void 0, void 0, function* () {
+        const ExpectedWaitTime = 10;
+        var buildDefinition1 = "build1";
+        var buildDefinition2 = "build2";
+        var buildsToTrigger = [buildDefinition1, buildDefinition2];
+        setupBuildConfiguration(buildsToTrigger);
+        setupBuildIdForTriggeredBuild(buildDefinition1, 12);
+        setupBuildIdForTriggeredBuild(buildDefinition2, 42);
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.DelayBetweenBuildsInput, false)).returns(() => ExpectedWaitTime.toString());
+        yield subject.run();
+        generalFunctionsMock.verify(x => x.sleep(ExpectedWaitTime * 1000), TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Waiting for ${ExpectedWaitTime} seconds before triggering next build`));
+    }));
+    it("should not wait specified amount of time between builds if only one build is triggered", () => __awaiter(this, void 0, void 0, function* () {
+        const ExpectedWaitTime = 10;
+        var buildDefinition1 = "build1";
+        var buildsToTrigger = [buildDefinition1];
+        setupBuildConfiguration(buildsToTrigger);
+        setupBuildIdForTriggeredBuild(buildDefinition1, 12);
+        tasklibraryMock.setup(lib => lib.getInput(taskConstants.DelayBetweenBuildsInput, false)).returns(() => ExpectedWaitTime.toString());
+        yield subject.run();
+        generalFunctionsMock.verify(x => x.sleep(ExpectedWaitTime * 1000), TypeMoq.Times.never());
     }));
     it("should NOT write queued build id to variable if not specified", () => __awaiter(this, void 0, void 0, function* () {
         const TriggeredBuildID = "1337";

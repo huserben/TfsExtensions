@@ -13,7 +13,7 @@
 	"version": {
 		"Major": 3,
 		"Minor": 0,
-		"Patch": 4
+		"Patch": 5
 	},
 	"preview": true,
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
@@ -218,6 +218,15 @@
 			"defaultValue":  "",
 			"required":  false,
 			"helpMarkDown":  "The name or the ID of the queue. This is optional. If not specified, the default queue for the definition will be used.",
+			"groupName":  "advancedConfiguration"
+		},
+		{
+			"name":  "delayBetweenBuilds",
+			"type":  "string",
+			"label":  "Delay between triggering builds (in seconds)",
+			"defaultValue":  "0",
+			"required":  false,
+			"helpMarkDown":  "Defines a delay between the builds that are triggered, if more than one is triggered at the same time. 0 means no delay",
 			"groupName":  "advancedConfiguration"
 		},
 		{

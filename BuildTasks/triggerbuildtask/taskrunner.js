@@ -118,10 +118,16 @@ class TaskRunner {
     triggerBuilds() {
         return __awaiter(this, void 0, void 0, function* () {
             var queuedBuildIds = new Array();
+            var index = 0;
             for (let build of this.buildDefinitionsToTrigger) {
                 var queuedBuild = yield this.tfsRestService.triggerBuild(build.trim(), this.branchToUse, this.userId, this.sourceVersion, this.demands, this.buildQueueId, this.buildParameters);
                 queuedBuildIds.push(queuedBuild.id);
                 console.log(`Queued new Build for definition ${build}: ${queuedBuild._links.web.href}`);
+                if (this.delayBetweenBuilds > 0 && index !== this.buildDefinitionsToTrigger.length - 1) {
+                    console.log(`Waiting for ${this.delayBetweenBuilds} seconds before triggering next build`);
+                    yield this.generalFunctions.sleep(this.delayBetweenBuilds * 1000);
+                }
+                index++;
             }
             return queuedBuildIds;
         });
@@ -234,6 +240,9 @@ class TaskRunner {
             if (this.buildParameters !== null) {
                 console.log(`Will trigger build with following parameters: ${this.buildParameters}`);
             }
+            if (this.delayBetweenBuilds > 0) {
+                console.log(`Delay between builds is set to ${this.delayBetweenBuilds} seconds`);
+            }
             if (this.enableBuildInQueueCondition) {
                 console.log("Build in Queue Condition is enabled");
                 if (this.includeCurrentBuildDefinition) {
@@ -320,6 +329,11 @@ class TaskRunner {
         this.demands = this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DemandsVariableInput, ",", false));
         this.buildQueue = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.QueueID, false));
         this.buildParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BuildParametersInput, false));
+        var delayBetweenBuildsInput = this.taskLibrary.getInput(taskConstants.DelayBetweenBuildsInput, false);
+        this.delayBetweenBuilds = parseInt(delayBetweenBuildsInput, 10);
+        if (isNaN(this.delayBetweenBuilds)) {
+            this.delayBetweenBuilds = 0;
+        }
         // authentication
         this.authenticationMethod = this.taskLibrary.getInput(taskConstants.AuthenticationMethodInput, true);
         this.username = this.taskLibrary.getInput(taskConstants.UsernameInput, false);

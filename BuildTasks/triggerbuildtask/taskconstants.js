@@ -19,6 +19,7 @@ exports.StoreInEnvironmentVariableInput = "storeInEnvironmentVariable";
 exports.DemandsVariableInput = "demands";
 exports.QueueID = "queueid";
 exports.BuildParametersInput = "buildParameters";
+exports.DelayBetweenBuildsInput = "delayBetweenBuilds";
 exports.IgnoreSslCertificateErrorsInput = "ignoreSslCertificateErrors";
 exports.AuthenticationMethodInput = "authenticationMethod";
 exports.UsernameInput = "username";
