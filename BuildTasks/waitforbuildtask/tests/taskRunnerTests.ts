@@ -264,7 +264,7 @@ describe("Task Runner Tests", function (): void {
         tasklibraryMock.setup((lib) => lib.getInput(taskConstants.ServerUrlInput, false))
             .returns(() => expectedTfsAddress);
         tasklibraryMock.setup((lib) => lib.getInput(taskConstants.TeamProjectInput, false))
-        .returns(() => expectedTeamProject);
+            .returns(() => expectedTeamProject);
         setupRestServiceConfiguration(authenticationMethod, username, password, "", "", ignoreSSLErrors);
 
         process.env[tfsService.TeamFoundationCollectionUri] = "";
@@ -377,6 +377,27 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.areBuildsFinished([BuildID], true, true), TypeMoq.Times.once());
+    });
+
+    it("should throw an error if build to await is not available anymore", async () => {
+        const WaitTime: number = 10;
+        const BuildID: number = 12;
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID.toString());
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
+            .returns(async () => true);
+
+        await subject.run();
+
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, `Build with id ${BuildID} is not available anymore!`), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(
+            srv => srv.areBuildsFinished([BuildID], true, true), TypeMoq.Times.never());
     });
 
     it("should log info for awaited builds", async () => {

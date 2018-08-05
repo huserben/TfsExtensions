@@ -275,6 +275,22 @@ describe("Task Runner Tests", function () {
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true, true), TypeMoq.Times.once());
     }));
+    it("should throw an error if build to await is not available anymore", () => __awaiter(this, void 0, void 0, function* () {
+        const WaitTime = 10;
+        const BuildID = 12;
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID.toString());
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, true))
+            .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
+        yield subject.run();
+        tasklibraryMock.verify(x => x.setResult(tl.TaskResult.Failed, `Build with id ${BuildID} is not available anymore!`), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.areBuildsFinished([BuildID], true, true), TypeMoq.Times.never());
+    }));
     it("should log info for awaited builds", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
         const BuildID = 12;
@@ -489,4 +505,3 @@ describe("Task Runner Tests", function () {
         tfsRestServiceMock.setup(service => service.getBuildInfo(buildID)).returns(() => __awaiter(this, void 0, void 0, function* () { return buildInfoMock.target; }));
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

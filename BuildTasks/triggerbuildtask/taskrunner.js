@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tfsService = require("tfsrestservice");
 const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
-const BuildInterfaces_1 = require("./node_modules/vso-node-api/interfaces/BuildInterfaces");
+const BuildInterfaces_1 = require("vso-node-api/interfaces/BuildInterfaces");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
         this.definitionIsInCurrentTeamProject = false;
@@ -160,7 +160,7 @@ class TaskRunner {
                     let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(element));
                     if (lastBuilds.length > 0 && lastBuilds[0].result !== BuildInterfaces_1.BuildResult.Succeeded) {
                         console.log(`Last build of definition ${element} was not successful
-                    (state is ${lastBuilds[0].result}) - will not trigger new build`);
+                    (state is ${BuildInterfaces_1.BuildResult[lastBuilds[0].result]}) - will not trigger new build`);
                         return false;
                     }
                 }
@@ -173,7 +173,7 @@ class TaskRunner {
                     let lastBuilds = (yield this.tfsRestService.getBuildsByStatus(build));
                     if (lastBuilds.length > 0 && lastBuilds[0].result === BuildInterfaces_1.BuildResult.Succeeded) {
                         console.log(`Last build of definition ${build} was successful
-                (state is ${lastBuilds[0].result}) - will not trigger new build`);
+                (state is ${BuildInterfaces_1.BuildResult[lastBuilds[0].result]}) - will not trigger new build`);
                         return false;
                     }
                 }

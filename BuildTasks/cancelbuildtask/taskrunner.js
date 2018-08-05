@@ -24,8 +24,7 @@ class TaskRunner {
                 this.getInputs();
                 yield this.parseInputs();
                 if (this.triggeredBuilds.length === 0) {
-                    console.log(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" 
-                    // under Advanced Configuration for all the Triggered Builds you want to await.`);
+                    console.log(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under Advanced Configuration for all the Triggered Builds you want to await.`);
                     return;
                 }
                 yield this.cancelBuilds(this.triggeredBuilds);
@@ -39,7 +38,6 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             for (let buildId of queuedBuildIds) {
                 var buildInfo = yield this.tfsRestService.getBuildInfo(buildId);
-                // TODO: Write test for this
                 if (buildInfo === undefined) {
                     console.log(`No Build with ID ${buildId} found - skipping`);
                     continue;
@@ -94,9 +92,8 @@ class TaskRunner {
             storedBuildInfo = "";
         }
         for (let storedBuildId of storedBuildInfo.split(",")) {
-            // TODO: Unit Test
-            if (isNaN(Number(storedBuildId))) {
-                console.log(`Value ${storedBuildId} is not a valid build id - skipping.`);
+            if (isNaN(Number(storedBuildId)) || storedBuildId === "") {
+                console.log(`Value ${storedBuildId} is not a valid build id - skipping`);
             }
             else {
                 this.triggeredBuilds.push(Number.parseInt(storedBuildId));

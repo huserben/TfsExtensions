@@ -208,7 +208,7 @@ export class TaskRunner {
                 if (lastBuilds.length > 0 && lastBuilds[0].result !== BuildResult.Succeeded) {
                     console.log(
                         `Last build of definition ${element} was not successful
-                    (state is ${lastBuilds[0].result}) - will not trigger new build`);
+                    (state is ${BuildResult[lastBuilds[0].result]}) - will not trigger new build`);
                     return false;
                 }
             };
@@ -224,7 +224,7 @@ export class TaskRunner {
 
                 if (lastBuilds.length > 0 && lastBuilds[0].result === BuildResult.Succeeded) {
                     console.log(`Last build of definition ${build} was successful
-                (state is ${lastBuilds[0].result}) - will not trigger new build`);
+                (state is ${BuildResult[lastBuilds[0].result]}) - will not trigger new build`);
                     return false;
                 }
             };

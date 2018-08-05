@@ -54,7 +54,6 @@ export class TaskRunner {
             var buildInfo: Build = await this.tfsRestService.getBuildInfo(buildId);
 
             if (buildInfo === undefined) {
-                // TODO: Write unit test for this.
                 throw new Error(`Build with id ${buildId} is not available anymore!`);
             }
 

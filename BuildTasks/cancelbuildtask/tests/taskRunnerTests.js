@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sinon = require("sinon");
 const tr = require("../taskrunner");
 const tfsService = require("tfsrestservice");
+const assert = require("assert");
 const taskConstants = require("../taskconstants");
 const TypeMoq = require("typemoq");
 describe("Task Runner Tests", function () {
@@ -218,6 +219,39 @@ describe("Task Runner Tests", function () {
         setupBuildInfoMock(BuildID, "somebuild", "someLink");
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.cancelBuild(BuildID), TypeMoq.Times.once());
+    }));
+    it("should log if no build id as variable is available ", () => __awaiter(this, void 0, void 0, function* () {
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => undefined);
+        yield subject.run();
+        tfsRestServiceMock.verify(srv => srv.cancelBuild(TypeMoq.It.isAny()), TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under Advanced Configuration for all the Triggered Builds you want to await.`));
+        assert(consoleLogSpy.calledWith(`Value ${""} is not a valid build id - skipping`));
+    }));
+    it("should log if no valid build id as variable is available ", () => __awaiter(this, void 0, void 0, function* () {
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => "asdf");
+        yield subject.run();
+        tfsRestServiceMock.verify(srv => srv.cancelBuild(TypeMoq.It.isAny()), TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith(`No build id's found to wait for. Make sure you enabled \"Store Build IDs in Variable\" under Advanced Configuration for all the Triggered Builds you want to await.`));
+        assert(consoleLogSpy.calledWith(`Value ${"asdf"} is not a valid build id - skipping`));
+    }));
+    it("should skip build to cancel if its not available anymore ", () => __awaiter(this, void 0, void 0, function* () {
+        const BuildID = 12;
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID.toString());
+        yield subject.run();
+        tfsRestServiceMock.verify(srv => srv.cancelBuild(TypeMoq.It.isAny()), TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith(`No Build with ID ${BuildID} found - skipping`));
     }));
     it("should clear variable if configured", () => __awaiter(this, void 0, void 0, function* () {
         const BuildID = 12;
