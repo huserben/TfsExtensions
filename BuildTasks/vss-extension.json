@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
     "name": "Trigger Build Task",
-    "version": "3.0.0",
+    "version": "3.0.2",
     "publisher": "benjhuser",
     "targets": [
         {
@@ -99,7 +99,6 @@
         "theme": "light"
     },
     "galleryFlags": [
-        "public",
-        "Preview"
+        "public"
     ]
 }

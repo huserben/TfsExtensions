@@ -6,7 +6,6 @@
     "helpMarkDown": "",
     "category": "Build",
 	"visibility": [
-		"Preview",
 		"Build"
 		],
     "author": "Benjamin Huser",
