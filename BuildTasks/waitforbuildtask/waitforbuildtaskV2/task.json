@@ -12,10 +12,9 @@
 	"version": {
 		"Major": 2,
 		"Minor": 0,
-		"Patch": 0
+		"Patch": 1
 	},
 	"instanceNameFormat": "Waiting for Builds to finish",
-	"preview": true,
     "groups": [
 		{
 			"name": "basicConfiguration",

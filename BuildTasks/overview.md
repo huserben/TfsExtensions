@@ -12,7 +12,7 @@ The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 
   
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
-## Preview of Version 3.* now available
+## Version 3 now available
 This version of the tasks are making use now of the official node.js library from Microsoft to access the VSTS/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more uptodate with the current state of the REST API and making it easier to extend functionality. 
 
 ### Disclaimer 
