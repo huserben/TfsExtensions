@@ -1,9 +1,9 @@
 # Trigger Build Task
 This build task enables the chaining of builds within TFS.  
-It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects) and has support for different condition if the Build should be triggered.  
+It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects) and has support for different conditions if the Build should be triggered.  
 
 ## Supported TFS Versions
-The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 updwards.  
+The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 upwards.  
 **Please check the following guide on [github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
 
 ## Release Notes
@@ -13,14 +13,14 @@ The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 
 The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
 ## Preview of Version 3.* now available
-This version of the tasks are making use now of the official node.js library from microsoft to access the VSTS/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more uptodate with the current state of the REST API and making it easier to extend functionality. 
+This version of the tasks are making use now of the official node.js library from Microsoft to access the VSTS/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more uptodate with the current state of the REST API and making it easier to extend functionality. 
 
 ### Disclaimer 
-The basic functionality was retested and worked fine. However there might be some cases where some things now look  or behave a bit different (for example the logging). If you experience anything please let me know by creating a new issue on github.
+The basic functionality was retested and worked fine. However there might be some cases where some things now look or behave a bit different (for example the logging). If you experience anything please let me know by creating a new issue on github.
 
 ### Updating from Version 2.* to 3.*
 There are only slight interface changes. If a custom TFS/VSTS Server address is used, the Team Project has to be specified now in a seperate variable instead of being part of the URL. If you don't use a custom URL, everything stays the same.  
-Moreover, the *Default Authentication* option was now removed completly, after beeing obsolete since version 2.
+Moreover, the *Default Authentication* option was now removed completly, after being obsolete since version 2.
 
 ## Updating from Version 1.* to 2.0.0
 In order to update your Task from Version 1.* to the new Version 2.0.0, you have to manually switch the Version in the Build Definition:
@@ -95,8 +95,8 @@ If you disable this option, you can specify the source-branch that shall be used
   
 If you enable this option, the build task will wait for the completion of all the triggered builds.  
 After triggering all the builds, the task periodically check the builds that were triggered and just continue when all of them are finished.  
-You can specify the intervall of when the builds are checked, just specify the value in seconds.  
-Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway. Additionaly you can define whether you want to treat a partially successful build as successful to not fail the task.  
+You can specify the interval of when the builds are checked, just specify the value in seconds.  
+Furthermore you can define what shall happen if one of the triggered builds was not successful, you can either fail the Task or you can continue anyway. Additionally you can define whether you want to treat a partially successful build as successful to not fail the task.  
 If it is checked that the build is successful it can be specified whether the artifacts of the build(s) shall be downloaded. If so it can be specified where to store them on the build agent for further use. This location can then be used in the subsequent Tasks (for example extracting the downloaded zip and do something with it).
 
 There is as well the option to cancel all awaited builds if you are failing the task due to a build that failed. This will then stop other builds and free up the build queue.
@@ -108,7 +108,7 @@ There is a dedicated Task that can be used in order to wait for triggered Builds
 The Task uses as an input the Stored Build ID's (see below) of any Trigger Build Task that was running before and that set the option of storing the IDs. The rest of the configuration is as described above.
 
 #### Cancel Build Task
-There is as well a dedicated task to cancel builds. This can be used for example to cancel all builds if anything in the build itself fails after triggering. Just add the task in the end of the build and set it to be executed only if a previous task failed.  The task works against the Stored Build ID's in the same way as teh Wait for Triggered Build Task does.
+There is as well a dedicated task to cancel builds. This can be used for example to cancel all builds if anything in the build itself fails after triggering. Just add the task in the end of the build and set it to be executed only if a previous task failed.  The task works against the Stored Build ID's in the same way as the Wait for Triggered Build Task does.
 
 ###Store Build IDs in Variable
 If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable to the subsequent Tasks. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated. If there is already a value in the variable from a previous Task, it **not** overwritten but keep the original value and append his resulting build id's.   
@@ -148,7 +148,7 @@ It is as well possible to make use of the build variables of the build that is r
 *$(BuildConfiguration)*  
 This will work with every variable you have defined in your build.  
 
-**Caution:** Be cautios when you have a variable value that contains itself a comma. As this is used in the task for separating the parameter key's and values it can cause some issues. However it is supported that you have Variable values that include a comma, however then your parameter cannot contain a colon.  
+**Caution:** Be cautious when you have a variable value that contains itself a comma. As this is used in the task for separating the parameter key's and values it can cause some issues. However it is supported that you have Variable values that include a comma, however then your parameter cannot contain a colon.  
 For example these will work:  
 - **VariableKey**: *MyValue1, MyValue2*  
 - **VariableKey**: *C:\Test\Something, otherValue*  
@@ -158,7 +158,7 @@ However, the following will not work:
 
 Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54#issuecomment-368578707) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.
   
-**Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the follwing error:  
+**Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the following error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
 
 ## Authentication Options
@@ -206,14 +206,14 @@ long running operations, for example integration- or UI Tests. Now in case you a
 
 ### Build Dependency Condition
 The second supported condition is the *Dependency Condition*. This condition will check the latest builds of the provided build definitions and will only trigger the new build if those last builds were successful.  
-The example scneario for this could be that you don't want to trigger your Release build if your CI build is failing. Again you can specify a comma speratated list of build definitions that you would like to have included in the check.
+The example scenario for this could be that you don't want to trigger your Release build if your CI build is failing. Again you can specify a comma separated list of build definitions that you would like to have included in the check.
   
 ![Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/builddependencycondition.PNG)
 
 ### Failed Build Dependency Condition
 This condition is very similar to the *Build Dependency Condition* mentioned above. The difference is that it will check whether the latest builds of the provided build definitions were failing and will only trigger the new build if the builds failed.  
 The example scenario would be that you have a scheduled build during the night that runs no matter what. Due to failing dependent builds it will fail as well. Now you fix the dependent build and you automatically want to trigger the build that failed during the nightly-run, but you only want to do that if it failed before.  
-Again you can specify a comma speratated list of build definitions that you would like to have included in the check.
+Again you can specify a comma separated list of build definitions that you would like to have included in the check.
   
 ![Failing Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/failedbuilddependencycondition.PNG)  
 
