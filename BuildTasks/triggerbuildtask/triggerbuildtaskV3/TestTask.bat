@@ -1,4 +1,5 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
+SET INPUT_definitionIsInSameCollection=false
 SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection
 SET INPUT_teamProject=Build Test
 SET INPUT_buildDefinition=CI Test, CI Test
@@ -32,6 +33,8 @@ SET INPUT_dependentOnFailedBuildCondition=false
 SET INPUT_dependentFailingBuildsList=
 SET INPUT_failTaskIfConditionsAreNotFulfilled=true
 
-SET INPUT_system.debug=false
+SET SYSTEM_TEAMFOUNDATIONCOLLECTIONURI=https://benjsawesometfstest.visualstudio.com/DefaultCollection
+SET SYSTEM_TEAMPROJECT=Build Test
+SET SYSTEM_TEAMPROJECTID=df832ba4-a0a1-4ab9-b417-7958a933c508
 
 node index.js

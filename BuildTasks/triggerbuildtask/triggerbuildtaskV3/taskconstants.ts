@@ -1,4 +1,5 @@
 export const DefininitionIsInCurrentTeamProjectInput : string = "definitionIsInCurrentTeamProject";
+export const DefinitionIsInCurrentCollection : string = "definitionIsInSameCollection";
 export const ServerUrlInput : string = "tfsServer";
 export const TeamProjectInput : string = "teamProject";
 export const BuildDefinitionsToTriggerInput : string = "buildDefinition";

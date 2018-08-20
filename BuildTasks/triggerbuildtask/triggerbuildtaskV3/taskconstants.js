@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefininitionIsInCurrentTeamProjectInput = "definitionIsInCurrentTeamProject";
+exports.DefinitionIsInCurrentCollection = "definitionIsInSameCollection";
 exports.ServerUrlInput = "tfsServer";
 exports.TeamProjectInput = "teamProject";
 exports.BuildDefinitionsToTriggerInput = "buildDefinition";
