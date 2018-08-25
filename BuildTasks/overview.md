@@ -8,7 +8,7 @@ The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 
 
 If you are having problems installing the extension on you on Prem TFS and getting the following error message:  
 ![Upload Error](https://user-images.githubusercontent.com/1705112/44252681-3c951080-a1fd-11e8-8f3d-5915f86ebdf0.png)  
-Please check the [Releases](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/Releases) folder on github for the "single version package".  
+Please check the [Releases](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/Releases/singleversion) folder on github for the "single version packages".  
 It seems that some versions of TFS don't support packages with multiple versions packages, therefore a dedicated package will be available that includes just the newest versions of the tasks.
 
 ## Release Notes
