@@ -109,7 +109,7 @@ describe("Task Runner Tests", function () {
     }));
     it("should read tfs server from environment variable when definition is in current project", () => __awaiter(this, void 0, void 0, function* () {
         const teamFoundationCollection = "https://myUrl.com/";
-        const teamProject = "MyProject";
+        const teamProjectId = "42";
         var authenticationMethod = "Basic";
         var username = "User1";
         var password = "P4s5W0rd";
@@ -122,9 +122,9 @@ describe("Task Runner Tests", function () {
             .returns(() => true);
         setupRestServiceConfiguration(authenticationMethod, username, password, "", "", ignoreSSLErrors);
         process.env[tfsService.TeamFoundationCollectionUri] = teamFoundationCollection;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProjectId;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, teamFoundationCollection, teamProject, ignoreSSLErrors), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, teamFoundationCollection, teamProjectId, ignoreSSLErrors), TypeMoq.Times.once());
     }));
     it("should read tfs server url from input when definition is not in current project", () => __awaiter(this, void 0, void 0, function* () {
         const expectedTfsAddress = "https://myUrl.com/DefaultCollection";
@@ -151,7 +151,7 @@ describe("Task Runner Tests", function () {
     }));
     it("should decode spaces from tfs server input when using current team project url", () => __awaiter(this, void 0, void 0, function* () {
         var collectionUrl = "https://somevstsinstance.visualstudio.com/Default%20Collection/";
-        var teamProject = "Team Project";
+        var teamProjectId = "12";
         var expectedUrl = "https://somevstsinstance.visualstudio.com/Default Collection/";
         var authenticationMethod = "Basic";
         var username = "User1";
@@ -172,9 +172,9 @@ describe("Task Runner Tests", function () {
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         process.env[tfsService.TeamFoundationCollectionUri] = collectionUrl;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProjectId;
         yield subject.run();
-        tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, expectedUrl, teamProject, ignoreSSLErrors), TypeMoq.Times.once());
+        tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, expectedUrl, teamProjectId, ignoreSSLErrors), TypeMoq.Times.once());
     }));
     it("should decode spaces from tfs server input when using manual input url", () => __awaiter(this, void 0, void 0, function* () {
         const inputTfsAddress = "https://myUrl.com/Default%20Collection";
@@ -314,4 +314,3 @@ describe("Task Runner Tests", function () {
         tfsRestServiceMock.setup(service => service.getBuildInfo(buildID)).returns(() => __awaiter(this, void 0, void 0, function* () { return buildInfoMock.target; }));
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

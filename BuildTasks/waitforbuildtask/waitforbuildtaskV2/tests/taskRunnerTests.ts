@@ -238,7 +238,7 @@ describe("Task Runner Tests", function (): void {
         setupRestServiceConfiguration(authenticationMethod, username, password, "", "", ignoreSSLErrors);
 
         process.env[tfsService.TeamFoundationCollectionUri] = teamFoundationCollection;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProject;
 
         await subject.run();
 
@@ -303,7 +303,7 @@ describe("Task Runner Tests", function (): void {
             .returns(async () => true);
 
         process.env[tfsService.TeamFoundationCollectionUri] = collectionUrl;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProject;
 
         await subject.run();
 

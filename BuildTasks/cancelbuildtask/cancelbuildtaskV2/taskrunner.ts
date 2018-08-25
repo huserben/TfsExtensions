@@ -69,11 +69,16 @@ export class TaskRunner {
 
     private async parseInputs(): Promise<void> {
         if (this.definitionIsInCurrentTeamProject) {
-            console.log("Using current Team Project Url");
+            console.log("Using current Team Project");
+            this.teamProject = `${process.env[tfsService.TeamProjectId]}`;
+            console.log(`Team Project: ${process.env[tfsService.TeamProject]} with ID ${this.teamProject}`);
+
+            console.log("Using current Collection Url");
             this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
-            this.teamProject = `${process.env[tfsService.TeamProject]}`;
         } else {
-            console.log("Using Custom Team Project Url");
+            console.log("Using Custom Team Project");
+            console.log(`Team Project: ${this.teamProject}`);
+            console.log("Using Custom Collection Url");
         }
 
         /* we decode here because the web request library handles the encoding of the uri.

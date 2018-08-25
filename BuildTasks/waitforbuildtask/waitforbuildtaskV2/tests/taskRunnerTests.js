@@ -172,7 +172,7 @@ describe("Task Runner Tests", function () {
             .returns(() => true);
         setupRestServiceConfiguration(authenticationMethod, username, password, "", "", ignoreSSLErrors);
         process.env[tfsService.TeamFoundationCollectionUri] = teamFoundationCollection;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProject;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, teamFoundationCollection, teamProject, ignoreSSLErrors), TypeMoq.Times.once());
     }));
@@ -222,7 +222,7 @@ describe("Task Runner Tests", function () {
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(() => __awaiter(this, void 0, void 0, function* () { return true; }));
         process.env[tfsService.TeamFoundationCollectionUri] = collectionUrl;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProject;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.initialize(authenticationMethod, username, password, expectedUrl, teamProject, ignoreSSLErrors), TypeMoq.Times.once());
     }));
@@ -505,4 +505,3 @@ describe("Task Runner Tests", function () {
         tfsRestServiceMock.setup(service => service.getBuildInfo(buildID)).returns(() => __awaiter(this, void 0, void 0, function* () { return buildInfoMock.target; }));
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map
