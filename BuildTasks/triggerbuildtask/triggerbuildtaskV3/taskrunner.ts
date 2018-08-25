@@ -7,7 +7,6 @@ import { Build, BuildStatus, BuildResult } from "vso-node-api/interfaces/BuildIn
 export class TaskRunner {
 
     definitionIsInCurrentTeamProject: boolean = false;
-    definitionIsInSameCollection: boolean = false;
     tfsServer: string = "";
     teamProject: string = "";
     buildDefinitionsToTrigger: string[] = [];
@@ -352,21 +351,17 @@ export class TaskRunner {
     }
 
     private async initializeTfsRestService(): Promise<void> {
-        if (this.definitionIsInSameCollection) {
-            console.log("Using current Collection Url");
-            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
-        } else {
-            console.log("Using Custom Collection Url");
-        }
-
         if (this.definitionIsInCurrentTeamProject) {
             console.log("Using current Team Project");
             this.teamProject = `${process.env[tfsService.TeamProjectId]}`;
             console.log(`Team Project: ${process.env[tfsService.TeamProject]} with ID ${this.teamProject}`);
 
+            console.log("Using current Collection Url");
+            this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
         } else {
             console.log("Using Custom Team Project");
             console.log(`Team Project: ${this.teamProject}`);
+            console.log("Using Custom Collection Url");
         }
 
         /* we decode here because the web request library handles the encoding of the uri.
@@ -388,7 +383,6 @@ export class TaskRunner {
     private getInputs(): void {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
-        this.definitionIsInSameCollection = this.taskLibrary.getBoolInput(taskConstants.DefinitionIsInCurrentCollection, true);
         this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
         this.teamProject = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TeamProjectInput, false));
 

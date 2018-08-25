@@ -6,6 +6,11 @@ It makes use of the built-in TFS API to queue a new build of any build definitio
 The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 upwards.  
 **Please check the following guide on [github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
 
+If you are having problems installing the extension on you on Prem TFS and getting the following error message:  
+![Upload Error](https://user-images.githubusercontent.com/1705112/44252681-3c951080-a1fd-11e8-8f3d-5915f86ebdf0.png)  
+Please check the [Releases](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/Releases) folder on github for the "single version package".  
+It seems that some versions of TFS don't support packages with multiple versions packages, therefore a dedicated package will be available that includes just the newest versions of the tasks.
+
 ## Release Notes
 
 **A new Task "Cancel Builds" is available that can be used to cancel builds that were triggered with the Trigger Build Task in any previous step**
@@ -85,7 +90,7 @@ In any case if you trigger a build from a different team project, no matter if o
 If this option is enabled, the triggered build will use the same source version as the build that includes the task. This means if the build was triggered for a specific changeset or label, the same source version will used in the triggered build. This option is disabled by default, which means the triggered build will use the latest sources.
 
 ### Use Same Source Branch
-If this is enabled, the triggered build will use the same source branch as the build that includes the task. This means if the build is triggered for the source branch *refs/heads/master*, the triggered build will as well.  
+If this is enabled, the triggered build will use the same source branch as the build that includes the task. This means if the build is triggered for the source branch *master*, the triggered build will as well.  
 Please make sure that if this option is enabled, the triggered build can actually be triggered for that branch. Especially if you trigger builds across projects you might want to disable this step.
 
 If you disable this option, you can specify the source-branch that shall be used yourself. If you don't define anything, the source-branch parameter will not be specified and the default will be used.

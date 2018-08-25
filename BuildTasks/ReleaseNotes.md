@@ -1,4 +1,13 @@
 # Release Notes
+## Version 3.0.4
+- Created special package that only contains a single version of every task for backward compatibility. Updated documentation accordingly. ([Installing Trigger Build .vsix in TFS causes Error: XML Document- 'public' is not a valid value for global::Microsoft.VisualStudio.Services.Gallery.WebApi.PublishedExtensionFlags](https://github.com/huserben/TfsExtensions/issues/90))  
+- Updated documentation about usage of the branch parameter . ([Failing to queue build for refs/heads/master](https://github.com/huserben/TfsExtensions/issues/92))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@jawn**](https://github.com/jawn)  
+- [**@sanderaernouts**](https://github.com/sanderaernouts)  
+  
 ## Version 3.0.3
 - Fixed issue that prevented extension to be installed on On Prem TFS 2017 Update 1. ([Installing Trigger Build .vsix in TFS causes Error: XML Document- 'public' is not a valid value for global::Microsoft.VisualStudio.Services.Gallery.WebApi.PublishedExtensionFlags](https://github.com/huserben/TfsExtensions/issues/90))  
 - Various Typos in task description were fixed.  

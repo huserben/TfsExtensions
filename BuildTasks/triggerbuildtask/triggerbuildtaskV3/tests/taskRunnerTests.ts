@@ -409,7 +409,7 @@ describe("Task Runner Tests", function (): void {
 
     it("should read tfs server url from environment variable when definition is in current project", async () => {
         const teamFoundationCollection: string = "https://myUrl.com/";
-        const teamProject: string = "MyProject";
+        const teamProjectId: string = "123123123";
 
         var authenticationMethod: string = "Basic";
         var username: string = "User1";
@@ -421,12 +421,12 @@ describe("Task Runner Tests", function (): void {
         setupRestServiceConfiguration(authenticationMethod, username, password, "", "", ignoreSSLErrors);
 
         process.env[tfsService.TeamFoundationCollectionUri] = teamFoundationCollection;
-        process.env[tfsService.TeamProject] = teamProject;
+        process.env[tfsService.TeamProjectId] = teamProjectId;
 
         await subject.run();
 
         tfsRestServiceMock.verify(srv => srv.initialize(
-            authenticationMethod, username, password, teamFoundationCollection, teamProject, ignoreSSLErrors), TypeMoq.Times.once());
+            authenticationMethod, username, password, teamFoundationCollection, teamProjectId, ignoreSSLErrors), TypeMoq.Times.once());
     });
 
     it("should read tfs server url from input when definition is not in current project", async () => {

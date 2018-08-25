@@ -15,7 +15,6 @@ const BuildInterfaces_1 = require("vso-node-api/interfaces/BuildInterfaces");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
         this.definitionIsInCurrentTeamProject = false;
-        this.definitionIsInSameCollection = false;
         this.tfsServer = "";
         this.teamProject = "";
         this.buildDefinitionsToTrigger = [];
@@ -278,21 +277,17 @@ class TaskRunner {
     }
     initializeTfsRestService() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.definitionIsInSameCollection) {
-                console.log("Using current Collection Url");
-                this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
-            }
-            else {
-                console.log("Using Custom Collection Url");
-            }
             if (this.definitionIsInCurrentTeamProject) {
                 console.log("Using current Team Project");
                 this.teamProject = `${process.env[tfsService.TeamProjectId]}`;
                 console.log(`Team Project: ${process.env[tfsService.TeamProject]} with ID ${this.teamProject}`);
+                console.log("Using current Collection Url");
+                this.tfsServer = `${process.env[tfsService.TeamFoundationCollectionUri]}`;
             }
             else {
                 console.log("Using Custom Team Project");
                 console.log(`Team Project: ${this.teamProject}`);
+                console.log("Using Custom Collection Url");
             }
             /* we decode here because the web request library handles the encoding of the uri.
              * otherwise we get double-encoded urls which cause problems. */
@@ -310,7 +305,6 @@ class TaskRunner {
     getInputs() {
         // basic Configuration
         this.definitionIsInCurrentTeamProject = this.taskLibrary.getBoolInput(taskConstants.DefininitionIsInCurrentTeamProjectInput, true);
-        this.definitionIsInSameCollection = this.taskLibrary.getBoolInput(taskConstants.DefinitionIsInCurrentCollection, true);
         this.tfsServer = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.ServerUrlInput, false));
         this.teamProject = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TeamProjectInput, false));
         this.buildDefinitionsToTrigger =
@@ -364,4 +358,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map
