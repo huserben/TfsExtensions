@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "linqts": "1.10.0",
-    "tfsrestservice": "^2.0.6",
+    "tfsrestservice": "^2.0.7",
     "vso-node-api": "^6.5.0",
     "vsts-task-lib": "^2.2.1"
   },
