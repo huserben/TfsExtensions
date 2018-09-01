@@ -452,6 +452,26 @@ describe("Task Runner Tests", function () {
         yield subject.run();
         tasklibraryMock.verify(x => x.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, ""), TypeMoq.Times.once());
     }));
+    it("should clear variable if configured as well when task fails", () => __awaiter(this, void 0, void 0, function* () {
+        const WaitTime = 10;
+        const BuildID = 12;
+        const DefinitionName = "someBuild";
+        const ExpectedLink = `http://someLink.ToTheBuild.expected
+        `;
+        tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName)).returns(() => BuildID.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.FailTaskIfBuildNotSuccessfulInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.TreatPartiallySucceededBuildAsSuccessfulInput, true))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.WaitForBuildsToFinishRefreshTimeInput, true))
+            .returns(() => WaitTime.toString());
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.ClearVariable, true)).returns(() => true);
+        tfsRestServiceMock.setup(srv => srv.areBuildsFinished([BuildID], true, false))
+            .throws(new Error("Build failed"));
+        setupBuildInfoMock(BuildID, DefinitionName, ExpectedLink);
+        yield subject.run();
+        tasklibraryMock.verify(x => x.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, ""), TypeMoq.Times.once());
+    }));
     it("should NOT clear variable if not configured", () => __awaiter(this, void 0, void 0, function* () {
         const WaitTime = 10;
         const BuildID = 12;
@@ -505,4 +525,3 @@ describe("Task Runner Tests", function () {
         tfsRestServiceMock.setup(service => service.getBuildInfo(buildID)).returns(() => __awaiter(this, void 0, void 0, function* () { return buildInfoMock.target; }));
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

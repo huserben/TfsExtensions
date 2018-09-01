@@ -43,6 +43,11 @@ export class TaskRunner {
             await this.waitForBuildsToFinish(this.triggeredBuilds);
         } catch (err) {
             this.taskLibrary.setResult(tl.TaskResult.Failed, err.message);
+        } finally {
+            if (this.clearVariable === true) {
+                console.log("Clearing TriggeredBuildIds Variable...");
+                this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, "");
+            }
         }
     }
 
@@ -79,7 +84,6 @@ export class TaskRunner {
                         console.log(`Cancel build ${buildId}`);
                         await this.tfsRestService.cancelBuild(buildId);
                     }
-
                 }
 
                 throw err;
@@ -93,11 +97,6 @@ export class TaskRunner {
             for (let buildId of queuedBuildIds) {
                 await this.tfsRestService.downloadArtifacts(buildId, this.dropDirectory);
             }
-        }
-
-        if (this.clearVariable === true) {
-            console.log("Clearing TriggeredBuildIds Variable...");
-            this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, "");
         }
     }
 

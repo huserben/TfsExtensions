@@ -30,6 +30,12 @@ class TaskRunner {
             catch (err) {
                 this.taskLibrary.setResult(tl.TaskResult.Failed, err.message);
             }
+            finally {
+                if (this.clearVariable === true) {
+                    console.log("Clearing TriggeredBuildIds Variable...");
+                    this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, "");
+                }
+            }
         });
     }
     waitForBuildsToFinish(queuedBuildIds) {
@@ -71,10 +77,6 @@ class TaskRunner {
                 for (let buildId of queuedBuildIds) {
                     yield this.tfsRestService.downloadArtifacts(buildId, this.dropDirectory);
                 }
-            }
-            if (this.clearVariable === true) {
-                console.log("Clearing TriggeredBuildIds Variable...");
-                this.taskLibrary.setVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName, "");
             }
         });
     }
@@ -142,4 +144,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map
