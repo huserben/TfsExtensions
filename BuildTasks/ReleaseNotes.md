@@ -1,4 +1,11 @@
 # Release Notes
+## Version 3.0.6
+- Wait Task clears stored variables now as well in the case of the task failing. ([TriggeredBuildIds not cleared if waiting for triggered build that failed](https://github.com/huserben/TfsExtensions/issues/94))  
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@dwhearn**](https://github.com/dwhearn)  
+   
 ## Version 3.0.4
 - Created special package that only contains a single version of every task for backward compatibility. Updated documentation accordingly. ([Installing Trigger Build .vsix in TFS causes Error: XML Document- 'public' is not a valid value for global::Microsoft.VisualStudio.Services.Gallery.WebApi.PublishedExtensionFlags](https://github.com/huserben/TfsExtensions/issues/90))  
 - Updated documentation about usage of the branch parameter . ([Failing to queue build for refs/heads/master](https://github.com/huserben/TfsExtensions/issues/92))
