@@ -1,4 +1,17 @@
 # Release Notes
+## Version 3.0.7
+- Improved log messages when authentication options are missing configuration (e.g. PAT is selected but no token is specified). ([Cannot read property 'length' of null](https://github.com/huserben/TfsExtensions/issues/99))  
+- Added retry mechanism so requests are sent up to 5 times in case of an error to overcome unreliable servers. ([VSTS unreliablity](https://github.com/huserben/TfsExtensions/issues/98))  
+- Updated documentation with unsupported use-cases when task is used in a Release Definition. ([Error from manually started release](https://github.com/huserben/TfsExtensions/issues/97))  
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@SimoneLocatelli**](https://github.com/SimoneLocatelli)  
+- [**@daughey**](https://github.com/daughey)  
+- [**@arnochauveau**](https://github.com/arnochauveau)  
+- [**@sevaa**](https://github.com/sevaa)  
+
+
 ## Version 3.0.6
 - Wait Task clears stored variables now as well in the case of the task failing. ([TriggeredBuildIds not cleared if waiting for triggered build that failed](https://github.com/huserben/TfsExtensions/issues/94))  
 
