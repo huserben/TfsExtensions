@@ -1,4 +1,4 @@
-import taskLibrary = require("vsts-task-lib/task");
+import taskLibrary = require("azure-pipelines-task-lib/task");
 
 export enum TaskResult {
     Failed,
