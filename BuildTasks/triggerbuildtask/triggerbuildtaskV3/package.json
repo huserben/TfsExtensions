@@ -9,23 +9,23 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "azure-devops-node-api": "^6.6.2",
+    "azure-pipelines-task-lib": "^2.7.0",
     "linqts": "1.10.0",
-    "tfsrestservice": "^2.0.7",
-    "vso-node-api": "^6.5.0",
-    "vsts-task-lib": "^2.2.1"
+    "tfsrestservice": "^2.0.8"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.48",
-    "@types/node": "^8.9.4",
-    "@types/q": "^1.0.7",
+    "@types/node": "^8.10.36",
+    "@types/q": "^1.5.1",
     "@types/sinon": "^2.3.7",
-    "mocha": "^5.0.4",
     "gulp": "^3.9.1",
     "gulp-mocha": "^4.3.1",
     "gulp-typescript": "^3.2.4",
-    "mocha-sinon": "^2.0.0",
-    "sinon": "^4.4.2",
+    "mocha": "^5.2.0",
+    "mocha-sinon": "^2.1.0",
+    "sinon": "^4.5.0",
     "typemoq": "^2.0.1",
-    "typescript": "^2.7.2"
+    "typescript": "^2.9.2"
   }
 }

@@ -75,7 +75,7 @@ class TaskRunner {
                     try {
                         areBuildsFinished = yield this.tfsRestService.areBuildsFinished(queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
                         if (!areBuildsFinished) {
-                            this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
+                            this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
                             yield this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                         }
                     }
@@ -358,4 +358,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map

@@ -92,7 +92,7 @@ export class TaskRunner {
                     areBuildsFinished = await this.tfsRestService.areBuildsFinished(
                         queuedBuildIds, this.failTaskIfBuildsNotSuccessful, this.treatPartiallySucceededBuildAsSuccessful);
                     if (!areBuildsFinished) {
-                        this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime * 1000} seconds`);
+                        this.taskLibrary.debug(`Builds not yet finished...Waiting ${this.waitForQueuedBuildsToFinishRefreshTime} seconds`);
                         await this.generalFunctions.sleep((this.waitForQueuedBuildsToFinishRefreshTime * 1000));
                     }
                 } catch (err) {
