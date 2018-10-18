@@ -34,3 +34,4 @@ exports.DependentOnFailedBuildConditionInput = "dependentOnFailedBuildCondition"
 exports.DependentOnFailedBuildsInput = "dependentFailingBuildsList";
 exports.TriggeredBuildIdsEnvironmentVariableName = "TriggeredBuildIds";
 exports.FailTaskIfConditionsAreNotFulfilled = "failTaskIfConditionsAreNotFulfilled";
+//# sourceMappingURL=taskconstants.js.map

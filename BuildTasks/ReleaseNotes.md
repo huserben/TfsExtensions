@@ -1,5 +1,5 @@
 # Release Notes
-## Version 3.0.8
+## Version 3.0.8-3.0.9
 - Download Artifacts fails for larger artifacts folders. ([3.0.4: download artifact "error: request timeout"](https://github.com/huserben/TfsExtensions/issues/100))  
 
 ### Acknowledgements
