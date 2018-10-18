@@ -1,4 +1,11 @@
 # Release Notes
+## Version 3.0.8
+- Download Artifacts fails for larger artifacts folders. ([3.0.4: download artifact "error: request timeout"](https://github.com/huserben/TfsExtensions/issues/100))  
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@daughey**](https://github.com/daughey)  
+ 
 ## Version 3.0.7
 - Improved log messages when authentication options are missing configuration (e.g. PAT is selected but no token is specified). ([Cannot read property 'length' of null](https://github.com/huserben/TfsExtensions/issues/99))  
 - Added retry mechanism so requests are sent up to 5 times in case of an error to overcome unreliable servers. ([VSTS unreliablity](https://github.com/huserben/TfsExtensions/issues/98))  
