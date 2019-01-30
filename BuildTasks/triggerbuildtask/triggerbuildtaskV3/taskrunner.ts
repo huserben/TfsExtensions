@@ -249,9 +249,20 @@ export class TaskRunner {
         await this.initializeTfsRestService();
 
         if (this.queueBuildForUserThatTriggeredBuild) {
-            let user: string = `${process.env[tfsService.RequestedForUsername]}`;
-            this.userId = `${process.env[tfsService.RequestedForUserId]}`;
-            console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
+            /* Use values from service */
+            if (process.env["RELEASE_REQUESTEDFOR"]) {
+                console.log(`Context is Release - using Release Environment Variables`);
+
+                var user : string = `${process.env["RELEASE_REQUESTEDFOR"]}`;
+                this.userId = `${process.env["RELEASE_REQUESTEDFORID"]}`;
+                console.log(`Build shall be triggered for same user that triggered current Release: ${user}`);
+            } else {
+                console.log(`Context is Build - using Build Environment Variables`);
+
+                var user: string = `${process.env[tfsService.RequestedForUsername]}`;
+                this.userId = `${process.env[tfsService.RequestedForUserId]}`;
+                console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
+            }
         }
 
         if (this.useSameSourceVersion) {

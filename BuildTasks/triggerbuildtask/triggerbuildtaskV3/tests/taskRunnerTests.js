@@ -620,7 +620,26 @@ describe("Task Runner Tests", function () {
         process.env[tfsService.RequestedForUserId] = UserID;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), UserID, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Context is Build - using Build Environment Variables`));
         assert(consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current build: ${UserName}`));
+    }));
+    it("should trigger build for user that trigger release if configured", () => __awaiter(this, void 0, void 0, function* () {
+        const BuildUserName = "Buildy McBuildFace";
+        const BuildUserID = "12";
+        const ReleaseUserName = "Releasy McReleaser";
+        const ReleaseUserID = "42";
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.QueueBuildForUserInput, true))
+            .returns(() => true);
+        process.env[tfsService.RequestedForUsername] = BuildUserName;
+        process.env[tfsService.RequestedForUserId] = BuildUserID;
+        /* Use constant from service */
+        process.env["RELEASE_REQUESTEDFOR"] = ReleaseUserName;
+        process.env["RELEASE_REQUESTEDFORID"] = ReleaseUserID;
+        yield subject.run();
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), ReleaseUserID, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Context is Release - using Release Environment Variables`));
+        assert(consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current Release: ${ReleaseUserName}`));
     }));
     it("should NOT trigger build for user that trigger original build if not configured", () => __awaiter(this, void 0, void 0, function* () {
         const UserName = "Buildy McBuildFace";
@@ -1043,4 +1062,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

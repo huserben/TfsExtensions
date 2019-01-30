@@ -920,8 +920,43 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
-        assert(
-            consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current build: ${UserName}`));
+
+        assert(consoleLogSpy.calledWith(`Context is Build - using Build Environment Variables`));
+        assert(consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current build: ${UserName}`));
+    });
+
+    it("should trigger build for user that trigger release if configured", async () => {
+        const BuildUserName: string = "Buildy McBuildFace";
+        const BuildUserID: string = "12";
+        const ReleaseUserName: string = "Releasy McReleaser";
+        const ReleaseUserID: string = "42";
+
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.QueueBuildForUserInput, true))
+            .returns(() => true);
+
+        process.env[tfsService.RequestedForUsername] = BuildUserName;
+        process.env[tfsService.RequestedForUserId] = BuildUserID;
+
+        /* Use constant from service */
+        process.env["RELEASE_REQUESTEDFOR"] = ReleaseUserName;
+        process.env["RELEASE_REQUESTEDFORID"] = ReleaseUserID;
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                "build",
+                TypeMoq.It.isAny(),
+                ReleaseUserID,
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+
+        assert(consoleLogSpy.calledWith(`Context is Release - using Release Environment Variables`));
+        assert(consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current Release: ${ReleaseUserName}`));
     });
 
     it("should NOT trigger build for user that trigger original build if not configured", async () => {
