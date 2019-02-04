@@ -249,7 +249,7 @@ export class TaskRunner {
         await this.initializeTfsRestService();
 
         if (this.queueBuildForUserThatTriggeredBuild) {
-            /* Use values from service */
+
             if (process.env[tfsService.ReleaseRequestedForUsername]) {
                 console.log(`Context is Release - using Release Environment Variables`);
 
