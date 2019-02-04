@@ -1,4 +1,15 @@
 # Release Notes
+## Version 3.0.10  
+- Updated Documentation related to Build Queue Parameter. ([Triggering a build on a different queue fails](https://github.com/huserben/TfsExtensions/issues/102))  
+- Task is using Release Environment Variables to figure out who triggered it when used in the context of a release. ([Use Release Environment Variables when Task is used in Context of Release](https://github.com/huserben/TfsExtensions/issues/106))  
+- Build Parameters now support that a JSON string is passed as a value. ([Trigger build is failing if JSON needs to be passed as a parameter](https://github.com/huserben/TfsExtensions/issues/107))  
+  
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@migheorghe **](https://github.com/migheorghe)  
+- [**@rfennell**](https://github.com/rfennell)  
+- [**@mykolad**](https://github.com/mykolad)  
+
 ## Version 3.0.8-3.0.9
 - Download Artifacts fails for larger artifacts folders. ([3.0.4: download artifact "error: request timeout"](https://github.com/huserben/TfsExtensions/issues/100))  
 
