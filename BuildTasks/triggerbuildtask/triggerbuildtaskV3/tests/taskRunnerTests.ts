@@ -938,9 +938,8 @@ describe("Task Runner Tests", function (): void {
         process.env[tfsService.RequestedForUsername] = BuildUserName;
         process.env[tfsService.RequestedForUserId] = BuildUserID;
 
-        /* Use constant from service */
-        process.env["RELEASE_REQUESTEDFOR"] = ReleaseUserName;
-        process.env["RELEASE_REQUESTEDFORID"] = ReleaseUserID;
+        process.env[tfsService.ReleaseRequestedForUsername] = ReleaseUserName;
+        process.env[tfsService.ReleaseRequestedForId] = ReleaseUserID;
 
         await subject.run();
 

@@ -634,8 +634,8 @@ describe("Task Runner Tests", function () {
         process.env[tfsService.RequestedForUsername] = BuildUserName;
         process.env[tfsService.RequestedForUserId] = BuildUserID;
         /* Use constant from service */
-        process.env["RELEASE_REQUESTEDFOR"] = ReleaseUserName;
-        process.env["RELEASE_REQUESTEDFORID"] = ReleaseUserID;
+        process.env[tfsService.ReleaseRequestedForUsername] = ReleaseUserName;
+        process.env[tfsService.ReleaseRequestedForId] = ReleaseUserID;
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), ReleaseUserID, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Context is Release - using Release Environment Variables`));

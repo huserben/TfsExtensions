@@ -250,11 +250,11 @@ export class TaskRunner {
 
         if (this.queueBuildForUserThatTriggeredBuild) {
             /* Use values from service */
-            if (process.env["RELEASE_REQUESTEDFOR"]) {
+            if (process.env[tfsService.ReleaseRequestedForUsername]) {
                 console.log(`Context is Release - using Release Environment Variables`);
 
-                var user : string = `${process.env["RELEASE_REQUESTEDFOR"]}`;
-                this.userId = `${process.env["RELEASE_REQUESTEDFORID"]}`;
+                var user : string = `${process.env[tfsService.ReleaseRequestedForUsername]}`;
+                this.userId = `${process.env[tfsService.ReleaseRequestedForId]}`;
                 console.log(`Build shall be triggered for same user that triggered current Release: ${user}`);
             } else {
                 console.log(`Context is Build - using Build Environment Variables`);
