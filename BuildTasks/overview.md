@@ -140,7 +140,9 @@ The syntax is as follows. If you just want to check if the demand exists on the 
 **Note:** If no suitable agent is available with the specified demands, the build cannot be triggered and the Task will fail!
 
 ### Queue
-Specify here the name or the id of the agent queue that you want to use. If not specified, the default queue will be used. 
+Specify here the name or the id of the agent queue that you want to use. If not specified, the default queue will be used.  
+
+**Note:** When specifying a Queue you have to make sure that the user triggering the build has no access to it, for example when using the OAuth Authentication Method. This is the case when the error *Error message: Error: No agent pool found with identifier 769*  is shown. An option to work around this would be to switch to Personal Access Token Authentication and making sure that the Token has enough access rights. More details can be found on [github](https://github.com/huserben/TfsExtensions/issues/102).
 
 ### Delay between triggering builds
 Define here if you wish to delay the builds that are triggered by the specified amount of seconds. This might be useful if you have some issues when triggering builds at nearly the same time.
@@ -162,7 +164,12 @@ For example these will work:
 However, the following will not work:  
 - **VariableKey**: *C:\Test\Something, C:\Test\SomethingElse*
 
-Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54#issuecomment-368578707) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.
+Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54#issuecomment-368578707) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.  
+
+An exception to the rules above is if the value is a complete Json object, this will be treated specially. For example the following will be allowed:  
+**01VarName**: *{ "a": 50, "b": 50 },* **02VarName**: *{ "Value1": 12, "OtherObject": { "SomeValue": 13, "Child": { "Name": "MyChild" } } }*  
+
+Json values are detected only when the value is enclosed by curly braces. More details can be found on the following github [issue](https://github.com/huserben/TfsExtensions/issues/107). 
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the following error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*

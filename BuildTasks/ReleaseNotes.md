@@ -6,7 +6,7 @@
   
 ### Acknowledgements
 Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
-- [**@migheorghe **](https://github.com/migheorghe)  
+- [**@migheorghe**](https://github.com/migheorghe)  
 - [**@rfennell**](https://github.com/rfennell)  
 - [**@mykolad**](https://github.com/mykolad)  
 
