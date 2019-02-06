@@ -633,7 +633,6 @@ describe("Task Runner Tests", function () {
             .returns(() => true);
         process.env[tfsService.RequestedForUsername] = BuildUserName;
         process.env[tfsService.RequestedForUserId] = BuildUserID;
-        /* Use constant from service */
         process.env[tfsService.ReleaseRequestedForUsername] = ReleaseUserName;
         process.env[tfsService.ReleaseRequestedForId] = ReleaseUserID;
         yield subject.run();
@@ -1062,3 +1061,4 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
+//# sourceMappingURL=taskRunnerTests.js.map

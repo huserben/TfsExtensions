@@ -193,7 +193,6 @@ class TaskRunner {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.initializeTfsRestService();
             if (this.queueBuildForUserThatTriggeredBuild) {
-                /* Use values from service */
                 if (process.env[tfsService.ReleaseRequestedForUsername]) {
                     console.log(`Context is Release - using Release Environment Variables`);
                     var user = `${process.env[tfsService.ReleaseRequestedForUsername]}`;
@@ -368,3 +367,4 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
+//# sourceMappingURL=taskrunner.js.map
