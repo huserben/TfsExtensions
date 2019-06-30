@@ -31,4 +31,5 @@ export const DependentOnSuccessfulBuildsInput : string = "dependentBuildsList";
 export const DependentOnFailedBuildConditionInput : string = "dependentOnFailedBuildCondition";
 export const DependentOnFailedBuildsInput : string = "dependentFailingBuildsList";
 export const TriggeredBuildIdsEnvironmentVariableName : string = "TriggeredBuildIds";
+export const CheckBuildsOnCurrentBranch : string = "checkbuildsoncurrentbranch";
 export const FailTaskIfConditionsAreNotFulfilled : string = "failTaskIfConditionsAreNotFulfilled";

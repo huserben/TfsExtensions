@@ -27,13 +27,15 @@ SET INPUT_includeCurrentBuildDefinition=false
 SET INPUT_blockingBuildsList=
 SET INPUT_blockInProgressBuilds=false
 SET INPUT_dependentOnSuccessfulBuildCondition=false
-SET INPUT_dependentBuildsList=
-SET INPUT_dependentOnFailedBuildCondition=false
-SET INPUT_dependentFailingBuildsList=
+SET INPUT_dependentBuildsList=CI Test
+SET INPUT_dependentOnFailedBuildCondition=true
+SET INPUT_dependentFailingBuildsList=CI Test
+SET INPUT_checkbuildsoncurrentbranch=true
 SET INPUT_failTaskIfConditionsAreNotFulfilled=true
 
 SET SYSTEM_TEAMFOUNDATIONCOLLECTIONURI=https://benjsawesometfstest.visualstudio.com/DefaultCollection
 SET SYSTEM_TEAMPROJECT=Build Test
 SET SYSTEM_TEAMPROJECTID=df832ba4-a0a1-4ab9-b417-7958a933c508
+SET BUILD_SOURCEBRANCH=SomeBranch
 
 node index.js

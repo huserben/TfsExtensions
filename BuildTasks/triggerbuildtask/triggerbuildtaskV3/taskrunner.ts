@@ -39,6 +39,8 @@ export class TaskRunner {
     dependentBuildsList: string[];
     dependentOnFailedBuildCondition: boolean = false;
     dependentFailingBuildsList: string[];
+    checkbuildsoncurrentbranch: boolean = false;
+    branchToCheckConditionsAgainst: string = "";
     failTaskIfConditionsAreNotFulfilled: boolean = false;
 
     userId: string;
@@ -197,6 +199,8 @@ export class TaskRunner {
                         blockingBuild,
                         stateToCheck);
 
+                queuedBuilds = this.filterBuildsForSameBranch(queuedBuilds);
+
                 if (queuedBuilds.length > 0) {
                     console.log(`${blockingBuild} is queued - will not trigger new build.`);
 
@@ -213,7 +217,7 @@ export class TaskRunner {
             for (let element of this.dependentBuildsList) {
                 console.log(`Checking build ${element}`);
 
-                let lastBuilds: Build[] = (await this.tfsRestService.getBuildsByStatus(element));
+                let lastBuilds: Build[] = this.filterBuildsForSameBranch((await this.tfsRestService.getBuildsByStatus(element)));
 
                 if (lastBuilds.length > 0 && lastBuilds[0].result !== BuildResult.Succeeded) {
                     console.log(
@@ -230,7 +234,7 @@ export class TaskRunner {
             console.log("Checking if dependant build definitions last builds were NOT successful");
 
             for (let build of this.dependentFailingBuildsList) {
-                let lastBuilds: Build[] = (await this.tfsRestService.getBuildsByStatus(build));
+                let lastBuilds: Build[] = this.filterBuildsForSameBranch((await this.tfsRestService.getBuildsByStatus(build)));
 
                 if (lastBuilds.length > 0 && lastBuilds[0].result === BuildResult.Succeeded) {
                     console.log(`Last build of definition ${build} was successful
@@ -245,6 +249,22 @@ export class TaskRunner {
         return true;
     }
 
+    private filterBuildsForSameBranch(builds: Build[]): Build[] {
+        if (this.checkbuildsoncurrentbranch) {
+            var filteredBuilds : Build[] = [];
+
+            for (let build of builds) {
+                if (build.sourceBranch === this.branchToCheckConditionsAgainst) {
+                    filteredBuilds.push(build);
+                }
+            }
+
+            return filteredBuilds;
+        }
+
+        return builds;
+    }
+
     private async parseInputs(): Promise<void> {
         await this.initializeTfsRestService();
 
@@ -253,7 +273,7 @@ export class TaskRunner {
             if (process.env[tfsService.ReleaseRequestedForUsername]) {
                 console.log(`Context is Release - using Release Environment Variables`);
 
-                var user : string = `${process.env[tfsService.ReleaseRequestedForUsername]}`;
+                var user: string = `${process.env[tfsService.ReleaseRequestedForUsername]}`;
                 this.userId = `${process.env[tfsService.ReleaseRequestedForId]}`;
                 console.log(`Build shall be triggered for same user that triggered current Release: ${user}`);
             } else {
@@ -354,6 +374,18 @@ export class TaskRunner {
             this.dependentFailingBuildsList.forEach(dependantBuild => {
                 console.log(`${dependantBuild}`);
             });
+        }
+
+        if (this.checkbuildsoncurrentbranch) {
+            let repositoryType: string = `${process.env[tfsService.RepositoryType]}`;
+
+            if (repositoryType === tfsService.TfsRepositoryType) {
+                console.warn(`Configured to only include builds from current branch - this option does not work in a TFVC repository, will skip...`);
+                this.checkbuildsoncurrentbranch = false;
+            } else {
+                this.branchToCheckConditionsAgainst = `${process.env[tfsService.SourceBranch]}`;
+                console.log(`Will only include builds from current branch in build condition: ${this.branchToCheckConditionsAgainst}`);
+            }
         }
 
         if (this.failTaskIfConditionsAreNotFulfilled) {
@@ -457,6 +489,7 @@ export class TaskRunner {
         this.dependentFailingBuildsList =
             this.generalFunctions.trimValues(this.taskLibrary.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", false));
 
+        this.checkbuildsoncurrentbranch = this.taskLibrary.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, true);
         this.failTaskIfConditionsAreNotFulfilled = this.taskLibrary.getBoolInput(taskConstants.FailTaskIfConditionsAreNotFulfilled, true);
     }
 }
