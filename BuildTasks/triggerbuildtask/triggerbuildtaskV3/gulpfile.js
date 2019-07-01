@@ -8,20 +8,22 @@ const tsProject = ts.createProject('tsconfig.json');
 gulp.task('scripts', () => {
   const tsResult = tsProject.src()
   .pipe(tsProject());
-  return tsResult.js.pipe(gulp.dest(''))
+  return tsResult.js.pipe(gulp.dest('.'))
     .pipe(mocha({reporter: "min"}));
 });
 
 gulp.task('build', () => {
   const tsResult = tsProject.src()
   .pipe(tsProject());
-  return tsResult.js.pipe(gulp.dest(''))
+  return tsResult.js.pipe(gulp.dest('.'))
     .pipe(mocha({reporter: "list"}));
 });
 
 //set up a watcher to watch over changes
-gulp.task('watch', ['scripts'], () => {
-  gulp.watch('**/*.ts', ['scripts']);
-});
+gulp.task('watch', gulp.series('scripts', () => {
+  gulp.watch('**/*.ts', gulp.series('scripts', () => { }));
+}));
 
-gulp.task('default', ['watch']);
+gulp.task('default', gulp.series('watch', () => {
+
+}));
