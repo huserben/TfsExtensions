@@ -28,6 +28,8 @@ describe("Task Runner Tests", function (): void {
 
         consoleLogSpy = sinon.spy(console, "log");
 
+        process.env[tfsService.RepositoryType] = "TfsGit";
+
         subject = new tr.TaskRunner(
             tfsRestServiceMock.object,
             tasklibraryMock.object,
@@ -305,6 +307,14 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.Times.once());
     });
 
+    it("should get input 'check build son current branch' correct", async () => {
+        await subject.run();
+
+        // assert
+        tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, true),
+            TypeMoq.Times.once());
+    });
+
     it("should get input 'fail Task If Conditions Are Not Fulfilled' correct", async () => {
         await subject.run();
 
@@ -527,7 +537,7 @@ describe("Task Runner Tests", function (): void {
     });
 
     it("should wait specified amount of time between builds if specified", async () => {
-        const ExpectedWaitTime : number = 10;
+        const ExpectedWaitTime: number = 10;
         var buildDefinition1: string = "build1";
         var buildDefinition2: string = "build2";
         var buildsToTrigger: string[] = [buildDefinition1, buildDefinition2];
@@ -545,7 +555,7 @@ describe("Task Runner Tests", function (): void {
     });
 
     it("should not wait specified amount of time between builds if only one build is triggered", async () => {
-        const ExpectedWaitTime : number = 10;
+        const ExpectedWaitTime: number = 10;
         var buildDefinition1: string = "build1";
         var buildsToTrigger: string[] = [buildDefinition1];
 
@@ -591,7 +601,7 @@ describe("Task Runner Tests", function (): void {
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.StoreInEnvironmentVariableInput, true))
             .returns(() => true);
 
-        var triggeredBuild: any = { id: TriggeredBuildID, _links: { web: { href: "" }} };
+        var triggeredBuild: any = { id: TriggeredBuildID, _links: { web: { href: "" } } };
 
         tfsRestServiceMock.setup(srv => srv.triggerBuild(
             "build",
@@ -1369,7 +1379,87 @@ describe("Task Runner Tests", function (): void {
         tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
             .returns(() => blockingBuilds);
 
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
+
         var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", BuildStatus.NotStarted))
+            .returns(async () => [buildMock.object]);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
+    });
+
+    it("should trigger build if build is in queue but is not from same branch", async () => {
+        var blockingBuilds: string[] = ["Build"];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
+
+        process.env[tfsService.SourceBranch] = "issues/110";
+
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.sourceBranch).returns(() => "master");
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", BuildStatus.NotStarted))
+            .returns(async () => [buildMock.object]);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+    });
+
+    it("should not trigger build if build is in queue and from same branch", async () => {
+        var blockingBuilds: string[] = ["Build"];
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
+
+        process.env[tfsService.SourceBranch] = "issues/110";
+
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.sourceBranch).returns(() => "issues/110");
 
         tfsRestServiceMock.setup(
             srv => srv.getBuildsByStatus("Build", BuildStatus.NotStarted))
@@ -1416,7 +1506,7 @@ describe("Task Runner Tests", function (): void {
     it("should not trigger new build if build is in proggres", async () => {
         var blockingBuilds: string[] = ["Build"];
         // tslint:disable-next-line:no-bitwise
-        var expectedStatus : BuildStatus = BuildStatus.NotStarted | BuildStatus.InProgress;
+        var expectedStatus: BuildStatus = BuildStatus.NotStarted | BuildStatus.InProgress;
 
         tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
             .returns(() => true);
@@ -1428,6 +1518,93 @@ describe("Task Runner Tests", function (): void {
             .returns(() => true);
 
         var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", expectedStatus))
+            .returns(async () => [buildMock.object]);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.never());
+
+        assert(consoleLogSpy.calledWith("Will treat in progress builds as blocking."));
+        assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
+    });
+
+    it("should trigger new build if build is in proggres but from different branch", async () => {
+        var blockingBuilds: string[] = ["Build"];
+        // tslint:disable-next-line:no-bitwise
+        var expectedStatus: BuildStatus = BuildStatus.NotStarted | BuildStatus.InProgress;
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.BlockInProgressBuilds, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
+
+        process.env[tfsService.SourceBranch] = "issues/110";
+
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.sourceBranch).returns(() => "master");
+
+        tfsRestServiceMock.setup(
+            srv => srv.getBuildsByStatus("Build", expectedStatus))
+            .returns(async () => [buildMock.object]);
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+    });
+
+    it("should not trigger new build if build is in proggres and from same branch", async () => {
+        var blockingBuilds: string[] = ["Build"];
+        // tslint:disable-next-line:no-bitwise
+        var expectedStatus: BuildStatus = BuildStatus.NotStarted | BuildStatus.InProgress;
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.EnableBuildInQueueConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.IncludeCurrentBuildDefinitionInput, TypeMoq.It.isAny()))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BlockingBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => blockingBuilds);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.BlockInProgressBuilds, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
+
+        process.env[tfsService.SourceBranch] = "issues/110";
+
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.sourceBranch).returns(() => "issues/110");
 
         tfsRestServiceMock.setup(
             srv => srv.getBuildsByStatus("Build", expectedStatus))
@@ -1605,7 +1782,7 @@ describe("Task Runner Tests", function (): void {
         });
 
     it(`should not trigger build if dependant on failed build condition is enabled and
-        last build was not failed`, async () => {
+        last build did not fail`, async () => {
             tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
                 .returns(() => true);
             tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
@@ -1632,6 +1809,40 @@ describe("Task Runner Tests", function (): void {
                     TypeMoq.It.isAny()),
                 TypeMoq.Times.never());
             assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were NOT successful"));
+        });
+
+    it(`should trigger build if dependant on failed build condition is enabled and
+            last build did not fail but build was from different branch`, async () => {
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+                .returns(() => true);
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+                .returns(() => ["Build"]);
+            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
+                .returns(() => true);
+
+            process.env[tfsService.SourceBranch] = "issues/110";
+
+            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+                .returns(() => ["dsfalk"]);
+
+            var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+            buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
+            buildMock.setup(b => b.sourceBranch).returns(() => "master");
+            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+                .returns(async () => [buildMock.object]);
+
+            await subject.run();
+
+            tfsRestServiceMock.verify(
+                srv => srv.triggerBuild(
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny(),
+                    TypeMoq.It.isAny()),
+                TypeMoq.Times.once());
         });
 
     it(`should trigger build if dependant on failed build condition is enabled and
@@ -1702,7 +1913,7 @@ describe("Task Runner Tests", function (): void {
     }
 
     function setupBuildIdForTriggeredBuild(buildConfig: string, buildID: number, link: string = ""): void {
-        var triggeredBuild : any = { id: buildID, _links: { web: { href: link } } };
+        var triggeredBuild: any = { id: buildID, _links: { web: { href: link } } };
 
         tfsRestServiceMock.setup(srv => srv.triggerBuild(
             buildConfig,
