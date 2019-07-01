@@ -352,7 +352,7 @@
 			"label":  "Only include builds from same branch",
 			"defaultValue":  false,
 			"required":  true,
-			"helpMarkDown":  "If selected, only builds that are built against the same branch are considered for the conditions. This does not in TFVC repositories.",
+			"helpMarkDown":  "If selected, only builds that are built against the same branch are considered for the conditions. This does not work in TFVC repositories.",
 			"groupName":  "conditions"
 		},	
 		{
