@@ -1,4 +1,13 @@
 # Release Notes
+## Version 3.0.11
+- Improve handling when encountering connection issues. ([ECONNRESET issues](https://github.com/huserben/TfsExtensions/issues/108))  
+- Allow conditions to filter only for builds in same branch as source build. ([Feature for TriggerBuildTask: Only check build conditions from the same branch](https://github.com/huserben/TfsExtensions/issues/110))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@aee11**](https://github.com/aee11)  
+- [**@geofflamrock**](https://github.com/geofflamrock)  
+
 ## Version 3.0.10  
 - Updated Documentation related to Build Queue Parameter. ([Triggering a build on a different queue fails](https://github.com/huserben/TfsExtensions/issues/102))  
 - Task is using Release Environment Variables to figure out who triggered it when used in the context of a release. ([Use Release Environment Variables when Task is used in Context of Release](https://github.com/huserben/TfsExtensions/issues/106))  

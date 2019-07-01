@@ -230,6 +230,17 @@ Again you can specify a comma separated list of build definitions that you would
   
 ![Failing Build Dependency Condition](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/failedbuilddependencycondition.PNG)  
 
+### Filter Builds that are specified in the Condition
+If this option is enabled, all the builds that are looked at in any of the conditions are filtered whether they were triggered in the context of the same branch as the current *source build*.
+
+![Include Builds from Current Branch](https://user-images.githubusercontent.com/5486874/60455620-24708900-9c37-11e9-8fa9-f0d48ba9ffcd.png)  
+
+**Warning:** This does only make sense if your build to trigger is:  
+- Working against the same repositore (or if you have the same branching strategy with the same names)  
+- You use TfsGit and not TFVC - This option will have no effect on TFVC builds and is actively ignored in such a scenario.  
+
+
+
 ### Fail Task if Any Condition is not fulfilled
 This option allows to fail the task if a condition was setup and is not met. It has no effect if you don't specify any of the other conditions.
 
