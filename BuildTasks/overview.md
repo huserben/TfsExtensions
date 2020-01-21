@@ -44,7 +44,7 @@ Otherwise you can as well run the following command in a Powershell script (this
 
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)  
-- When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions wihtout any builds linked please open a new issue on [Github](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround
+- When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions without any builds linked please open a new issue on [Github](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround
 
 A list of all current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
 
