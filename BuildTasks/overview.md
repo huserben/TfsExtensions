@@ -44,7 +44,7 @@ Otherwise you can as well run the following command in a Powershell script (this
 
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)  
-- When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions wihtout any builds linked please open a new issue on [Github](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround
+- When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions without any builds linked please open a new issue on [Github](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround
 
 A list of all current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
 
@@ -109,14 +109,14 @@ There is as well the option to cancel all awaited builds if you are failing the 
 
 **Important:** If you don't have an additional available build agent you will get stuck, as the original build is waiting for the completion of the other build, which can only be started once the original build is finished and the agent will be available!
 
-####Wait for Triggered Build Task
+#### Wait for Triggered Build Task
 There is a dedicated Task that can be used in order to wait for triggered Builds to finish. When using this Task instead of the above mentioned option, you can do other Tasks in between and just start waiting at the latest possible moment.
 The Task uses as an input the Stored Build ID's (see below) of any Trigger Build Task that was running before and that set the option of storing the IDs. The rest of the configuration is as described above.
 
 #### Cancel Build Task
 There is as well a dedicated task to cancel builds. This can be used for example to cancel all builds if anything in the build itself fails after triggering. Just add the task in the end of the build and set it to be executed only if a previous task failed.  The task works against the Stored Build ID's in the same way as the Wait for Triggered Build Task does.
 
-###Store Build IDs in Variable
+### Store Build IDs in Variable
 If any subsequent task needs the info of which builds were triggered by this Task, this information is available as an environment variable to the subsequent Tasks. The name of the variable is *TriggeredBuildIds*. If more than one build will be triggered, the values will be written comma separated. If there is already a value in the variable from a previous Task, it **not** overwritten but keep the original value and append his resulting build id's.   
 
 In for example a PowerShell Script the variable can be accessed like this:  
@@ -134,7 +134,7 @@ The variable is as well available as an input in the configuration for *any* sub
 ### Demands
 Depending on your build definition a ceratin set of demands will be required from the agent to be built. When queuing a build additional demands can be specified, for example to filter for a special build agent. If additional demands need to be specified, they can be added here. Multiple demands can be specified when they are separated by a comma.  
 
-####Syntax
+#### Syntax
 The syntax is as follows. If you just want to check if the demand exists on the agent, just specify the value (see image above the demand "MySpecialDemandForThisBuild".  Furthermore a demand can be checked if it has a certain value. To add this kind of demands you can write it like this: "OtherDemand = 42".  
 
 **Note:** If no suitable agent is available with the specified demands, the build cannot be triggered and the Task will fail!
