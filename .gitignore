@@ -37,4 +37,6 @@ jspm_packages
 .node_repl_history
 
 # temp build directory
+
 BuildTasks/build
+.vs
