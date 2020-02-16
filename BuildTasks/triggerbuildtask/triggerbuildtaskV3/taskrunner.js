@@ -345,7 +345,8 @@ class TaskRunner {
             this.tfsServer = decodeURI(this.tfsServer);
             console.log(`Server URL: ${this.tfsServer}`);
             console.log(`Using following Authentication Method: ${this.authenticationMethod}`);
-            if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken) {
+            if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
+                (this.password === null || this.password === "")) {
                 console.log("Trying to fetch authentication token from system...");
                 this.password = `${process.env[tfsService.OAuthAccessToken]}`;
             }
