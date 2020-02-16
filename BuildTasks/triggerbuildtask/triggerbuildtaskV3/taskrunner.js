@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -21,6 +22,7 @@ class TaskRunner {
         this.queueBuildForUserThatTriggeredBuild = false;
         this.useSameSourceVersion = false;
         this.useSameBranch = false;
+        this.useCustomSourceVersion = false;
         this.waitForQueuedBuildsToFinish = false;
         this.waitForQueuedBuildsToFinishRefreshTime = 60;
         this.failTaskIfBuildsNotSuccessful = false;
@@ -235,6 +237,20 @@ class TaskRunner {
                 }
                 console.log(`Triggered Build will use the same source version: ${this.sourceVersion}`);
             }
+            else if (this.useCustomSourceVersion) {
+                this.sourceVersion = this.customSourceVersion;
+                let repositoryType = `${process.env[tfsService.RepositoryType]}`;
+                console.log(`Source Version: ${this.sourceVersion}`);
+                // if we use a TFS Repository, we need to specify a "C" before the changeset...it is usually set by default, except
+                // if we use the latest version, the source version will not have a C prepended, so we have to do that manually...
+                // in case it starts with an L it means it's a label and its fine.
+                // shelvesets are prepended with a C as well, so the logic still holds
+                if (!this.sourceVersion.startsWith("C") && !this.sourceVersion.startsWith("L")
+                    && repositoryType === tfsService.TfsRepositoryType) {
+                    this.sourceVersion = `C${this.sourceVersion}`;
+                }
+                console.log(`Triggered Build will use the custom source version: ${this.sourceVersion}`);
+            }
             if (this.useSameBranch) {
                 this.branchToUse = `${process.env[tfsService.SourceBranch]}`;
                 console.log(`Using same branch as source version: ${this.branchToUse}`);
@@ -328,8 +344,8 @@ class TaskRunner {
              * otherwise we get double-encoded urls which cause problems. */
             this.tfsServer = decodeURI(this.tfsServer);
             console.log(`Server URL: ${this.tfsServer}`);
-            if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
-                (this.password === null || this.password === "")) {
+            console.log(`Using following Authentication Method: ${this.authenticationMethod}`);
+            if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken) {
                 console.log("Trying to fetch authentication token from system...");
                 this.password = `${process.env[tfsService.OAuthAccessToken]}`;
             }
@@ -348,6 +364,8 @@ class TaskRunner {
         // advanced Configuration
         this.queueBuildForUserThatTriggeredBuild = this.taskLibrary.getBoolInput(taskConstants.QueueBuildForUserInput, true);
         this.useSameSourceVersion = this.taskLibrary.getBoolInput(taskConstants.UseSameSourceVersionInput, true);
+        this.useCustomSourceVersion = this.taskLibrary.getBoolInput(taskConstants.UseCustomSourceVersionInput, true);
+        this.customSourceVersion = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.CustomSourceVersionInput, false));
         this.useSameBranch = this.taskLibrary.getBoolInput(taskConstants.UseSameBranchInput, true);
         this.branchToUse = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BranchToUseInput, false));
         this.waitForQueuedBuildsToFinish = this.taskLibrary.getBoolInput(taskConstants.WaitForBuildsToFinishInput, true);
@@ -394,3 +412,4 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
+//# sourceMappingURL=taskrunner.js.map

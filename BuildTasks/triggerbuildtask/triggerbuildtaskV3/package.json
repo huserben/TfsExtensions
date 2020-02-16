@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "azure-devops-node-api": "^6.6.3",
-    "azure-pipelines-task-lib": "^2.9.3",
+    "azure-pipelines-task-lib": "2.8.0",
     "linqts": "1.10.0",
     "tfsrestservice": "^2.0.13"
   },

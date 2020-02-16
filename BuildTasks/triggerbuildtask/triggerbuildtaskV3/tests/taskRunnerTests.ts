@@ -108,6 +108,30 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.Times.once());
     });
 
+
+    it("should get input 'use custom source version' correct", async () => {
+        await subject.run();
+
+        // assert
+        tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.UseCustomSourceVersionInput, true),
+            TypeMoq.Times.once());
+    });
+
+
+    it("should get input 'custom source version' correct", async () => {
+        const customSourceversion: string = "d43e5ea48d6dd82dc985799a61e899e49f9028e8";
+        tasklibraryMock.setup((lib) => lib.getInput(taskConstants.CustomSourceVersionInput, false))
+            .returns(() => customSourceversion);
+
+        await subject.run();
+
+        // assert
+        tasklibraryMock.verify((lib) => lib.getInput(taskConstants.CustomSourceVersionInput, false),
+            TypeMoq.Times.once());
+
+        generalFunctionsMock.verify((gf) => gf.trimValue(customSourceversion), TypeMoq.Times.once());
+    });
+
     it("should get input 'use same branch' correct", async () => {
         await subject.run();
 
@@ -1096,6 +1120,43 @@ describe("Task Runner Tests", function (): void {
             consoleLogSpy.calledWith(`Triggered Build will use the same source version: ${SourceVersion}`));
     });
 
+
+
+    it("should trigger build with custom source version if configured", async () => {
+        const SourceVersion: string = "d43e5ea48d6dd82dc985799a61e899e49f9028e8";
+        const RepoType: string = "Git";
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
+            .returns(() => false);
+
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseCustomSourceVersionInput, true))
+            .returns(() => true);
+
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.CustomSourceVersionInput, false))
+            .returns(() => SourceVersion);
+
+        setupBuildConfiguration(["build"]);
+
+        process.env[tfsService.RepositoryType] = RepoType;
+
+        await subject.run();
+
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                "build",
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                SourceVersion,
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+        assert(
+            consoleLogSpy.calledWith(`Source Version: ${SourceVersion}`));
+        assert(
+            consoleLogSpy.calledWith(`Triggered Build will use the custom source version: ${SourceVersion}`));
+    });
+
     it("should NOT trigger build with same source version if not configured", async () => {
         const SourceVersion: string = "1234";
         const RepoType: string = "Git";
@@ -1695,212 +1756,212 @@ describe("Task Runner Tests", function (): void {
 
     it(`should not trigger build if dependant on successful build condition is enabled and
     last build was not successful`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
-            buildMock.setup(b => b.result).returns(() => BuildResult.Failed);
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => [buildMock.object]);
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.result).returns(() => BuildResult.Failed);
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => [buildMock.object]);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.never());
-            assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were successful"));
-            assert(consoleLogSpy.calledWith("Checking build Build"));
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were successful"));
+        assert(consoleLogSpy.calledWith("Checking build Build"));
+    });
 
     it(`should trigger build if dependant on successful build condition is enabled and
         last build was successful`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
-            buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => [buildMock.object]);
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => [buildMock.object]);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.once());
-            assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were failing - proceeding"));
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were failing - proceeding"));
+    });
 
     it(`should trigger build if dependant on successful build condition is enabled and
                 there is no build found to check`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnSuccessfulBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnSuccessfulBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => []);
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => []);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.once());
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+    });
 
     it(`should not trigger build if dependant on failed build condition is enabled and
         last build did not fail`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
-            buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => [buildMock.object]);
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => [buildMock.object]);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.never());
-            assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were NOT successful"));
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.never());
+        assert(consoleLogSpy.calledWith("Checking if dependant build definitions last builds were NOT successful"));
+    });
 
     it(`should trigger build if dependant on failed build condition is enabled and
             last build did not fail but build was from different branch`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
-                .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.CheckBuildsOnCurrentBranch, TypeMoq.It.isAny()))
+            .returns(() => true);
 
-            process.env[tfsService.SourceBranch] = "issues/110";
+        process.env[tfsService.SourceBranch] = "issues/110";
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
-            buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
-            buildMock.setup(b => b.sourceBranch).returns(() => "master");
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => [buildMock.object]);
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.result).returns(() => BuildResult.Succeeded);
+        buildMock.setup(b => b.sourceBranch).returns(() => "master");
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => [buildMock.object]);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.once());
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+    });
 
     it(`should trigger build if dependant on failed build condition is enabled and
             last build was not successful`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
-            buildMock.setup(b => b.result).returns(() => BuildResult.Failed);
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => [buildMock.object]);
+        var buildMock: TypeMoq.IMock<Build> = TypeMoq.Mock.ofType<Build>();
+        buildMock.setup(b => b.result).returns(() => BuildResult.Failed);
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => [buildMock.object]);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.once());
-            assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were successful - proceeding"));
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were successful - proceeding"));
+    });
 
     it(`should trigger build if dependant on failed build condition is enabled and
                     there is no build found to check`, async () => {
-            tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
-                .returns(() => true);
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
-                .returns(() => ["Build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.DependentOnFailedBuildConditionInput, TypeMoq.It.isAny()))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.DependentOnFailedBuildsInput, ",", TypeMoq.It.isAny()))
+            .returns(() => ["Build"]);
 
-            tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
-                .returns(() => ["dsfalk"]);
+        tasklibraryMock.setup(tl => tl.getDelimitedInput(taskConstants.BuildDefinitionsToTriggerInput, ",", true))
+            .returns(() => ["dsfalk"]);
 
-            tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
-                .returns(async () => []);
+        tfsRestServiceMock.setup(srv => srv.getBuildsByStatus("Build"))
+            .returns(async () => []);
 
-            await subject.run();
+        await subject.run();
 
-            tfsRestServiceMock.verify(
-                srv => srv.triggerBuild(
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny(),
-                    TypeMoq.It.isAny()),
-                TypeMoq.Times.once());
-        });
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+    });
 
     function areEqual(a: string[], b: string[]): boolean {
         a.forEach(element => {

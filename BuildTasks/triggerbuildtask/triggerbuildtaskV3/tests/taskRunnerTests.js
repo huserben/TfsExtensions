@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -79,6 +80,20 @@ describe("Task Runner Tests", function () {
         yield subject.run();
         // assert
         tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.UseSameSourceVersionInput, true), TypeMoq.Times.once());
+    }));
+    it("should get input 'use custom source version' correct", () => __awaiter(this, void 0, void 0, function* () {
+        yield subject.run();
+        // assert
+        tasklibraryMock.verify((lib) => lib.getBoolInput(taskConstants.UseCustomSourceVersionInput, true), TypeMoq.Times.once());
+    }));
+    it("should get input 'custom source version' correct", () => __awaiter(this, void 0, void 0, function* () {
+        const customSourceversion = "d43e5ea48d6dd82dc985799a61e899e49f9028e8";
+        tasklibraryMock.setup((lib) => lib.getInput(taskConstants.CustomSourceVersionInput, false))
+            .returns(() => customSourceversion);
+        yield subject.run();
+        // assert
+        tasklibraryMock.verify((lib) => lib.getInput(taskConstants.CustomSourceVersionInput, false), TypeMoq.Times.once());
+        generalFunctionsMock.verify((gf) => gf.trimValue(customSourceversion), TypeMoq.Times.once());
     }));
     it("should get input 'use same branch' correct", () => __awaiter(this, void 0, void 0, function* () {
         yield subject.run();
@@ -701,6 +716,22 @@ describe("Task Runner Tests", function () {
         assert(consoleLogSpy.calledWith(`Source Version: ${SourceVersion}`));
         assert(consoleLogSpy.calledWith(`Triggered Build will use the same source version: ${SourceVersion}`));
     }));
+    it("should trigger build with custom source version if configured", () => __awaiter(this, void 0, void 0, function* () {
+        const SourceVersion = "d43e5ea48d6dd82dc985799a61e899e49f9028e8";
+        const RepoType = "Git";
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseSameSourceVersionInput, true))
+            .returns(() => false);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.UseCustomSourceVersionInput, true))
+            .returns(() => true);
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.CustomSourceVersionInput, false))
+            .returns(() => SourceVersion);
+        setupBuildConfiguration(["build"]);
+        process.env[tfsService.RepositoryType] = RepoType;
+        yield subject.run();
+        tfsRestServiceMock.verify(srv => srv.triggerBuild("build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), SourceVersion, TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()), TypeMoq.Times.once());
+        assert(consoleLogSpy.calledWith(`Source Version: ${SourceVersion}`));
+        assert(consoleLogSpy.calledWith(`Triggered Build will use the custom source version: ${SourceVersion}`));
+    }));
     it("should NOT trigger build with same source version if not configured", () => __awaiter(this, void 0, void 0, function* () {
         const SourceVersion = "1234";
         const RepoType = "Git";
@@ -1179,3 +1210,4 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
+//# sourceMappingURL=taskRunnerTests.js.map
