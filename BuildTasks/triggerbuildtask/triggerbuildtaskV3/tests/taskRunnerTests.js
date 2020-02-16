@@ -15,7 +15,7 @@ const tl = require("../tasklibrary");
 const tfsService = require("tfsrestservice");
 const taskConstants = require("../taskconstants");
 const TypeMoq = require("typemoq");
-const BuildInterfaces_1 = require("../node_modules/vso-node-api/interfaces/BuildInterfaces");
+const BuildInterfaces_1 = require("azure-devops-node-api/interfaces/BuildInterfaces");
 describe("Task Runner Tests", function () {
     let subject;
     let tfsRestServiceMock;
@@ -1179,4 +1179,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

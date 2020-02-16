@@ -6,7 +6,7 @@ import tl = require("../tasklibrary");
 import tfsService = require("tfsrestservice");
 import taskConstants = require("../taskconstants");
 import * as TypeMoq from "typemoq";
-import { Build, BuildStatus, BuildResult } from "../node_modules/vso-node-api/interfaces/BuildInterfaces";
+import { Build, BuildStatus, BuildResult } from "azure-devops-node-api/interfaces/BuildInterfaces";
 
 describe("Task Runner Tests", function (): void {
     let subject: tr.TaskRunner;
