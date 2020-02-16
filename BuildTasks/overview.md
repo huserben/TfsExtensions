@@ -90,6 +90,9 @@ In any case if you trigger a build from a different team project, no matter if o
 ### Use Same Source Version
 If this option is enabled, the triggered build will use the same source version as the build that includes the task. This means if the build was triggered for a specific changeset or label, the same source version will used in the triggered build. This option is disabled by default, which means the triggered build will use the latest sources.
 
+### Use Custom Source Version
+If you're not using the same source version, you can also select a custom source version. Put the exact version of the source version to be used in the respective textbox. With a git repository, this would mean that the commit hash would be expected.
+
 ### Use Same Source Branch
 If this is enabled, the triggered build will use the same source branch as the build that includes the task. This means if the build is triggered for the source branch *master*, the triggered build will as well.  
 Please make sure that if this option is enabled, the triggered build can actually be triggered for that branch. Especially if you trigger builds across projects you might want to disable this step.
@@ -173,6 +176,10 @@ Json values are detected only when the value is enclosed by curly braces. More d
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the following error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
+
+#### Build Parameters as JSON Object
+If you are constrained by the above mentioned rules, you can also specify the exact json object that will be used. For this just include the whole object and make sure to encapsulate it in "{ }".
+**Note**: If you're using this option, you have to make sure that the escaping of the values etc. is handled correctly.
 
 ## Authentication Options
 In this section can be set how you authenticate against your TFS. 

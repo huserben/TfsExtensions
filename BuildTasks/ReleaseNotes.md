@@ -1,4 +1,18 @@
 # Release Notes
+## Version 3.0.12
+- Allow Triggering of Build with a specific Source ID ([Trigger build with specific Source ID](https://github.com/huserben/TfsExtensions/issues/119))
+- Allow specification of build parameter as pure JSON Object ([Universal solution for build parameter escaping](https://github.com/huserben/TfsExtensions/issues/123))
+- Ignore casing of artifact type when downloading artifacts ([Unable to download artifacts published by built-in Publish Build Artifacts on Azure DevOps Server 2019](https://github.com/huserben/TfsExtensions/issues/125))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@petermisovic**](https://github.com/petermisovic)  
+- [**@dgomsvek**](https://github.com/dgomsvek)
+- [**@v-bekif**](https://github.com/v-bekif)
+- [**@milliamp**](https://github.com/milliamp)
+
+
+
 ## Version 3.0.11
 - Improve handling when encountering connection issues. ([ECONNRESET issues](https://github.com/huserben/TfsExtensions/issues/108))  
 - Allow conditions to filter only for builds in same branch as source build. ([Feature for TriggerBuildTask: Only check build conditions from the same branch](https://github.com/huserben/TfsExtensions/issues/110))
