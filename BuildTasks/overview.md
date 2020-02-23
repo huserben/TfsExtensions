@@ -51,8 +51,8 @@ A list of all current issues can be found on [Github](https://github.com/huserbe
 If you find any Bugs, you have feature- or change requests or questions in general about the Task, feel free to raise an issue over at [Github](https://github.com/huserben/TfsExtensions/issues). 
   
 ## Basic Configuration
-The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build you would like to trigger.  
-This name **must** match with what you defined as name for your build definition. If the build you want to trigger is defined in the same team project as the build definition you are currently modifying, you can leave the checkbox checked. You can as well define multiple build that you want to trigger by separating the names with a comma.  
+The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build Definition you would like to trigger. Alternatively you can also specify the id of the build definition.  
+If you use the name, it **must** match with what you defined as name for your build definition. If the build you want to trigger is defined in the same team project as the build definition you are currently modifying, you can leave the checkbox checked. You can as well define multiple build that you want to trigger by separating the names with a comma.  
   
 ![Basic Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/basic_configuration.PNG)  
   

@@ -1,4 +1,11 @@
 # Release Notes
+## Version 3.0.13
+- Allow specifying build definition id and not only the name ([Using build definition ID rather than name](https://github.com/huserben/TfsExtensions/issues/126))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@ArazAbishov**](https://github.com/ArazAbishov)  
+
 ## Version 3.0.12
 - Allow Triggering of Build with a specific Source ID ([Trigger build with specific Source ID](https://github.com/huserben/TfsExtensions/issues/119))
 - Allow specification of build parameter as pure JSON Object ([Universal solution for build parameter escaping](https://github.com/huserben/TfsExtensions/issues/123))
