@@ -12,7 +12,7 @@
     "azure-devops-node-api": "^6.6.3",
     "azure-pipelines-task-lib": "2.8.0",
     "linqts": "1.10.0",
-    "tfsrestservice": "^2.0.13"
+    "tfsrestservice": "^2.0.14"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.48",
