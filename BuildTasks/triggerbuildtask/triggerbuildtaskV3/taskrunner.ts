@@ -2,7 +2,7 @@ import tfsService = require("tfsrestservice");
 import taskConstants = require("./taskconstants");
 import common = require("./generalfunctions");
 import tl = require("./tasklibrary");
-import { Build, BuildStatus, BuildResult } from "vso-node-api/interfaces/BuildInterfaces";
+import { Build, BuildStatus, BuildResult } from "azure-devops-node-api/interfaces/BuildInterfaces";
 
 export class TaskRunner {
 

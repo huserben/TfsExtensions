@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tfsService = require("tfsrestservice");
 const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
-const BuildInterfaces_1 = require("vso-node-api/interfaces/BuildInterfaces");
+const BuildInterfaces_1 = require("azure-devops-node-api/interfaces/BuildInterfaces");
 class TaskRunner {
     constructor(tfsRestService, taskLibrary, generalFunctions) {
         this.definitionIsInCurrentTeamProject = false;
