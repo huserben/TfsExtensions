@@ -1,4 +1,13 @@
 # Release Notes
+## Version 3.0.14
+- Update Azure-DevOps-Node-API to get latest fixes and improvements, especially in http_proxy settings in conjuction with no_proxy handling  
+- Handle downloading of artifacts on MacOS machines ([Download Artifacts not working at MAC Build Machines](https://github.com/huserben/TfsExtensions/issues/130))
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@BobSilent**](https://github.com/BobSilent)  
+- [**@jensheidrich-acn**](https://github.com/jensheidrich-acn)  
+
 ## Version 3.0.13
 - Allow specifying build definition id and not only the name ([Using build definition ID rather than name](https://github.com/huserben/TfsExtensions/issues/126))
 
