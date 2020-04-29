@@ -84,7 +84,25 @@ If you want to trigger a build from a different Team Project but within the same
 In any case if you trigger a build from a different team project, no matter if on the same or a different server instance, the following *Advanced Configuration* options shall not be enabled to prevent issues:  
 - Use current changeset for the triggered build  
 - Use same source branch as triggered build
-  
+
+## Usage in a YAML based build
+
+The task can be used in a YAML based build using the format
+
+```
+- task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@3
+displayName: 'Trigger a new build of Validate-BuildVariable Update'
+inputs:
+    buildDefinition: 'Your build name'
+    useSameBranch: false
+    branchToUse: master
+    waitForQueuedBuildsToFinish: true
+    authenticationMethod: 'OAuth Token'
+    password: $(System.AccessToken)
+```
+
+The key point to note is that you do not have to check any boxes to expose the OAUTH token, this is [always available in YAML pipeline as an environment variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#access-to-oauth-token). However, it does have to be explicitly passed into the task using the input `password: $(System.AccessToken)` 
+
 ## Advanced Configuration
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
 ### Use Same Source Version
