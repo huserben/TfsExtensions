@@ -74,8 +74,12 @@ class TaskRunner {
             console.log("Team Project: " + this.teamProject);
             if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
                 (this.password === null || this.password === "")) {
-                console.log("Trying to fetch authentication token from system...");
-                this.password = `${process.env[tfsService.OAuthAccessToken]}`;
+                    console.log("Trying to fetch authentication token from system...");
+                    const token = this.taskLibrary.getVariable("System.AccessToken");
+                    if (token == null) {
+                        throw new Error("Failed to get OAuth token");
+                    }
+                    this.password = token;
             }
             yield this.tfsRestService.initialize(this.authenticationMethod, this.username, this.password, this.tfsServer, this.teamProject, this.ignoreSslCertificateErrors);
         });
