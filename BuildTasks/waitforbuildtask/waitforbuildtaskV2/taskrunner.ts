@@ -122,6 +122,7 @@ export class TaskRunner {
 
         if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
             (this.password === null || this.password === "")) {
+                console.log("Trying to fetch authentication token from system...");
                 const token: string = this.taskLibrary.getVariable("System.AccessToken");
                 if (token == null) {
                     throw new Error("Failed to get OAuth token");
