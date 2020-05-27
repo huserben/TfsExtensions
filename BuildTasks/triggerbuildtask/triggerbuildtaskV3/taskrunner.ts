@@ -436,7 +436,11 @@ export class TaskRunner {
         if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
             (this.password === null || this.password === "")) {
             console.log("Trying to fetch authentication token from system...");
-            this.password = `${process.env[tfsService.OAuthAccessToken]}`;
+            const token: string = this.taskLibrary.getVariable("System.AccessToken");
+            if (token == null) {
+                throw new Error("Failed to get OAuth token");
+            }
+            this.password = token;
         }
 
         await this.tfsRestService.initialize(

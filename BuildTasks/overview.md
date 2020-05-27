@@ -2,30 +2,30 @@
 This build task enables the chaining of builds within TFS.  
 It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects) and has support for different conditions if the Build should be triggered.  
 
-## Supported TFS Versions
-The Build Task is supported for both VSTS and TFS on-Premises from Version 2015 Update 2 upwards.  
-**Please check the following guide on [github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
+## Supported TFS/VSTS/ADO Versions
+The Build Task is supported for both VSTS/ADO and TFS on-Premises from Version 2015 Update 2 upwards.  
+**Please check the following guide on [Using the Task with TFS 2015](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
 
 If you are having problems installing the extension on you on Prem TFS and getting the following error message:  
 ![Upload Error](https://user-images.githubusercontent.com/1705112/44252681-3c951080-a1fd-11e8-8f3d-5915f86ebdf0.png)  
-Please check the [Releases](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/Releases/singleversion) folder on github for the "single version packages".  
+Please check the [Releases](https://github.com/huserben/TfsExtensions/tree/master/BuildTasks/Releases/singleversion) folder on GitHub for the "single version packages".  
 It seems that some versions of TFS don't support packages with multiple versions packages, therefore a dedicated package will be available that includes just the newest versions of the tasks.
 
 ## Release Notes
 
 **A new Task "Cancel Builds" is available that can be used to cancel builds that were triggered with the Trigger Build Task in any previous step**
   
-The latest release notes can be found on [Github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
+The latest release notes can be found on [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
 
 ## Version 3 now available
-This version of the tasks are making use now of the official node.js library from Microsoft to access the VSTS/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more uptodate with the current state of the REST API and making it easier to extend functionality. 
+This version of the tasks are making use now of the official node.js library from Microsoft to access the VSTS/ADO/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more up to date with the current state of the REST API and making it easier to extend functionality. 
 
 ### Disclaimer 
-The basic functionality was retested and worked fine. However there might be some cases where some things now look or behave a bit different (for example the logging). If you experience anything please let me know by creating a new issue on github.
+The basic functionality was retested and worked fine. However there might be some cases where some things now look or behave a bit different (for example the logging). If you experience anything please let me know by creating a new issue on GitHub.
 
 ### Updating from Version 2.* to 3.*
-There are only slight interface changes. If a custom TFS/VSTS Server address is used, the Team Project has to be specified now in a seperate variable instead of being part of the URL. If you don't use a custom URL, everything stays the same.  
-Moreover, the *Default Authentication* option was now removed completly, after being obsolete since version 2.
+There are only slight interface changes. If a custom TFS/VSTS/ADO Server address is used, the Team Project has to be specified now in a separate variable instead of being part of the URL. If you don't use a custom URL, everything stays the same.  
+Moreover, the *Default Authentication* option was now removed completely, after being obsolete since version 2.
 
 ## Updating from Version 1.* to 2.0.0
 In order to update your Task from Version 1.* to the new Version 2.0.0, you have to manually switch the Version in the Build Definition:
@@ -38,17 +38,17 @@ The interface including mainly stays the same. Your configuration will work as b
 The option to authenticate via default credentials was removed as it is not well supported within Node.js. Please do switch to another authentication method. The task currently automatically will switch to OAuth if Default is still used - however this option will be removed in an upcoming version.
 
 #### Stored Environment Variable
-The Powershell version stored the triggered build id as an environment variable that was available even after the build. The new script will only use variables in scope of the build, however if there is still an id stored from the previous version, you have to delete it manually. If you have access to the Agent(s) directly you can simply delete the environment variable "TriggeredBuildIds".  
-Otherwise you can as well run the following command in a Powershell script (this only has to be done once and then the variable is cleared) as part of the build:  
+The PowerShell version stored the triggered build id as an environment variable that was available even after the build. The new script will only use variables in scope of the build, however if there is still an id stored from the previous version, you have to delete it manually. If you have access to the Agent(s) directly you can simply delete the environment variable "TriggeredBuildIds".  
+Otherwise you can as well run the following command in a PowerShell script (this only has to be done once and then the variable is cleared) as part of the build:  
 ` [Environment]::SetEnvironmentVariable("TriggeredBuildIds", ",", "User")`
 
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)  
-- When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions without any builds linked please open a new issue on [Github](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround
+- When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions without any builds linked please open a new issue on [issues](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround
 
-A list of all current issues can be found on [Github](https://github.com/huserben/TfsExtensions/issues).
+A list of all current issues can be found on [issues](https://github.com/huserben/TfsExtensions/issues).
 
-If you find any Bugs, you have feature- or change requests or questions in general about the Task, feel free to raise an issue over at [Github](https://github.com/huserben/TfsExtensions/issues). 
+If you find any Bugs, you have feature- or change requests or questions in general about the Task, feel free to raise an issue over at [issues](https://github.com/huserben/TfsExtensions/issues). 
   
 ## Basic Configuration
 The configuration is quite simple. After adding the task to your current build, you can select under *Basic Configuration* the Name of the Build Definition you would like to trigger. Alternatively you can also specify the id of the build definition.  
@@ -59,7 +59,7 @@ If you use the name, it **must** match with what you defined as name for your bu
 
 **Important:** If your build definition name contains a '&', the task will fail (see Known Issues above).
   
-If your build would be in another Team Project, another collection on the same server or a completly different server, uncheck the checkbox and fill in the URL to the server including the collection and the team project. This would look something like this:  
+If your build would be in another Team Project, another collection on the same server or a completely different server, uncheck the checkbox and fill in the URL to the server including the collection and the team project. This would look something like this:  
   
 ![Custom Team Project Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/customteamprojectconfiguration.PNG)  
   
@@ -72,14 +72,14 @@ If you do not select this option, it depends on the method of authentication (se
 
 The **Ignore SSL Certificate Errors** flag can be used if you need to ignore SSL errors caused by untrusted certificates.
 
-### Important Configuration Options when Triggered Build is not located on the VSTS/TFS Instance or Team Project
+### Important Configuration Options when Triggered Build is not located on the VSTS/ADO/TFS Instance or Team Project
 If the target build is on a different TFS some special circumstances apply. First and foremost the authentication options (see below) are limited. You cannot use OAuth authentication, either use a Personal Access Token (recommended) or Basic Authentication.  
-**Important:** The Acess Token or Basic Authentication must be setup on the VSTS/TFS that hosts the Target Build!  
+**Important:** The Access Token or Basic Authentication must be setup on the VSTS/ADO/TFS that hosts the Target Build!  
 
-As well it's not possible to have conditions based on builds of the current VSTS/TFS, due to the authentication being setup for the VSTS/TFS Instance that hosts the triggered build. Conditions based on builds of this Instance however would be possible.  
-Additionally the option *Queue Build for User that triggered original build* does not work as this user might not exist on the target VSTS/TFS. Please do not check this option in that case. See above for whom the build will be triggered depending on the specified authentication method.
+As well it's not possible to have conditions based on builds of the current VSTS/ADO/TFS, due to the authentication being setup for the VSTS/ADO/TFS Instance that hosts the triggered build. Conditions based on builds of this Instance however would be possible.  
+Additionally the option *Queue Build for User that triggered original build* does not work as this user might not exist on the target VSTS/ADO/TFS. Please do not check this option in that case. See above for whom the build will be triggered depending on the specified authentication method.
 
-If you want to trigger a build from a different Team Project but within the same VSTS/TFS instance you can still use OAuth Authentication.  
+If you want to trigger a build from a different Team Project but within the same VSTS/ADO/TFS instance you can still use OAuth Authentication.  
 
 In any case if you trigger a build from a different team project, no matter if on the same or a different server instance, the following *Advanced Configuration* options shall not be enabled to prevent issues:  
 - Use current changeset for the triggered build  
@@ -90,7 +90,7 @@ In any case if you trigger a build from a different team project, no matter if o
 The task can be used in a YAML based build using the format
 
 ```
-- task: benjhuser.tfs-extensions-build-tasks.trigger-build-task.TriggerBuild@3
+- task: TriggerBuild@3
 displayName: 'Trigger a new build of Validate-BuildVariable Update'
 inputs:
     buildDefinition: 'Your build name'
@@ -98,10 +98,9 @@ inputs:
     branchToUse: master
     waitForQueuedBuildsToFinish: true
     authenticationMethod: 'OAuth Token'
-    password: $(System.AccessToken)
 ```
 
-The key point to note is that you do not have to check any boxes to expose the OAUTH token, this is [always available in YAML pipeline as an environment variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#access-to-oauth-token). However, it does have to be explicitly passed into the task using the input `password: $(System.AccessToken)` 
+The key point to note is that you do not have to check any boxes to expose the OAUTH token, this is [always available in YAML pipeline as an environment variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#access-to-oauth-token).
 
 ## Advanced Configuration
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
@@ -153,7 +152,7 @@ The variable is as well available as an input in the configuration for *any* sub
 *$(TriggeredBuildIds)* 
 
 ### Demands
-Depending on your build definition a ceratin set of demands will be required from the agent to be built. When queuing a build additional demands can be specified, for example to filter for a special build agent. If additional demands need to be specified, they can be added here. Multiple demands can be specified when they are separated by a comma.  
+Depending on your build definition a certain set of demands will be required from the agent to be built. When queuing a build additional demands can be specified, for example to filter for a special build agent. If additional demands need to be specified, they can be added here. Multiple demands can be specified when they are separated by a comma.  
 
 #### Syntax
 The syntax is as follows. If you just want to check if the demand exists on the agent, just specify the value (see image above the demand "MySpecialDemandForThisBuild".  Furthermore a demand can be checked if it has a certain value. To add this kind of demands you can write it like this: "OtherDemand = 42".  
@@ -163,7 +162,7 @@ The syntax is as follows. If you just want to check if the demand exists on the 
 ### Queue
 Specify here the name or the id of the agent queue that you want to use. If not specified, the default queue will be used.  
 
-**Note:** When specifying a Queue you have to make sure that the user triggering the build has no access to it, for example when using the OAuth Authentication Method. This is the case when the error *Error message: Error: No agent pool found with identifier 769*  is shown. An option to work around this would be to switch to Personal Access Token Authentication and making sure that the Token has enough access rights. More details can be found on [github](https://github.com/huserben/TfsExtensions/issues/102).
+**Note:** When specifying a Queue you have to make sure that the user triggering the build has no access to it, for example when using the OAuth Authentication Method. This is the case when the error *Error message: Error: No agent pool found with identifier 769*  is shown. An option to work around this would be to switch to Personal Access Token Authentication and making sure that the Token has enough access rights. More details can be found on [issue #102](https://github.com/huserben/TfsExtensions/issues/102).
 
 ### Delay between triggering builds
 Define here if you wish to delay the builds that are triggered by the specified amount of seconds. This might be useful if you have some issues when triggering builds at nearly the same time.
@@ -185,12 +184,12 @@ For example these will work:
 However, the following will not work:  
 - **VariableKey**: *C:\Test\Something, C:\Test\SomethingElse*
 
-Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54#issuecomment-368578707) for a more detailed explanation. If you cannot work around this, please open a new Issue on github.  
+Please see the following [Issue](https://github.com/huserben/TfsExtensions/issues/54#issuecomment-368578707) for a more detailed explanation. If you cannot work around this, please open a new Issue on GitHub.  
 
 An exception to the rules above is if the value is a complete Json object, this will be treated specially. For example the following will be allowed:  
 **01VarName**: *{ "a": 50, "b": 50 },* **02VarName**: *{ "Value1": 12, "OtherObject": { "SomeValue": 13, "Child": { "Name": "MyChild" } } }*  
 
-Json values are detected only when the value is enclosed by curly braces. More details can be found on the following github [issue](https://github.com/huserben/TfsExtensions/issues/107). 
+Json values are detected only when the value is enclosed by curly braces. More details can be found on the following GitHub [issue](https://github.com/huserben/TfsExtensions/issues/107). 
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the following error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
@@ -261,7 +260,7 @@ If this option is enabled, all the builds that are looked at in any of the condi
 ![Include Builds from Current Branch](https://user-images.githubusercontent.com/5486874/60455620-24708900-9c37-11e9-8fa9-f0d48ba9ffcd.png)  
 
 **Warning:** This does only make sense if your build to trigger is:  
-- Working against the same repositore (or if you have the same branching strategy with the same names)  
+- Working against the same repository (or if you have the same branching strategy with the same names)  
 - You use TfsGit and not TFVC - This option will have no effect on TFVC builds and is actively ignored in such a scenario.  
 
 
@@ -270,4 +269,4 @@ If this option is enabled, all the builds that are looked at in any of the condi
 This option allows to fail the task if a condition was setup and is not met. It has no effect if you don't specify any of the other conditions.
 
 ## Issues
-In case you have issues, for example exceptions when you run the Task make sure that the Authentication Option selected is valid. If you still have problems, please open a new issue at [github](https://github.com/huserben/TfsExtensions/issues).
+In case you have issues, for example exceptions when you run the Task make sure that the Authentication Option selected is valid. If you still have problems, please open a new issue at [issues](https://github.com/huserben/TfsExtensions/issues).
