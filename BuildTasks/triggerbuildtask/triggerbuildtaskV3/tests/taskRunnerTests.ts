@@ -520,7 +520,7 @@ describe("Task Runner Tests", function (): void {
         var expectedOAuthToken: string = "fadsljlakdfsj12093ui1203";
 
         setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, teamProject, true);
-        process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
+        tasklibraryMock.setup(x => x.getVariable("System.AccessToken")).returns(() => expectedOAuthToken);
 
         await subject.run();
 

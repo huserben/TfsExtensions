@@ -7,11 +7,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Mocha Tests",
+            "name": "Mocha Trigger Build",
             "program": "${workspaceFolder}/triggerbuildtask/triggerbuildtaskV3/node_modules/mocha/bin/_mocha",
             "args": [
-                "-u",
-                "tdd",
                 "--timeout",
                 "999999",
                 "--colors",

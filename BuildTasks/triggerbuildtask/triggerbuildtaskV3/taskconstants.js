@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.FailTaskIfConditionsAreNotFulfilled = exports.CheckBuildsOnCurrentBranch = exports.TriggeredBuildIdsEnvironmentVariableName = exports.DependentOnFailedBuildsInput = exports.DependentOnFailedBuildConditionInput = exports.DependentOnSuccessfulBuildsInput = exports.DependentOnSuccessfulBuildConditionInput = exports.BlockInProgressBuilds = exports.BlockingBuildsInput = exports.IncludeCurrentBuildDefinitionInput = exports.EnableBuildInQueueConditionInput = exports.PasswordInput = exports.UsernameInput = exports.AuthenticationMethodInput = exports.IgnoreSslCertificateErrorsInput = exports.DelayBetweenBuildsInput = exports.BuildParametersInput = exports.QueueID = exports.DemandsVariableInput = exports.StoreInEnvironmentVariableInput = exports.DropDirectory = exports.DownloadBuildArtifacts = exports.TreatPartiallySucceededBuildAsSuccessfulInput = exports.CancelBuildsIfAnyFails = exports.FailTaskIfBuildNotSuccessfulInput = exports.WaitForBuildsToFinishRefreshTimeInput = exports.WaitForBuildsToFinishInput = exports.BranchToUseInput = exports.UseSameBranchInput = exports.CustomSourceVersionInput = exports.UseCustomSourceVersionInput = exports.UseSameSourceVersionInput = exports.QueueBuildForUserInput = exports.BuildDefinitionsToTriggerInput = exports.TeamProjectInput = exports.ServerUrlInput = exports.DefininitionIsInCurrentTeamProjectInput = void 0;
 exports.DefininitionIsInCurrentTeamProjectInput = "definitionIsInCurrentTeamProject";
 exports.ServerUrlInput = "tfsServer";
 exports.TeamProjectInput = "teamProject";
@@ -37,4 +38,3 @@ exports.DependentOnFailedBuildsInput = "dependentFailingBuildsList";
 exports.TriggeredBuildIdsEnvironmentVariableName = "TriggeredBuildIds";
 exports.CheckBuildsOnCurrentBranch = "checkbuildsoncurrentbranch";
 exports.FailTaskIfConditionsAreNotFulfilled = "failTaskIfConditionsAreNotFulfilled";
-//# sourceMappingURL=taskconstants.js.map

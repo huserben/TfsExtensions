@@ -350,7 +350,7 @@ describe("Task Runner Tests", function () {
         var teamProject = "teamProject";
         var expectedOAuthToken = "fadsljlakdfsj12093ui1203";
         setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, teamProject, true);
-        process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
+        tasklibraryMock.setup(x => x.getVariable("System.AccessToken")).returns(() => expectedOAuthToken);
         yield subject.run();
         tfsRestServiceMock.verify(srv => srv.initialize(tfsService.AuthenticationMethodOAuthToken, "", expectedOAuthToken, tfsServer, teamProject, true), TypeMoq.Times.once());
     }));
@@ -1210,4 +1210,3 @@ describe("Task Runner Tests", function () {
             .returns(() => IgnoreSslCertificateErrorsInput);
     }
 });
-//# sourceMappingURL=taskRunnerTests.js.map

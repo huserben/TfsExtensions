@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TaskLibrary = exports.TaskResult = void 0;
 const taskLibrary = require("azure-pipelines-task-lib/task");
 var TaskResult;
 (function (TaskResult) {
@@ -45,4 +46,3 @@ class TaskLibrary {
     }
 }
 exports.TaskLibrary = TaskLibrary;
-//# sourceMappingURL=tasklibrary.js.map
