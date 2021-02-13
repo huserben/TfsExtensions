@@ -3,6 +3,7 @@
  * General Purpose Functions that can be reused across classes and tasks.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GeneralFunctions = void 0;
 class GeneralFunctions {
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -24,4 +25,3 @@ class GeneralFunctions {
     }
 }
 exports.GeneralFunctions = GeneralFunctions;
-//# sourceMappingURL=generalfunctions.js.map

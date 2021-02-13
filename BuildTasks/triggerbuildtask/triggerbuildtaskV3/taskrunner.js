@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TaskRunner = void 0;
 const tfsService = require("tfsrestservice");
 const taskConstants = require("./taskconstants");
 const tl = require("./tasklibrary");
@@ -417,4 +418,3 @@ class TaskRunner {
     }
 }
 exports.TaskRunner = TaskRunner;
-//# sourceMappingURL=taskrunner.js.map
