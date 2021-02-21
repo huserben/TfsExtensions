@@ -19,6 +19,7 @@ export const StoreInEnvironmentVariableInput : string = "storeInEnvironmentVaria
 export const DemandsVariableInput : string = "demands";
 export const QueueID : string = "queueid";
 export const BuildParametersInput : string = "buildParameters";
+export const TemplateParametersInput: string = "templateParameters";
 export const DelayBetweenBuildsInput : string = "delayBetweenBuilds";
 export const IgnoreSslCertificateErrorsInput : string = "ignoreSslCertificateErrors";
 export const AuthenticationMethodInput : string = "authenticationMethod";

@@ -1,7 +1,7 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection
+SET INPUT_tfsServer=https://dev.azure.com/huserben
 SET INPUT_teamProject=Build Test
-SET INPUT_buildDefinition=4
+SET INPUT_buildDefinition=57
 SET INPUT_queueBuildForUserThatTriggeredBuild=false
 SET INPUT_useSameSourceVersion=false
 SET INPUT_useCustomSourceVersion=false
@@ -19,11 +19,12 @@ SET INPUT_storeInEnvironmentVariable=false
 SET INPUT_demands=
 SET INPUT_queueid=Hosted VS2017
 SET INPUT_buildParameters=
+SET INPUT_templateParameters=image:macOS-latest
 SET INPUT_delayBetweenBuilds=
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
-SET INPUT_password=bruwhu5wkkecoxwgszsx63biue2avmsvplosqrfwkjy4zizohb5a
+SET INPUT_password=zqmldbdil2cr3i75qeufzvrt2rh24idsbczwc4ohq4dlp5gj3tda
 SET INPUT_enableBuildInQueueCondition=false
 SET INPUT_includeCurrentBuildDefinition=false
 SET INPUT_blockingBuildsList=
@@ -35,9 +36,9 @@ SET INPUT_dependentFailingBuildsList=CI Test
 SET INPUT_checkbuildsoncurrentbranch=false
 SET INPUT_failTaskIfConditionsAreNotFulfilled=true
 
-SET SYSTEM_TEAMFOUNDATIONCOLLECTIONURI=https://benjsawesometfstest.visualstudio.com/DefaultCollection
+SET SYSTEM_TEAMFOUNDATIONCOLLECTIONURI=https://dev.azure.com/huserben
 SET SYSTEM_TEAMPROJECT=Build Test
 SET SYSTEM_TEAMPROJECTID=df832ba4-a0a1-4ab9-b417-7958a933c508
-SET BUILD_SOURCEBRANCH=SomeBranch
+SET BUILD_SOURCEBRANCH=main
 
 node index.js

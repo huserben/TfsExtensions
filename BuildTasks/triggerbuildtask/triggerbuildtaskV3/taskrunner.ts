@@ -28,6 +28,7 @@ export class TaskRunner {
     buildQueue: string;
     buildQueueId: number;
     buildParameters: string;
+    templateParameters: string;
     delayBetweenBuilds: number;
     ignoreSslCertificateErrors: boolean = false;
     authenticationMethod: string = "";
@@ -157,7 +158,8 @@ export class TaskRunner {
                     this.sourceVersion,
                     this.demands,
                     this.buildQueueId,
-                    this.buildParameters);
+                    this.buildParameters,
+                    this.templateParameters);
 
             queuedBuildIds.push(queuedBuild.id);
 
@@ -357,6 +359,10 @@ export class TaskRunner {
             console.log(`Will trigger build with following parameters: ${this.buildParameters}`);
         }
 
+        if (this.templateParameters !== null){
+            console.log(`Will trigger build with following template parameters: ${this.templateParameters}`);            
+        }
+
         if (this.delayBetweenBuilds > 0) {
             console.log(`Delay between builds is set to ${this.delayBetweenBuilds} seconds`);
         }
@@ -487,6 +493,7 @@ export class TaskRunner {
 
         this.buildQueue = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.QueueID, false));
         this.buildParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BuildParametersInput, false));
+        this.templateParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TemplateParametersInput, false));
 
         var delayBetweenBuildsInput: string = this.taskLibrary.getInput(taskConstants.DelayBetweenBuildsInput, false);
         this.delayBetweenBuilds = parseInt(delayBetweenBuildsInput, 10);
