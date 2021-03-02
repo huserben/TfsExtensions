@@ -12,7 +12,7 @@
 	"version": {
 		"Major": 3,
 		"Minor": 2,
-		"Patch": 1
+		"Patch": 2
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
     "groups": [
