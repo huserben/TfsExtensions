@@ -82,7 +82,7 @@
 			"label":  "Queue Build for user that triggered original build",
 			"defaultValue":  true,
 			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build. Otherwise the triggered user depends on the means of authentication. Please refer to the (documentation)[https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#basic-configuration].",
+			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build. Otherwise the triggered user depends on the means of authentication. Please refer to the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#basic-configuration).",
 			"groupName":  "basicConfiguration"
 		},
 		{
