@@ -440,7 +440,7 @@ export class TaskRunner {
         console.log(`Using following Authentication Method: ${this.authenticationMethod}`);
 
         if (this.authenticationMethod === tfsService.AuthenticationMethodOAuthToken &&
-            (this.password === null || this.password === "")) {
+            (this.password === null || this.password === "" || this.password === undefined)) {
             console.log("Trying to fetch authentication token from system...");
             const token: string = this.taskLibrary.getVariable("System.AccessToken");
             if (token == null) {
