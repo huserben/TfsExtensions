@@ -167,8 +167,8 @@ Specify here the name or the id of the agent queue that you want to use. If not 
 ### Delay between triggering builds
 Define here if you wish to delay the builds that are triggered by the specified amount of seconds. This might be useful if you have some issues when triggering builds at nearly the same time.
 
-### Build Parameters
-This field allows to parametrize the triggered build. The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
+### Build and Template Parameters
+This field allows to parametrize the triggered build. There is a field for [build parameters](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#user-defined-variables) (or "Variables") and another field for [template parameters](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops). The option you can specify via the GUI if you queue the build manually can be passed here. As you can see in the screenshot above, the syntax to specify those parameters is a bit tricky.  
 You need to specify first the name of the variable you want to set, as you can see it in the Variables Tab of the build you want to trigger. Then the value can be set after a *:*   
 **VariableIWantToSet: WhateverValue**  
 You can specify multiple parameters, just append a *,* after the value and then specify the next variable-value pair.  
