@@ -20,6 +20,19 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Mocha Wait For Build",
+            "program": "${workspaceFolder}/waitforbuildtask/waitforbuildtaskV2/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/waitforbuildtask/waitforbuildtaskV2/tests"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/triggerbuildtask\\triggerbuildtaskV3\\tests\\taskRunnerTests.ts",
             "outFiles": [
