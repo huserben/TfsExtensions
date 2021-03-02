@@ -520,7 +520,7 @@ describe("Task Runner Tests", function (): void {
         var expectedOAuthToken: string = "fadsljlakdfsj12093ui1203";
 
         setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, teamProject, true);
-        process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
+        tasklibraryMock.setup(x => x.getVariable("System.AccessToken")).returns(() => expectedOAuthToken);
 
         await subject.run();
 
@@ -546,11 +546,13 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
+            TypeMoq.It.isAny(),
             TypeMoq.It.isAny()),
             TypeMoq.Times.once());
 
         tfsRestServiceMock.verify(srv => srv.triggerBuild(
             buildDefinition2,
+            TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
@@ -608,6 +610,7 @@ describe("Task Runner Tests", function (): void {
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
+            TypeMoq.It.isAny(),
             TypeMoq.It.isAny()))
             .returns(async () => triggeredBuild);
 
@@ -629,6 +632,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.setup(srv => srv.triggerBuild(
             "build",
+            TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
@@ -952,6 +956,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
 
@@ -985,6 +990,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
 
@@ -1014,6 +1020,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.never());
         assert(
@@ -1034,6 +1041,7 @@ describe("Task Runner Tests", function (): void {
             srv => srv.triggerBuild(
                 "build",
                 BranchToUse,
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1062,6 +1070,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.never());
         assert(
@@ -1084,10 +1093,34 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
-                Params),
+                Params,
+                TypeMoq.It.isAny()),
             TypeMoq.Times.once());
         assert(
             consoleLogSpy.calledWith(`Will trigger build with following parameters: ${Params}`));
+    });
+
+    it("should include template parameters if they are specified", async () => {
+        const TemplateParams: string = "agentNumberInPool: 2, paraPipelineOwner: IBC";
+        setupBuildConfiguration(["build"]);
+
+        tasklibraryMock.setup(tl => tl.getInput(taskConstants.TemplateParametersInput, false))
+            .returns(() => TemplateParams);
+
+        await subject.run();
+        tfsRestServiceMock.verify(
+            srv => srv.triggerBuild(
+                "build",
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),                
+                TypeMoq.It.isAny(),
+                TemplateParams),
+            TypeMoq.Times.once());
+        assert(
+            consoleLogSpy.calledWith(`Will trigger build with following template parameters: ${TemplateParams}`));
     });
 
     it("should trigger build with same source version if configured", async () => {
@@ -1110,6 +1143,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 SourceVersion,
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
@@ -1149,6 +1183,7 @@ describe("Task Runner Tests", function (): void {
                 SourceVersion,
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
         assert(
@@ -1177,6 +1212,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 SourceVersion,
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
@@ -1208,6 +1244,7 @@ describe("Task Runner Tests", function (): void {
                 `C${SourceVersion}`,
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1231,6 +1268,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 SourceVersion,
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
@@ -1258,6 +1296,7 @@ describe("Task Runner Tests", function (): void {
                 SourceVersion,
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1279,6 +1318,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.is(demands => areEqual(demands, expectedDemands)),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
 
@@ -1299,6 +1339,7 @@ describe("Task Runner Tests", function (): void {
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
                 "build",
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1327,6 +1368,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.is(demands => areEqual(demands, ["demand -equals test123"])),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1352,6 +1394,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 QueueID,
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(
@@ -1377,6 +1420,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 QueueID,
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith(`Will trigger build in following agent queue: ${QueueID}`));
@@ -1459,6 +1503,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.never());
         assert(consoleLogSpy.calledWith(`Build is queued - will not trigger new build.`));
@@ -1498,6 +1543,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1530,6 +1576,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1594,6 +1641,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.never());
 
@@ -1639,6 +1687,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1675,6 +1724,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1749,6 +1799,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith("None of the blocking builds is queued - proceeding"));
@@ -1773,6 +1824,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1810,6 +1862,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
         assert(consoleLogSpy.calledWith("None of the dependant build definitions last builds were failing - proceeding"));
@@ -1832,6 +1885,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1861,6 +1915,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1902,6 +1957,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1925,6 +1981,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.verify(
             srv => srv.triggerBuild(
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
@@ -1959,6 +2016,7 @@ describe("Task Runner Tests", function (): void {
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
                 TypeMoq.It.isAny(),
+                TypeMoq.It.isAny(),
                 TypeMoq.It.isAny()),
             TypeMoq.Times.once());
     });
@@ -1978,6 +2036,7 @@ describe("Task Runner Tests", function (): void {
 
         tfsRestServiceMock.setup(srv => srv.triggerBuild(
             buildConfig,
+            TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),
             TypeMoq.It.isAny(),

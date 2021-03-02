@@ -7,15 +7,26 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Mocha Tests",
+            "name": "Mocha Trigger Build",
             "program": "${workspaceFolder}/triggerbuildtask/triggerbuildtaskV3/node_modules/mocha/bin/_mocha",
             "args": [
-                "-u",
-                "tdd",
                 "--timeout",
                 "999999",
                 "--colors",
                 "${workspaceFolder}/triggerbuildtask/triggerbuildtaskV3/tests"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Mocha Wait For Build",
+            "program": "${workspaceFolder}/waitforbuildtask/waitforbuildtaskV2/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/waitforbuildtask/waitforbuildtaskV2/tests"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },

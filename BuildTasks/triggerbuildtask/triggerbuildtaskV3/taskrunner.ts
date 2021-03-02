@@ -28,6 +28,7 @@ export class TaskRunner {
     buildQueue: string;
     buildQueueId: number;
     buildParameters: string;
+    templateParameters: string;
     delayBetweenBuilds: number;
     ignoreSslCertificateErrors: boolean = false;
     authenticationMethod: string = "";
@@ -157,7 +158,8 @@ export class TaskRunner {
                     this.sourceVersion,
                     this.demands,
                     this.buildQueueId,
-                    this.buildParameters);
+                    this.buildParameters,
+                    this.templateParameters);
 
             queuedBuildIds.push(queuedBuild.id);
 
@@ -342,7 +344,7 @@ export class TaskRunner {
             }
         }
 
-        if (this.buildQueue !== null) {
+        if (this.buildQueue !== null && this.buildQueue !== undefined) {
             if (isNaN(Number(this.buildQueue))) {
                 console.log(`Build Queue was specified as string: ${this.buildQueue} - trying to fetch Queue ID for the queue...`);
                 this.buildQueueId = await this.tfsRestService.getQueueIdByName(this.buildQueue);
@@ -353,8 +355,12 @@ export class TaskRunner {
             console.log(`Will trigger build in following agent queue: ${this.buildQueueId}`);
         }
 
-        if (this.buildParameters !== null) {
+        if (this.buildParameters !== null && this.buildParameters !== undefined) {
             console.log(`Will trigger build with following parameters: ${this.buildParameters}`);
+        }
+
+        if (this.templateParameters !== null && this.templateParameters !== undefined){
+            console.log(`Will trigger build with following template parameters: ${this.templateParameters}`);            
         }
 
         if (this.delayBetweenBuilds > 0) {
@@ -487,6 +493,7 @@ export class TaskRunner {
 
         this.buildQueue = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.QueueID, false));
         this.buildParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.BuildParametersInput, false));
+        this.templateParameters = this.generalFunctions.trimValue(this.taskLibrary.getInput(taskConstants.TemplateParametersInput, false));
 
         var delayBetweenBuildsInput: string = this.taskLibrary.getInput(taskConstants.DelayBetweenBuildsInput, false);
         this.delayBetweenBuilds = parseInt(delayBetweenBuildsInput, 10);
