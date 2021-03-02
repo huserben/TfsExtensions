@@ -98,6 +98,7 @@ inputs:
     branchToUse: master
     waitForQueuedBuildsToFinish: true
     authenticationMethod: 'OAuth Token'
+    password: $(System.AccessToken)
 ```
 
 The key point to note is that you do not have to check any boxes to expose the OAUTH token, this is [always available in YAML pipeline as an environment variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#access-to-oauth-token).

@@ -1,4 +1,22 @@
 # Release Notes
+## Version 3.1.0
+- Updated all dependencies of all the tasks to make use of the newest [azure-devops-node-api](https://github.com/microsoft/azure-devops-node-api)
+- Allow defining template parameters similar to build parameters [Build parameters are being set as variables](https://github.com/huserben/TfsExtensions/issues/163) and [When I trigger another pipeline, the given parameter does not override the default parameter value](https://github.com/huserben/TfsExtensions/issues/153)
+- Don't wait a long time after the last retry-attempt [Unnecessary wait after last failed retry](https://github.com/huserben/TfsExtensions/issues/163)
+- Various fixed in the documentation
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@icnocop**](https://github.com/icnocop)  
+- [**@CraigMacomber**](https://github.com/CraigMacomber)  
+- [**@krispenner**](https://github.com/krispenner)  
+- [**@rfennell**](https://github.com/rfennell)  
+- [**@mohak2006**](https://github.com/mohak2006)  
+- [**@jason-ha**](https://github.com/jason-ha)  
+- [**@gexiangge**](https://github.com/gexiangge)  
+- [**@wbin666**](https://github.com/wbin666)  
+- [**@bergmeister**](https://github.com/bergmeister)  
+
 ## Version 3.0.14
 - Update Azure-DevOps-Node-API to get latest fixes and improvements, especially in http_proxy settings in conjuction with no_proxy handling  
 - Handle downloading of artifacts on MacOS machines ([Download Artifacts not working at MAC Build Machines](https://github.com/huserben/TfsExtensions/issues/130))
