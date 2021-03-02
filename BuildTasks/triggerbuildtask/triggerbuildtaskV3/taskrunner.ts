@@ -344,7 +344,7 @@ export class TaskRunner {
             }
         }
 
-        if (this.buildQueue !== null) {
+        if (this.buildQueue !== null && this.buildQueue !== undefined) {
             if (isNaN(Number(this.buildQueue))) {
                 console.log(`Build Queue was specified as string: ${this.buildQueue} - trying to fetch Queue ID for the queue...`);
                 this.buildQueueId = await this.tfsRestService.getQueueIdByName(this.buildQueue);
@@ -355,11 +355,11 @@ export class TaskRunner {
             console.log(`Will trigger build in following agent queue: ${this.buildQueueId}`);
         }
 
-        if (this.buildParameters !== null) {
+        if (this.buildParameters !== null && this.buildParameters !== undefined) {
             console.log(`Will trigger build with following parameters: ${this.buildParameters}`);
         }
 
-        if (this.templateParameters !== null){
+        if (this.templateParameters !== null && this.templateParameters !== undefined){
             console.log(`Will trigger build with following template parameters: ${this.templateParameters}`);            
         }
 
