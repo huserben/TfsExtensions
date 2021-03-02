@@ -6,7 +6,7 @@ import common = require("../generalfunctions");
 import tl = require("../tasklibrary");
 import taskConstants = require("../taskconstants");
 import * as TypeMoq from "typemoq";
-import { Build } from "vso-node-api/interfaces/BuildInterfaces";
+import { Build } from "azure-devops-node-api/interfaces/BuildInterfaces";
 
 describe("Task Runner Tests", function (): void {
     let subject: tr.TaskRunner;
@@ -270,10 +270,11 @@ describe("Task Runner Tests", function (): void {
 
         tasklibraryMock.setup(tl => tl.getVariable(taskConstants.TriggeredBuildIdsEnvironmentVariableName))
             .returns(() => "7");
+        tasklibraryMock.setup(tl => tl.getVariable("System.AccessToken"))
+            .returns(() => expectedOAuthToken);
         tfsRestServiceMock.setup(srv => srv.areBuildsFinished(TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
             .returns(async () => true);
         setupRestServiceConfiguration(tfsService.AuthenticationMethodOAuthToken, "", "", tfsServer, "", true);
-        process.env[tfsService.OAuthAccessToken] = expectedOAuthToken;
 
         await subject.run();
 
