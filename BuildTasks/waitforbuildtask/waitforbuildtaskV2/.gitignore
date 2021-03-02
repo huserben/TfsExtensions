@@ -6,3 +6,5 @@ node_modules/
 !gulpfile.js
 
 .vscode/
+
+.taskkey
