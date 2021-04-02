@@ -149,7 +149,7 @@
 			"label":  "Wait till the triggered builds are finished before build continues",
 			"defaultValue":  false,
 			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the script will wait until the all the queued builds are finished. Note: This can take a while depending on your builds and your build will not continue. If you only have one build agent you will even end up in a deadlock situation!",
+			"helpMarkDown":  "If this option is enabled, the script will wait until all the queued builds are finished. Note: This can take a while depending on your builds and your build will not continue. If you only have one build agent you will even end up in a deadlock situation!",
 			"groupName":  "advancedConfiguration"
 		},
 		{
