@@ -40,7 +40,7 @@ export class TaskRunner {
             }
 
             await this.cancelBuilds(this.triggeredBuilds);
-        } catch (err) {
+        } catch (err: any) {
             this.taskLibrary.setResult(tl.TaskResult.Failed, err.message);
         }
     }
