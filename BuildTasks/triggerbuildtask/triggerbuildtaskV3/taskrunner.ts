@@ -75,7 +75,7 @@ export class TaskRunner {
             } else if (this.failTaskIfConditionsAreNotFulfilled) {
                 throw new Error("Condition not fulfilled - failing task.");
             }
-        } catch (err) {
+        } catch (err: any) {
             this.taskLibrary.setResult(tl.TaskResult.Failed, err.message);
         }
     }
