@@ -1,4 +1,12 @@
 # Release Notes
+## Version 3.2.0
+- [Updated all tasks to use the Node10 Execution handler](https://github.com/huserben/TfsExtensions/issues/196) - This should remove the warning displayed when running any of the tasks.
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@FKSI**](https://github.com/FKSI)  
+- [**@richhoward1**](https://github.com/richhoward1)  
+
 ## Version 3.1.0
 - Updated all dependencies of all the tasks to make use of the newest [azure-devops-node-api](https://github.com/microsoft/azure-devops-node-api)
 - Allow defining template parameters similar to build parameters [Build parameters are being set as variables](https://github.com/huserben/TfsExtensions/issues/163) and [When I trigger another pipeline, the given parameter does not override the default parameter value](https://github.com/huserben/TfsExtensions/issues/153)
