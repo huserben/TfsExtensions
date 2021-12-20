@@ -1,0 +1,119 @@
+{
+    "id": "cb734759-db25-4f4d-b57c-2d7905bcb04f",
+    "name": "CancelBuildTask",
+    "friendlyName": "Cancel Build(s)",
+    "description": "This tasks will cancel builds that were triggered using the Trigger Build Task. This Tasks requires that at least one TriggerBuildTask was run before and has set the storeVariable flag to true.",
+    "helpMarkDown": "",
+    "category": "Build",
+	"visibility": [
+		"Build"
+		],
+    "author": "Benjamin Huser",
+	"version": {
+		"Major": 3,
+		"Minor": 0,
+		"Patch": 0
+	},
+	"instanceNameFormat": "Cancel Builds",
+    "groups": [
+		{
+			"name": "basicConfiguration",
+			"displayName": "Configuration",
+			"isExpanded": true
+		},
+		{
+			"name": "authenticationOptions",
+			"displayName": "Authentication",
+			"isExpanded": true
+		}
+	],
+	"inputs": [
+		{
+			"name":  "definitionIsInCurrentTeamProject",
+			"type":  "boolean",
+			"label":  "True if the build to be triggered is defined within the same team project as this build",
+			"defaultValue":  true,
+			"required":  true,
+			"helpMarkDown": "If set to false, the server, collection and Team Project to use must be entered manually. This is needed if you want to point to a different server, collection or team project on the same server.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "tfsServer",
+			"type":  "string",
+			"label":  "URL to TFS Server (including Collection)",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "definitionIsInCurrentTeamProject = false",
+			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection or https://www.myOnPremTfs.com/MyCollection",
+			"groupName":  "basicConfiguration"
+		},		
+		{
+			"name":  "teamProject",
+			"type":  "string",
+			"label":  "Team Project",
+			"defaultValue":  "",
+			"required":  true,
+			"visibleRule": "definitionIsInCurrentTeamProject = false",
+			"helpMarkDown":  "The Team Project the build you want to trigger is in.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name":  "ignoreSslCertificateErrors",
+			"type":  "boolean",
+			"label":  "Ignore SSL Certificate Errors",
+			"defaultValue":  false,
+			"required":  true,
+			"helpMarkDown":  "When enabled possible certificate errors (for example untrusted CA's) will be ignored",
+			"groupName":  "basicConfiguration"
+		},		
+		{
+			"name":  "clearVariable",
+			"type":  "boolean",
+			"label":  "Clear TriggeredBuildIds variable after Task",
+			"defaultValue":  true,
+			"required":  true,
+			"helpMarkDown":  "When set to true, the TriggeredBuildIds variable used as input will be cleared.",
+			"groupName":  "basicConfiguration"
+		},
+		{
+			"name": "authenticationMethod",
+			"type": "pickList",
+			"label": "Authentication Method",
+            "required": true,
+            "groupName": "authenticationOptions",
+            "defaultValue": "Personal Access Token",
+            "helpMarkDown": "Select your method of authentication",
+            "options": {
+				"OAuth Token": "OAuth Token",
+                "Personal Access Token": "Personal Access Token",
+                "Basic Authentication": "Basic Authentication"
+				}
+		},
+		{
+			"name":  "username",
+			"type":  "string",
+			"label":  "The username that shall be used to authenticate if basic authentication is used",
+			"defaultValue":  "",
+			"required":  false,
+			"visibleRule": "authenticationMethod = Basic Authentication",
+			"groupName":  "authenticationOptions"
+		},
+		{
+			"name":  "password",
+			"type":  "string",
+			"label":  "The password, Personal Access Token or OAuth Token to authenticate",
+			"defaultValue":  "",
+			"required":  false,
+			"helpMarkDown": "The password or Personal Access Token. Ideally use a (secret) variable here instead putting it in plaintext. Variables can be referenced with the following syntax: $(myToken). If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options! Please check out the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#authentication-options) in case you have problems.",
+			"visibleRule": "authenticationMethod != Default Credentials",
+			"groupName":  "authenticationOptions"
+		}
+	],	
+    "execution": {
+        "Node10": {
+            "target": "index.js",
+			"argumentFormat":  "",
+			"workingDirectory":  "$(currentDirectory)"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+node_modules/
+
+*.js
+*.js.map
+
+!gulpfile.js
+
+.vscode/

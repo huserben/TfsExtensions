@@ -1,0 +1,44 @@
+SET INPUT_definitionIsInCurrentTeamProject=false
+SET INPUT_tfsServer=https://dev.azure.com/huserben
+SET INPUT_teamProject=Build Test
+SET INPUT_buildDefinition=57
+SET INPUT_queueBuildForUserThatTriggeredBuild=false
+SET INPUT_useSameSourceVersion=false
+SET INPUT_useCustomSourceVersion=false
+SET INPUT_customSourceVersion=d43e5ea48d6dd82dc985799a61e899e49f9028e8
+SET INPUT_useSameBranch=false
+SET INPUT_branchToUse=
+SET INPUT_waitForQueuedBuildsToFinish=false
+SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
+SET INPUT_failTaskIfBuildsNotSuccessful=true
+SET INPUT_cancelBuildsIfAnyFails=true
+SET INPUT_treatPartiallySucceededBuildAsSuccessful=true
+SET INPUT_downloadBuildArtifacts=false
+SET INPUT_dropDirectory=D:\Temp
+SET INPUT_storeInEnvironmentVariable=false
+SET INPUT_demands=
+SET INPUT_queueid=Hosted VS2017
+SET INPUT_buildParameters=
+SET INPUT_templateParameters=image:macOS-latest
+SET INPUT_delayBetweenBuilds=
+SET INPUT_ignoreSslCertificateErrors=false
+SET INPUT_authenticationMethod=Personal Access Token
+SET INPUT_username=
+SET INPUT_password=
+SET INPUT_enableBuildInQueueCondition=false
+SET INPUT_includeCurrentBuildDefinition=false
+SET INPUT_blockingBuildsList=
+SET INPUT_blockInProgressBuilds=false
+SET INPUT_dependentOnSuccessfulBuildCondition=false
+SET INPUT_dependentBuildsList=CI Test
+SET INPUT_dependentOnFailedBuildCondition=false
+SET INPUT_dependentFailingBuildsList=CI Test
+SET INPUT_checkbuildsoncurrentbranch=false
+SET INPUT_failTaskIfConditionsAreNotFulfilled=true
+
+SET SYSTEM_TEAMFOUNDATIONCOLLECTIONURI=https://dev.azure.com/huserben
+SET SYSTEM_TEAMPROJECT=Build Test
+SET SYSTEM_TEAMPROJECTID=df832ba4-a0a1-4ab9-b417-7958a933c508
+SET BUILD_SOURCEBRANCH=main
+
+node index.js
