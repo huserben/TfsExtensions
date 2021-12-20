@@ -41,7 +41,7 @@ export class TaskRunner {
             await this.parseInputs();
 
             await this.waitForBuildsToFinish(this.triggeredBuilds);
-        } catch (err: any) {
+        } catch (err) {
             this.taskLibrary.setResult(tl.TaskResult.Failed, err.message);
         } finally {
             if (this.clearVariable === true) {
