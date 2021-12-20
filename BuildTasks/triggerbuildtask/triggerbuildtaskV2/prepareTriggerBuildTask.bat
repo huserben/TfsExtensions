@@ -1,1 +1,0 @@
-npm install & tsc & rmdir /s /q node_modules & npm install --only=production
