@@ -11,7 +11,7 @@ SET INPUT_dropDirectory=D:\Temp\Whatever
 SET INPUT_clearVariable=true
 SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
-SET INPUT_password=bruwhu5wkkecoxwgszsx63biue2avmsvplosqrfwkjy4zizohb5a
+SET INPUT_password=
 
 SET TriggeredBuildIds=3277
 
