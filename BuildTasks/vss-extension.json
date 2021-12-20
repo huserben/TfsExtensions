@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "tfs-extensions-build-tasks",
     "name": "Trigger Build Task",
-    "version": "3.2.0",
+    "version": "4.0.0",
     "publisher": "benjhuser",
     "targets": [
         {
@@ -11,7 +11,7 @@
     ],    
     "description": "Build Task that can be used to trigger a new Build so that build-chaining is possible. Supports as well conditional triggers.",
     "categories": [
-        "Build and release"
+        "Azure Pipelines"
     ],
     "icons": {
         "default": "images/logo.png"        

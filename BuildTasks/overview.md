@@ -3,7 +3,8 @@ This build task enables the chaining of builds within TFS.
 It makes use of the built-in TFS API to queue a new build of any build definition (within the same Team Project or even across projects) and has support for different conditions if the Build should be triggered.  
 
 ## Supported TFS/VSTS/ADO Versions
-The Build Task is supported for both VSTS/ADO and TFS on-Premises from Version 2015 Update 2 upwards.  
+The Tasks are tested on Azure DevOps on hosted agents. While normally it should work compatibility cannot be guaranteed for Azure DevOps Server versions. Especially older versions could get issues due to not supported api calls or outdated dependencies.
+
 **Please check the following guide on [Using the Task with TFS 2015](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/Tfs15.md) if you are still using TFS 2015.**
 
 If you are having problems installing the extension on you on Prem TFS and getting the following error message:  
@@ -13,9 +14,17 @@ It seems that some versions of TFS don't support packages with multiple versions
 
 ## Release Notes
 
-**A new Task "Cancel Builds" is available that can be used to cancel builds that were triggered with the Trigger Build Task in any previous step**
-  
 The latest release notes can be found on [Release Notes](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/ReleaseNotes.md).
+
+## Node10 Execution Handler compatibility
+In order to get rid of the following warning and still be able to run the tasks after March 2022, you will need to update to the latest available Major version of the tasks.
+"##[warning]This task uses Node 6 execution handler, which will be deprecated soon."
+
+The supported versions are:
+- TriggerBuild @ version 4.x
+- Wait and Cancel Build @ version 3.x
+
+**Note:** The older tasks won't get updates anymore in future.
 
 ## Version 3 now available
 This version of the tasks are making use now of the official node.js library from Microsoft to access the VSTS/ADO/TFS instead of relying on a custom implementation. This brings the advantage of having many things built-in by design, being more up to date with the current state of the REST API and making it easier to extend functionality. 

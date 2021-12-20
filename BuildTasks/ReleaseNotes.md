@@ -1,4 +1,8 @@
 # Release Notes
+## Version 4.0.0
+- Created new major version of all three tasks that implement that node10 execution handler change. Reverted previous major versions back to node6 to make it work on outdated Azure DevOps Server/Agent combinations. See [Issue 200](https://github.com/huserben/TfsExtensions/issues/200) and [Issue 199](https://github.com/huserben/TfsExtensions/issues/200).
+
+
 ## Version 3.2.0
 - [Updated all tasks to use the Node10 Execution handler](https://github.com/huserben/TfsExtensions/issues/196) - This should remove the warning displayed when running any of the tasks.
 
