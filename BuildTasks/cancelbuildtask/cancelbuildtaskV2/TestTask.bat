@@ -1,12 +1,12 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://dev.azure.com/huserben/DefaultCollection/
+SET INPUT_tfsServer=https://benjsawesometfstest.visualstudio.com/DefaultCollection/
 SET INPUT_teamProject=Build Test
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_clearVariable=false
 SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
-SET INPUT_password=
+SET INPUT_password=bruwhu5wkkecoxwgszsx63biue2avmsvplosqrfwkjy4zizohb5a
 
-SET TriggeredBuildIds=3875
+SET TriggeredBuildIds=3277
 
 node index.js
