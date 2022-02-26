@@ -110,7 +110,6 @@
 			"label":  "Download Build Artifacts",
 			"defaultValue":  false,
 			"required":  true,
-			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
 			"helpMarkDown":  "Will download the build artifacts of the triggered builds (if available) and will store it on the build agent for further processing.",
 			"groupName":  "basicConfiguration"
 		},
