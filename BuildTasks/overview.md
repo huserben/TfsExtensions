@@ -51,6 +51,10 @@ The PowerShell version stored the triggered build id as an environment variable 
 Otherwise you can as well run the following command in a PowerShell script (this only has to be done once and then the variable is cleared) as part of the build:  
 ` [Environment]::SetEnvironmentVariable("TriggeredBuildIds", ",", "User")`
 
+##### Using the Variable as Multi-Job/Stage Variable
+In order to use the TriggeredBuildIds variable in different jobs/stages, you must make use of the Azure Pipelines multi-job/multi-stage mechanism.
+See more information [in the docs](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#set-variables-by-using-expressions) and in [this issue](https://github.com/huserben/TfsExtensions/issues/208).
+
 ## Known Issues
 - Build Definitions that contain a '&' are not supported. If you want to trigger a build definition with such a name, consider renaming it. [The remote server returned an error: (400) Bad Request ](https://github.com/huserben/TfsExtensions/issues/13)  
 - When the task is used within a release definition, certain configuration options might not work properly if there is no build artifact linked (e.g. for *Use same User that triggered Build* and *Use same Branch*). The task was designed only with build definitions in mind, in case you need it to work in Release Definitions without any builds linked please open a new issue on [issues](https://github.com/huserben/TfsExtensions/issues) and explain your problem to see whether there is a workaround

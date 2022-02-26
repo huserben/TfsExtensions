@@ -1,7 +1,20 @@
 # Release Notes
+
+## Version 4.1.0
+- [Expose TriggeredBuildIds as multi-job/stage variable](https://github.com/huserben/TfsExtensions/issues/208)
+- [Update all dependencies to latest versions](https://github.com/huserben/TfsExtensions/issues/202)
+- [Failed builds do not upload an artifact](https://github.com/huserben/TfsExtensions/issues/209)
+- [getProjects limited by default - increase it](https://github.com/huserben/TfsExtensions/issues/210)
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@ChristoWolf**](https://github.com/ChristoWolf)  
+- [**@ranganr**](https://github.com/ranganr)
+- [**@johnqa**](https://github.com/johnqa)
+- [**@ilanramos**](https://github.com/ilanramos)
+
 ## Version 4.0.0
 - Created new major version of all three tasks that implement that node10 execution handler change. Reverted previous major versions back to node6 to make it work on outdated Azure DevOps Server/Agent combinations. See [Issue 200](https://github.com/huserben/TfsExtensions/issues/200) and [Issue 199](https://github.com/huserben/TfsExtensions/issues/200).
-
 
 ## Version 3.2.0
 - [Updated all tasks to use the Node10 Execution handler](https://github.com/huserben/TfsExtensions/issues/196) - This should remove the warning displayed when running any of the tasks.
