@@ -1,5 +1,17 @@
 # Release Notes
 
+## Version 4.1.1
+- [Expose TriggeredBuildIds as multi-job/stage variable](https://github.com/huserben/TfsExtensions/issues/208)
+- [Trigger release pipelines?](https://github.com/huserben/TfsExtensions/issues/223)
+- [TriggerBuild with array parameters](https://github.com/huserben/TfsExtensions/issues/226)
+
+### Acknowledgements
+Thank you goes to all of the following users, who contributed feedback, bug reports, code submissions, testing, and reviews which helped in this release.  
+- [**@ChristoWolf**](https://github.com/ChristoWolf)  
+- [**@virmitio**](https://github.com/virmitio)  
+- [**@gherasim-learn**](https://github.com/gherasim-learn)  
+
+
 ## Version 4.1.0
 - [Expose TriggeredBuildIds as multi-job/stage variable](https://github.com/huserben/TfsExtensions/issues/208)
 - [Update all dependencies to latest versions](https://github.com/huserben/TfsExtensions/issues/202)

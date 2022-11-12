@@ -116,6 +116,8 @@ inputs:
 
 The key point to note is that you do not have to check any boxes to expose the OAUTH token, this is [always available in YAML pipeline as an environment variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#access-to-oauth-token).
 
+See the [example on github](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/yaml_examples.md) for a complete yaml configuration.
+
 ## Advanced Configuration
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
 ### Use Same Source Version
@@ -162,8 +164,10 @@ The possible output could then look like this for 2 triggered builds:
 *2017-07-01T11:41:20.5194001Z Fetching variable TriggeredBuildIds:  
 2017-07-01T11:41:20.6131495Z 601,602*
 
-The variable is as well available as an input in the configuration for *any* subsequent Task. Just access it like this:
+The variable is as well available as an input in the configuration for *any* subsequent Task in the same job. Just access it like this:
 *$(TriggeredBuildIds)* 
+
+**Note:** If you need the variable to be available for different jobs or stages, check *Using the Variable as Multi-Job/Stage Variable* on how to achieve this.
 
 ### Demands
 Depending on your build definition a certain set of demands will be required from the agent to be built. When queuing a build additional demands can be specified, for example to filter for a special build agent. If additional demands need to be specified, they can be added here. Multiple demands can be specified when they are separated by a comma.  
@@ -207,6 +211,26 @@ Json values are detected only when the value is enclosed by curly braces. More d
   
 **Note:** If you set a variable via these parameters that is not settable at queue time, the Build Task will still succeed. However, the build that is triggered might fail. For example if the build configuration is not settable at queue time but fix set to Release, and you specify the parameter anyway and will pass "Debug", you will get the following error:  
 *The specified solution configuration "debug|x64" is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform="Any CPU") or leave those properties blank to use the default solution configuration.*
+
+#### Passing Array Objects as Template Parameters
+If you have defined an object parameter and want to pass an array, the syntax is like this:
+
+``` yaml
+templateParameters: 'databases: [custom, Custom2]'
+```
+
+This would work if the pipeline you are triggering has the following parameter definition:
+
+``` yaml
+parameters:
+  - name: databases
+    type: object
+    displayName: Databases
+```
+
+**Note:** This will only work for templateParameters, not for variables.
+
+See [this issue on github](https://github.com/huserben/TfsExtensions/issues/226) for more information.
 
 #### Build Parameters as JSON Object
 If you are constrained by the above mentioned rules, you can also specify the exact json object that will be used. For this just include the whole object and make sure to encapsulate it in "{ }".
