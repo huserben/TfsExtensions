@@ -116,7 +116,7 @@ inputs:
 
 The key point to note is that you do not have to check any boxes to expose the OAUTH token, this is [always available in YAML pipeline as an environment variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#access-to-oauth-token).
 
-See the [example on github](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/yaml_examples.md) for a complete yaml configuration.
+See the [example on github](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/yaml_examples.md) for a complete yaml configuration.
 
 ## Advanced Configuration
 ![Advanced Configuration](https://raw.githubusercontent.com/huserben/TfsExtensions/master/BuildTasks/advanced_configuration.PNG)  
