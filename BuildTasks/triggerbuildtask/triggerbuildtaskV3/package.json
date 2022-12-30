@@ -20,7 +20,7 @@
     "@types/q": "1.5.4",
     "@types/sinon": "9.0.10",
     "gulp": "^4.0.2",
-    "gulp-mocha": "7.0.2",
+    "gulp-mocha": "8.0.0",
     "gulp-typescript": "^5.0.1",
     "mocha": "8.3.0",
     "mocha-sinon": "2.1.2",
