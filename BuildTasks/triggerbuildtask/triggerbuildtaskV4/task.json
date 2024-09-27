@@ -1,21 +1,21 @@
 {
-    "id": "32abcf98-0df6-4711-b2e4-66a405d3c1a6",
-    "name": "TriggerBuild",
-    "friendlyName": "Trigger Build",
-    "description": "This tasks allows to trigger a new Build (add it to the queue) as part of a Build Definition. It contains as well some conditions that can be applied, for example if the last build of certain definition was successful or not.",
-    "helpMarkDown": "",
-    "category": "Build",
+	"id": "32abcf98-0df6-4711-b2e4-66a405d3c1a6",
+	"name": "TriggerBuild",
+	"friendlyName": "Trigger Build",
+	"description": "This tasks allows to trigger a new Build (add it to the queue) as part of a Build Definition. It contains as well some conditions that can be applied, for example if the last build of certain definition was successful or not.",
+	"helpMarkDown": "",
+	"category": "Build",
 	"visibility": [
 		"Build"
-		],
-    "author": "Benjamin Huser",
+	],
+	"author": "Benjamin Huser",
 	"version": {
 		"Major": 4,
 		"Minor": 1,
 		"Patch": 1
 	},
 	"instanceNameFormat": "Trigger a new build of $(buildDefinition)",
-    "groups": [
+	"groups": [
 		{
 			"name": "basicConfiguration",
 			"displayName": "Basic Configuration",
@@ -39,223 +39,222 @@
 	],
 	"inputs": [
 		{
-			"name":  "definitionIsInCurrentTeamProject",
-			"type":  "boolean",
-			"label":  "True if the build to be triggered is defined within the same team project as this build",
-			"defaultValue":  true,
-			"required":  true,
+			"name": "definitionIsInCurrentTeamProject",
+			"type": "boolean",
+			"label": "True if the build to be triggered is defined within the same team project as this build",
+			"defaultValue": true,
+			"required": true,
 			"helpMarkDown": "If set to false, Team Project and Collection URL to use must be entered manually. This is needed if you want to point to a different server, collection or team project on the same server.",
-			"groupName":  "basicConfiguration"
+			"groupName": "basicConfiguration"
 		},
 		{
-			"name":  "tfsServer",
-			"type":  "string",
-			"label":  "URL to TFS Server (including Collection)",
-			"defaultValue":  "",
-			"required":  true,
+			"name": "tfsServer",
+			"type": "string",
+			"label": "URL to TFS Server (including Collection)",
+			"defaultValue": "",
+			"required": true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
-			"helpMarkDown":  "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection or https://www.myOnPremTfs.com/MyCollection",
-			"groupName":  "basicConfiguration"
-		},		
+			"helpMarkDown": "The server the build you want to trigger is located including the collection and team project.  Example: https://myVSTSAccount.visualstudio.com/DefaultCollection or https://www.myOnPremTfs.com/MyCollection",
+			"groupName": "basicConfiguration"
+		},
 		{
-			"name":  "teamProject",
-			"type":  "string",
-			"label":  "Team Project",
-			"defaultValue":  "",
-			"required":  true,
+			"name": "teamProject",
+			"type": "string",
+			"label": "Team Project",
+			"defaultValue": "",
+			"required": true,
 			"visibleRule": "definitionIsInCurrentTeamProject = false",
-			"helpMarkDown":  "The Team Project the build you want to trigger is in. This can be display name of the project or its id",
-			"groupName":  "basicConfiguration"
+			"helpMarkDown": "The Team Project the build you want to trigger is in. This can be display name of the project or its id",
+			"groupName": "basicConfiguration"
 		},
 		{
-			"name":  "buildDefinition",
-			"type":  "string",
-			"label":  "Name or ID of the Build Definitions that shall be triggered",
-			"defaultValue":  "",
-			"required":  true,
-			"helpMarkDown":  "Comma-Separated list of names/ids of the definitions that a new build should be queued for.",
-			"groupName":  "basicConfiguration"
+			"name": "buildDefinition",
+			"type": "string",
+			"label": "Name or ID of the Build Definitions that shall be triggered",
+			"defaultValue": "",
+			"required": true,
+			"helpMarkDown": "Comma-Separated list of names/ids of the definitions that a new build should be queued for.",
+			"groupName": "basicConfiguration"
 		},
 		{
-			"name":  "queueBuildForUserThatTriggeredBuild",
-			"type":  "boolean",
-			"label":  "Queue Build for user that triggered original build",
-			"defaultValue":  true,
-			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will run for the same user that triggered the original build. Otherwise the triggered user depends on the means of authentication. Please refer to the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#basic-configuration).",
-			"groupName":  "basicConfiguration"
+			"name": "queueBuildForUserThatTriggeredBuild",
+			"type": "boolean",
+			"label": "Queue Build for user that triggered original build",
+			"defaultValue": true,
+			"required": true,
+			"helpMarkDown": "If this option is enabled, the triggered build will run for the same user that triggered the original build. Otherwise the triggered user depends on the means of authentication. Please refer to the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#basic-configuration).",
+			"groupName": "basicConfiguration"
 		},
 		{
-			"name":  "ignoreSslCertificateErrors",
-			"type":  "boolean",
-			"label":  "Ignore SSL Certificate Errors",
-			"defaultValue":  false,
-			"required":  true,
-			"helpMarkDown":  "When enabled possible certificate errors (for example untrusted CA's) will be ignored",
-			"groupName":  "basicConfiguration"
+			"name": "ignoreSslCertificateErrors",
+			"type": "boolean",
+			"label": "Ignore SSL Certificate Errors",
+			"defaultValue": false,
+			"required": true,
+			"helpMarkDown": "When enabled possible certificate errors (for example untrusted CA's) will be ignored",
+			"groupName": "basicConfiguration"
 		},
 		{
-			"name":  "useSameSourceVersion",
-			"type":  "boolean",
-			"label":  "Use current source version for the triggered build",
-			"defaultValue":  false,
-			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will run with the same source version as the original build. Source Versions are either changesets or labels. If this is not enabled, the newest version will be used.",
-			"groupName":  "advancedConfiguration"
+			"name": "useSameSourceVersion",
+			"type": "boolean",
+			"label": "Use current source version for the triggered build",
+			"defaultValue": false,
+			"required": true,
+			"helpMarkDown": "If this option is enabled, the triggered build will run with the same source version as the original build. Source Versions are either changesets or labels. If this is not enabled, the newest version will be used.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "useCustomSourceVersion",
-			"type":  "boolean",
-			"label":  "Use a custom source version for the triggered build",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "useCustomSourceVersion",
+			"type": "boolean",
+			"label": "Use a custom source version for the triggered build",
+			"defaultValue": false,
+			"required": true,
 			"visibleRule": "useSameSourceVersion = false",
-			"helpMarkDown":  "If this option is enabled, the triggered build will run with the specified source version.",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "If this option is enabled, the triggered build will run with the specified source version.",
+			"groupName": "advancedConfiguration"
 		},
-		
 		{
-			"name":  "customSourceVersion",
-			"type":  "string",
-			"label":  "Source Version to Use",
-			"defaultValue":  "",
-			"required":  false,
+			"name": "customSourceVersion",
+			"type": "string",
+			"label": "Source Version to Use",
+			"defaultValue": "",
+			"required": false,
 			"visibleRule": "useCustomSourceVersion = true",
-			"helpMarkDown":  "Specify the source version to use",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "Specify the source version to use",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "useSameBranch",
-			"type":  "boolean",
-			"label":  "Use same source branch as triggered build",
-			"defaultValue":  true,
-			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the triggered build will be run with the same source branch as the original build. This only makes sense in Git projects and if the triggered build is within the same project and is cause for error if the branch is not available in the triggered build!",
-			"groupName":  "advancedConfiguration"
+			"name": "useSameBranch",
+			"type": "boolean",
+			"label": "Use same source branch as triggered build",
+			"defaultValue": true,
+			"required": true,
+			"helpMarkDown": "If this option is enabled, the triggered build will be run with the same source branch as the original build. This only makes sense in Git projects and if the triggered build is within the same project and is cause for error if the branch is not available in the triggered build!",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "branchToUse",
-			"type":  "string",
-			"label":  "Defines Branch that shall be used",
-			"defaultValue":  "",
-			"required":  false,
+			"name": "branchToUse",
+			"type": "string",
+			"label": "Defines Branch that shall be used",
+			"defaultValue": "",
+			"required": false,
 			"visibleRule": "useSameBranch = false",
-			"helpMarkDown":  "Define the branch that shall be used for the triggered build if we don't use the default branch, for example: mySpecialBranch",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "Define the branch that shall be used for the triggered build if we don't use the default branch, for example: mySpecialBranch",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "waitForQueuedBuildsToFinish",
-			"type":  "boolean",
-			"label":  "Wait till the triggered builds are finished before build continues",
-			"defaultValue":  false,
-			"required":  true,
-			"helpMarkDown":  "If this option is enabled, the script will wait until all the queued builds are finished. Note: This can take a while depending on your builds and your build will not continue. If you only have one build agent you will even end up in a deadlock situation!",
-			"groupName":  "advancedConfiguration"
+			"name": "waitForQueuedBuildsToFinish",
+			"type": "boolean",
+			"label": "Wait till the triggered builds are finished before build continues",
+			"defaultValue": false,
+			"required": true,
+			"helpMarkDown": "If this option is enabled, the script will wait until all the queued builds are finished. Note: This can take a while depending on your builds and your build will not continue. If you only have one build agent you will even end up in a deadlock situation!",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "waitForQueuedBuildsToFinishRefreshTime",
-			"type":  "string",
-			"label":  "Time (in seconds) to wait between checks for the build",
-			"defaultValue":  60,
-			"required":  true,
+			"name": "waitForQueuedBuildsToFinishRefreshTime",
+			"type": "string",
+			"label": "Time (in seconds) to wait between checks for the build",
+			"defaultValue": 60,
+			"required": true,
 			"visibleRule": "waitForQueuedBuildsToFinish = true",
-			"helpMarkDown":  "This value defines how frequent the tasks checks if the triggered builds are completed already. A lower value might have an impact on performance or the network, as the server is queried more often.",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "This value defines how frequent the tasks checks if the triggered builds are completed already. A lower value might have an impact on performance or the network, as the server is queried more often.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "failTaskIfBuildsNotSuccessful",
-			"type":  "boolean",
-			"label":  "Fail the build if the tasks were not successful",
-			"defaultValue":  true,
-			"required":  true,
+			"name": "failTaskIfBuildsNotSuccessful",
+			"type": "boolean",
+			"label": "Fail the build if the tasks were not successful",
+			"defaultValue": true,
+			"required": true,
 			"visibleRule": "waitForQueuedBuildsToFinish = true",
-			"helpMarkDown":  "Fails this build if one of the triggered tasks was not successful",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "Fails this build if one of the triggered tasks was not successful",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "cancelBuildsIfAnyFails",
-			"type":  "boolean",
-			"label":  "Cancel all awaited builds if any of them failed ",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "cancelBuildsIfAnyFails",
+			"type": "boolean",
+			"label": "Cancel all awaited builds if any of them failed ",
+			"defaultValue": false,
+			"required": true,
 			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
-			"helpMarkDown":  "Defines whether the task should attempt to cancel all awaited builds if any of the failed.",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "Defines whether the task should attempt to cancel all awaited builds if any of the failed.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "treatPartiallySucceededBuildAsSuccessful",
-			"type":  "boolean",
-			"label":  "Treat a Partially Succeeded Build as Successful",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "treatPartiallySucceededBuildAsSuccessful",
+			"type": "boolean",
+			"label": "Treat a Partially Succeeded Build as Successful",
+			"defaultValue": false,
+			"required": true,
 			"visibleRule": "failTaskIfBuildsNotSuccessful = true",
-			"helpMarkDown":  "If enabled the task won't fail if the awaited build was partially successful.",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "If enabled the task won't fail if the awaited build was partially successful.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "downloadBuildArtifacts",
-			"type":  "boolean",
-			"label":  "Download Build Artifacts",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "downloadBuildArtifacts",
+			"type": "boolean",
+			"label": "Download Build Artifacts",
+			"defaultValue": false,
+			"required": true,
 			"visibleRule": "waitForQueuedBuildsToFinish = true",
-			"helpMarkDown":  "Will download the build artifacts of the triggered builds (if available) as zip and will store it on the build agent for further processing.",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "Will download the build artifacts of the triggered builds (if available) as zip and will store it on the build agent for further processing.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "dropDirectory",
-			"type":  "string",
-			"label":  "Drop Directory",
-			"defaultValue":  "$(agent.workFolder)",
-			"required":  false,
+			"name": "dropDirectory",
+			"type": "string",
+			"label": "Drop Directory",
+			"defaultValue": "$(agent.workFolder)",
+			"required": false,
 			"visibleRule": "downloadBuildArtifacts = true",
-			"helpMarkDown":  "Directory where the artifacts should be downloaded to. Variables can be used - e.g. $(agent.workFolder)",
-			"groupName":  "advancedConfiguration"
+			"helpMarkDown": "Directory where the artifacts should be downloaded to. Variables can be used - e.g. $(agent.workFolder)",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "storeInEnvironmentVariable",
-			"type":  "boolean",
-			"label":  "Store triggered build id's in a variable",
-			"defaultValue":  false,
-			"required":  true,
-			"helpMarkDown":  "When enabled, the triggered build id's will be stored in a variable called TriggeredBuildIds that will be available for subsequent Tasks. In case of multiple triggered builds, the values will be separated by ','",
-			"groupName":  "advancedConfiguration"
+			"name": "storeInEnvironmentVariable",
+			"type": "boolean",
+			"label": "Store triggered build id's in a variable",
+			"defaultValue": false,
+			"required": true,
+			"helpMarkDown": "When enabled, the triggered build id's will be stored in a variable called TriggeredBuildIds that will be available for subsequent Tasks. In case of multiple triggered builds, the values will be separated by ','",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "demands",
-			"type":  "string",
-			"label":  "Define needed demands.",
-			"defaultValue":  "",
-			"required":  false,
-			"helpMarkDown":  "Specify the demands towards the agent that is used to build. Demands can be comma separated. Just specifying a value will check the demands existance, otherwise you can check for a value by using '='. Example: 'Demand1, Demand2 = Test' would check if there exists the 'Demand1' on the agent and if 'Demand2' equals 'Test'. If no agent can be found that matches the specified demands, the build will fail.",
-			"groupName":  "advancedConfiguration"
+			"name": "demands",
+			"type": "string",
+			"label": "Define needed demands.",
+			"defaultValue": "",
+			"required": false,
+			"helpMarkDown": "Specify the demands towards the agent that is used to build. Demands can be comma separated. Just specifying a value will check the demands existance, otherwise you can check for a value by using '='. Example: 'Demand1, Demand2 = Test' would check if there exists the 'Demand1' on the agent and if 'Demand2' equals 'Test'. If no agent can be found that matches the specified demands, the build will fail.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "queueid",
-			"type":  "string",
-			"label":  "Define which build queue should be used.",
-			"defaultValue":  "",
-			"required":  false,
-			"helpMarkDown":  "The name or the ID of the queue. This is optional. If not specified, the default queue for the definition will be used.",
-			"groupName":  "advancedConfiguration"
+			"name": "queueid",
+			"type": "string",
+			"label": "Define which build queue should be used.",
+			"defaultValue": "",
+			"required": false,
+			"helpMarkDown": "The name or the ID of the queue. This is optional. If not specified, the default queue for the definition will be used.",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "delayBetweenBuilds",
-			"type":  "string",
-			"label":  "Delay between triggering builds (in seconds)",
-			"defaultValue":  "0",
-			"required":  false,
-			"helpMarkDown":  "Defines a delay between the builds that are triggered, if more than one is triggered at the same time. 0 means no delay",
-			"groupName":  "advancedConfiguration"
+			"name": "delayBetweenBuilds",
+			"type": "string",
+			"label": "Delay between triggering builds (in seconds)",
+			"defaultValue": "0",
+			"required": false,
+			"helpMarkDown": "Defines a delay between the builds that are triggered, if more than one is triggered at the same time. 0 means no delay",
+			"groupName": "advancedConfiguration"
 		},
 		{
-			"name":  "buildParameters",
-			"type":  "string",
-			"label":  "Define additional parameters for the build, for example build configuration or platform.",
-			"defaultValue":  "",
-			"required":  false,
-			"helpMarkDown":  "Specify the build parameters. If nothing is specified, the default values will be used. See [Build Task description](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#build-parameters) for more info on the format and the usage of variables.",
-			"groupName":  "advancedConfiguration"
+			"name": "buildParameters",
+			"type": "string",
+			"label": "Define additional parameters for the build, for example build configuration or platform.",
+			"defaultValue": "",
+			"required": false,
+			"helpMarkDown": "Specify the build parameters. If nothing is specified, the default values will be used. See [Build Task description](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#build-parameters) for more info on the format and the usage of variables.",
+			"groupName": "advancedConfiguration"
 		},
 		{
 			"name": "templateParameters",
@@ -264,142 +263,152 @@
 			"defaultValue": "",
 			"required": false,
 			"helpMarkDown": "Specify the runtime parameters. Check Task Description for more info on the syntax",
-			"groupName":  "advancedConfiguration"
+			"groupName": "advancedConfiguration"
 		},
 		{
 			"name": "authenticationMethod",
 			"type": "pickList",
 			"label": "Authentication Method",
-            "required": true,
-            "groupName": "authenticationOptions",
-            "defaultValue": "Personal Access Token",
-            "helpMarkDown": "Select your method of authentication",
-            "options": {
+			"required": true,
+			"groupName": "authenticationOptions",
+			"defaultValue": "Personal Access Token",
+			"helpMarkDown": "Select your method of authentication",
+			"options": {
 				"OAuth Token": "OAuth Token",
-                "Personal Access Token": "Personal Access Token",
-                "Basic Authentication": "Basic Authentication"
-				}
+				"Personal Access Token": "Personal Access Token",
+				"Basic Authentication": "Basic Authentication"
+			}
 		},
 		{
-			"name":  "username",
-			"type":  "string",
-			"label":  "The username that shall be used to authenticate if basic authentication is used",
-			"defaultValue":  "",
-			"required":  false,
+			"name": "username",
+			"type": "string",
+			"label": "The username that shall be used to authenticate if basic authentication is used",
+			"defaultValue": "",
+			"required": false,
 			"visibleRule": "authenticationMethod = Basic Authentication",
-			"groupName":  "authenticationOptions"
+			"groupName": "authenticationOptions"
 		},
 		{
-			"name":  "password",
-			"type":  "string",
-			"label":  "The password, Personal Access Token or OAuth Token to authenticate",
-			"defaultValue":  "",
-			"required":  false,
+			"name": "password",
+			"type": "string",
+			"label": "The password, Personal Access Token or OAuth Token to authenticate",
+			"defaultValue": "",
+			"required": false,
 			"helpMarkDown": "The password or Personal Access Token. Ideally use a (secret) variable here instead putting it in plaintext. Variables can be referenced with the following syntax: $(myToken). If OAuth Authentication is used, leaving this empty will try to use the System.AccessToken - make sure to enable this build to allow scripts to access the token in the options! Please check out the [documentation](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#authentication-options) in case you have problems.",
 			"visibleRule": "authenticationMethod != Default Credentials",
-			"groupName":  "authenticationOptions"
+			"groupName": "authenticationOptions"
 		},
 		{
-			"name":  "enableBuildInQueueCondition",
-			"type":  "boolean",
-			"label":  "Enable Build In Queue Condition",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "enableBuildInQueueCondition",
+			"type": "boolean",
+			"label": "Enable Build In Queue Condition",
+			"defaultValue": false,
+			"required": true,
 			"helpMarkDown": "If enabled, build will only be triggered if none of the specified build definitions is currently waiting in a queue.",
-			"groupName":  "conditions"
+			"groupName": "conditions"
 		},
 		{
-			"name":  "includeCurrentBuildDefinition",
-			"type":  "boolean",
-			"label":  "Include current Build Definition as blocking Build",
-			"defaultValue":  true,
-			"required":  true,
+			"name": "includeCurrentBuildDefinition",
+			"type": "boolean",
+			"label": "Include current Build Definition as blocking Build",
+			"defaultValue": true,
+			"required": true,
 			"visibleRule": "enableBuildInQueueCondition = true",
 			"helpMarkDown": "If enabled, current build definition is included in Builds that block trigger of new build.",
-			"groupName":  "conditions"
+			"groupName": "conditions"
 		},
 		{
-			"name":  "blockingBuildsList",
-			"type":  "string",
-			"label":  "Blocking Build Definitions",
-			"defaultValue":  "",
-			"required":  false,
+			"name": "blockingBuildsList",
+			"type": "string",
+			"label": "Blocking Build Definitions",
+			"defaultValue": "",
+			"required": false,
 			"visibleRule": "enableBuildInQueueCondition = true",
-			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if they are currently waiting in a queue.",
-			"groupName":  "conditions"
+			"helpMarkDown": "Comma-Separated list of build definitions that will prevent triggering a new build if they are currently waiting in a queue.",
+			"groupName": "conditions"
 		},
 		{
-			"name":  "blockInProgressBuilds",
-			"type":  "boolean",
-			"label":  "Include builds that are currently in progress",
-			"defaultValue":  false,
-			"required":  false,
+			"name": "blockInProgressBuilds",
+			"type": "boolean",
+			"label": "Include builds that are currently in progress",
+			"defaultValue": false,
+			"required": false,
 			"visibleRule": "enableBuildInQueueCondition = true",
 			"helpMarkDown": "If enabled, the condition will check as well for builds that are currently running. Does not apply for current build definition (as this will always be in progress).",
-			"groupName":  "conditions"
+			"groupName": "conditions"
 		},
 		{
-			"name":  "dependentOnSuccessfulBuildCondition",
-			"type":  "boolean",
-			"label":  "Enable Successful Build Dependency Condition",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "dependentOnSuccessfulBuildCondition",
+			"type": "boolean",
+			"label": "Enable Successful Build Dependency Condition",
+			"defaultValue": false,
+			"required": true,
 			"helpMarkDown": "If enabled, build will only be triggered if the last builds of all the specified builds were successful.",
-			"groupName":  "conditions"
+			"groupName": "conditions"
 		},
 		{
-			"name":  "dependentBuildsList",
-			"type":  "string",
-			"label":  "Dependent Build Definitions",
-			"defaultValue":  "",
-			"required":  true,
+			"name": "dependentBuildsList",
+			"type": "string",
+			"label": "Dependent Build Definitions",
+			"defaultValue": "",
+			"required": true,
 			"visibleRule": "dependentOnSuccessfulBuildCondition = true",
-			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were not successful.",
-			"groupName":  "conditions"
+			"helpMarkDown": "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were not successful.",
+			"groupName": "conditions"
 		},
 		{
-			"name":  "dependentOnFailedBuildCondition",
-			"type":  "boolean",
-			"label":  "Enable Failed Build Dependency Condition",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "dependentOnFailedBuildCondition",
+			"type": "boolean",
+			"label": "Enable Failed Build Dependency Condition",
+			"defaultValue": false,
+			"required": true,
 			"helpMarkDown": "If enabled, build will only be triggered if the last builds of all the specified builds were **not** successful.  Can be used to automatically trigger a build once all the dependent builds are fixed if the last try (e.g. a scheduled build during the night) failed.",
-			"groupName":  "conditions"
+			"groupName": "conditions"
 		},
 		{
-			"name":  "dependentFailingBuildsList",
-			"type":  "string",
-			"label":  "Dependent Build Definitions",
-			"defaultValue":  "",
-			"required":  true,
+			"name": "dependentFailingBuildsList",
+			"type": "string",
+			"label": "Dependent Build Definitions",
+			"defaultValue": "",
+			"required": true,
 			"visibleRule": "dependentOnFailedBuildCondition = true",
-			"helpMarkDown":  "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were successful.",
-			"groupName":  "conditions"
-		},		
+			"helpMarkDown": "Comma-Separated list of build definitions that will prevent triggering a new build if the last builds run were successful.",
+			"groupName": "conditions"
+		},
 		{
-			"name":  "checkbuildsoncurrentbranch",
-			"type":  "boolean",
-			"label":  "Only include builds from same branch",
-			"defaultValue":  false,
-			"required":  true,
-			"helpMarkDown":  "If selected, only builds that are built against the same branch are considered for the conditions. This does not work in TFVC repositories.",
-			"groupName":  "conditions"
-		},	
+			"name": "checkbuildsoncurrentbranch",
+			"type": "boolean",
+			"label": "Only include builds from same branch",
+			"defaultValue": false,
+			"required": true,
+			"helpMarkDown": "If selected, only builds that are built against the same branch are considered for the conditions. This does not work in TFVC repositories.",
+			"groupName": "conditions"
+		},
 		{
-			"name":  "failTaskIfConditionsAreNotFulfilled",
-			"type":  "boolean",
-			"label":  "Fail the Task if any condition is not fulfilled",
-			"defaultValue":  false,
-			"required":  true,
+			"name": "failTaskIfConditionsAreNotFulfilled",
+			"type": "boolean",
+			"label": "Fail the Task if any condition is not fulfilled",
+			"defaultValue": false,
+			"required": true,
 			"helpMarkDown": "If enabled, build will fail if a condition is not fulfilled.",
-			"groupName":  "conditions"
+			"groupName": "conditions"
 		}
-	],	
-    "execution": {
-        "Node10": {
-            "target": "index.js",
-			"argumentFormat":  "",
-			"workingDirectory":  "$(currentDirectory)"
-        }
-    }
+	],
+	"execution": {
+		"Node10": {
+			"target": "index.js",
+			"argumentFormat": "",
+			"workingDirectory": "$(currentDirectory)"
+		},
+		"Node16": {
+			"target": "index.js",
+			"argumentFormat": "",
+			"workingDirectory": "$(currentDirectory)"
+		},
+		"Node20_1": {
+			"target": "index.js",
+			"argumentFormat": "",
+			"workingDirectory": "$(currentDirectory)"
+		}
+	}
 }
