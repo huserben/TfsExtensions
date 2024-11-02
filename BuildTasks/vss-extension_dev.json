@@ -1,9 +1,9 @@
 {
     "manifestVersion": 1,
-    "id": "tfs-extensions-build-tasks",
-    "name": "Trigger Build Task",
+    "id": "tfs-extensions-build-tasks-dev",
+    "name": "Trigger Build Task (Dev Version)",
     "version": "4.2.0",
-    "publisher": "benjhuser-dev",
+    "publisher": "benjhuser",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
