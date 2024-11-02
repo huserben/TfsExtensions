@@ -1,5 +1,5 @@
 SET INPUT_definitionIsInCurrentTeamProject=false
-SET INPUT_tfsServer=https://dev.azure.com/huserben/DefaultCollection/
+SET INPUT_tfsServer=https://dev.azure.com/huserben/
 SET INPUT_teamProject=Build Test
 SET INPUT_ignoreSslCertificateErrors=false
 SET INPUT_waitForQueuedBuildsToFinishRefreshTime=10
@@ -13,6 +13,6 @@ SET INPUT_authenticationMethod=Personal Access Token
 SET INPUT_username=
 SET INPUT_password=
 
-SET TriggeredBuildIds=58406
+SET TriggeredBuildIds=4853
 
 node index.js
