@@ -228,6 +228,22 @@ parameters:
     displayName: Databases
 ```
 
+If you're passing a template parameter directly instead of literal values, you must encode it as a flow-style `[,]` array to avoid parsing errors:
+
+``` yaml
+parameters:
+- name: databases
+  type: object
+  default:
+  - custom
+  - Custom2
+
+# ...
+- task: TriggerBuild@4
+  inputs:
+    templateParameters: 'databases: [${{ join(',', parameters.databases) }}]'
+```
+
 **Note:** This will only work for templateParameters, not for variables.
 
 See [this issue on github](https://github.com/huserben/TfsExtensions/issues/226) for more information.
