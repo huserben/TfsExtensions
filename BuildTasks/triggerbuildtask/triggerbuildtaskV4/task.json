@@ -253,7 +253,7 @@
 			"label": "Define additional parameters for the build, for example build configuration or platform.",
 			"defaultValue": "",
 			"required": false,
-			"helpMarkDown": "Specify the build parameters. If nothing is specified, the default values will be used. See [Build Task description](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#build-parameters) for more info on the format and the usage of variables.",
+			"helpMarkDown": "Specify the build parameters. If nothing is specified, the default values will be used. See [Build Task description](https://github.com/huserben/TfsExtensions/blob/master/BuildTasks/overview.md#build-and-template-parameters) for more info on the format and the usage of variables.",
 			"groupName": "advancedConfiguration"
 		},
 		{
