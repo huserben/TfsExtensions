@@ -998,6 +998,122 @@ describe("Task Runner Tests", function (): void {
         assert(consoleLogSpy.calledWith(`Build shall be triggered for same user that triggered current Release: ${ReleaseUserName}`));
     });
 
+    it("should warn and still queue when impersonation cannot be set up against the service", async () => {
+        const UserName: string = "Buildy McBuildFace";
+        const UserID: string = "12";
+        const TriggeredBuildID: number = 1337;
+
+        // ensure build context (not release) regardless of what previous tests left behind
+        delete process.env[tfsService.ReleaseRequestedForUsername];
+        delete process.env[tfsService.ReleaseRequestedForId];
+        process.env[tfsService.RequestedForUsername] = UserName;
+        process.env[tfsService.RequestedForUserId] = UserID;
+
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.QueueBuildForUserInput, true))
+            .returns(() => true);
+
+        var triggeredBuild: any = {
+            id: TriggeredBuildID,
+            _links: { web: { href: "" } },
+            requestedFor: { displayName: "PAT Service User", id: "999" },
+            requestedBy: { displayName: "PAT Service User", id: "999" }
+        };
+        tfsRestServiceMock.setup(srv => srv.triggerBuild(
+            "build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(),
+            TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()))
+            .returns(async () => triggeredBuild);
+
+        await subject.run();
+
+        // The mocked service exposes no REST connection, so setupImpersonation cannot patch the build api.
+        var warned: boolean = consoleLogSpy.getCalls().some(c =>
+            typeof c.args[0] === "string"
+            && c.args[0].indexOf("##vso[task.logissue type=warning]") === 0
+            && c.args[0].indexOf("could not access the REST connection") > -1);
+        assert(warned, "Expected a warning that impersonation could not be set up");
+
+        // The build should still be queued (impersonation failure is non-fatal).
+        tfsRestServiceMock.verify(srv => srv.triggerBuild(
+            "build", TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(),
+            TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny(), TypeMoq.It.isAny()),
+            TypeMoq.Times.once());
+    });
+
+    it("should resolve the identity descriptor and inject the X-TFS-Impersonate header for the queue call", async () => {
+        const UserName: string = "Elior Levi";
+        const UserID: string = "76a352ff-d957-493f-9a87-8db7941e8441";
+        const Descriptor: string = "System.Security.Principal.WindowsIdentity;S-1-5-21-29812500-3243033545-702319832-56338";
+        const TriggeredBuildID: number = 4242;
+
+        delete process.env[tfsService.ReleaseRequestedForUsername];
+        delete process.env[tfsService.ReleaseRequestedForId];
+        process.env[tfsService.RequestedForUsername] = UserName;
+        process.env[tfsService.RequestedForUserId] = UserID;
+
+        setupBuildConfiguration(["build"]);
+        tasklibraryMock.setup(tl => tl.getBoolInput(taskConstants.QueueBuildForUserInput, true))
+            .returns(() => true);
+
+        // Fake build api whose createRequestOptions we expect the task to wrap.
+        var fakeBuildApi: any = {
+            createRequestOptions: function (mediaType: string, apiVersion: string): any {
+                return { acceptHeader: "application/json" };
+            }
+        };
+
+        // Capture the options produced for the queue call (i.e. while impersonation is active).
+        var capturedOptions: any = null;
+
+        // A hand-rolled service double exposing exactly the surface setupImpersonation / triggerBuilds use.
+        var fakeService: any = {
+            initialize: async () => { /* no-op */ },
+            azureDevOpsWebApi: {
+                connection: {
+                    rest: {
+                        get: async (url: string) => {
+                            assert(url.indexOf(`identityIds=${UserID}`) > -1, "identity lookup url should query the user id");
+                            return { result: { value: [{ descriptor: Descriptor, providerDisplayName: UserName }] } };
+                        }
+                    }
+                }
+            },
+            vstsBuildApi: fakeBuildApi,
+            triggerBuild: async () => {
+                // Simulate the SDK's queueBuild building its request options while impersonation is on.
+                capturedOptions = fakeBuildApi.createRequestOptions("application/json", "7.1");
+                return {
+                    id: TriggeredBuildID,
+                    _links: { web: { href: "" } },
+                    requestedFor: { displayName: UserName, id: UserID },
+                    requestedBy: { displayName: UserName, id: UserID }
+                };
+            }
+        };
+
+        var impersonatingSubject: tr.TaskRunner = new tr.TaskRunner(
+            fakeService, tasklibraryMock.object, generalFunctionsMock.object);
+
+        await impersonatingSubject.run();
+
+        assert(capturedOptions !== null, "expected the build api createRequestOptions to be called during the queue");
+        assert(capturedOptions.additionalHeaders !== undefined, "expected additionalHeaders to be set");
+        assert.strictEqual(capturedOptions.additionalHeaders["X-TFS-Impersonate"], Descriptor,
+            "expected the X-TFS-Impersonate header to carry the resolved descriptor during the queue call");
+
+        // Impersonation must be turned off again after the queue loop.
+        assert.strictEqual(fakeBuildApi.__impersonateActive, false, "impersonation flag should be reset after queueing");
+
+        // And it should have logged that impersonation was enabled with the resolved descriptor.
+        var enabledLogged: boolean = consoleLogSpy.getCalls().some(c =>
+            typeof c.args[0] === "string" && c.args[0].indexOf("Impersonation enabled") > -1 && c.args[0].indexOf(Descriptor) > -1);
+        assert(enabledLogged, "expected an 'Impersonation enabled' log line with the descriptor");
+
+        // And the concise on-behalf-of confirmation for the queued build.
+        assert(consoleLogSpy.calledWith(`Triggered build ${TriggeredBuildID} is queued on behalf of ${UserName}.`),
+            "expected the concise 'queued on behalf of' confirmation");
+    });
+
     it("should NOT trigger build for user that trigger original build if not configured", async () => {
         const UserName: string = "Buildy McBuildFace";
         const UserID: string = "12";

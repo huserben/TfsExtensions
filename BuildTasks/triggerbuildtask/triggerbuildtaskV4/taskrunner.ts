@@ -49,6 +49,10 @@ export class TaskRunner {
     userId: string;
     sourceVersion: string;
 
+    // Holds the build api instance we patched to send the X-TFS-Impersonate header,
+    // so triggerBuilds() can switch impersonation on only around the queue call.
+    impersonationBuildApi: any = null;
+
     tfsRestService: tfsService.ITfsRestService;
     taskLibrary: tl.ITaskLibrary;
     generalFunctions: common.IGeneralFunctions;
@@ -144,11 +148,73 @@ export class TaskRunner {
         }
     }
 
+    // Resolves the triggering user's legacy identity descriptor and patches the build api so that
+    // requests can carry the 'X-TFS-Impersonate' header. The header itself is only activated around
+    // the queue call (see triggerBuilds) so that condition checks and waiting keep running as the
+    // authenticating identity. Any failure here is non-fatal: we log a warning and fall back to the
+    // old behaviour (build attributed to the authenticating identity).
+    private async setupImpersonation(): Promise<void> {
+        if (this.userId === undefined || this.userId === "" || this.userId === "undefined") {
+            return;
+        }
+
+        try {
+            var webApi: any = (<any>this.tfsRestService).azureDevOpsWebApi;
+            var connection: any = webApi ? webApi.connection : null;
+            var buildApi: any = (<any>this.tfsRestService).vstsBuildApi;
+
+            if (!connection || !connection.rest || !buildApi || typeof buildApi.createRequestOptions !== "function") {
+                console.log(`##vso[task.logissue type=warning]Impersonation: could not access the REST connection/build api; the triggered build will run as the authenticating identity.`);
+                return;
+            }
+
+            // Resolve the legacy IdentityDescriptor ("type;identifier") for the triggering user's id.
+            var baseUrl: string = this.tfsServer.endsWith("/") ? this.tfsServer : `${this.tfsServer}/`;
+            var identitiesUrl: string = `${baseUrl}_apis/identities?identityIds=${this.userId}&api-version=6.0`;
+            var idResponse: any = await connection.rest.get(identitiesUrl);
+            var identities: any[] = (idResponse && idResponse.result) ? idResponse.result.value : null;
+
+            if (!identities || identities.length === 0 || !identities[0].descriptor) {
+                console.log(`##vso[task.logissue type=warning]Impersonation: could not resolve an identity descriptor for user id ${this.userId}; `
+                    + `the triggered build will run as the authenticating identity.`);
+                return;
+            }
+
+            var descriptor: string = identities[0].descriptor;
+            var displayName: string = identities[0].providerDisplayName || identities[0].customDisplayName || this.userId;
+
+            // Patch createRequestOptions so that, when activated, the impersonation header is added.
+            buildApi.__impersonateActive = false;
+            buildApi.__impersonateDescriptor = descriptor;
+            var originalCreateRequestOptions: any = buildApi.createRequestOptions.bind(buildApi);
+            buildApi.createRequestOptions = function (mediaType: string, apiVersion: string): any {
+                var options: any = originalCreateRequestOptions(mediaType, apiVersion);
+                if (buildApi.__impersonateActive && buildApi.__impersonateDescriptor) {
+                    options.additionalHeaders = options.additionalHeaders || {};
+                    options.additionalHeaders["X-TFS-Impersonate"] = buildApi.__impersonateDescriptor;
+                }
+                return options;
+            };
+
+            this.impersonationBuildApi = buildApi;
+            console.log(`Impersonation enabled: triggered build(s) will be queued on behalf of '${displayName}' (descriptor=${descriptor}).`);
+            console.log(`Note: this requires the authenticating identity to have the collection permission "Make requests on behalf of others".`);
+        } catch (err: any) {
+            console.log(`##vso[task.logissue type=warning]Impersonation setup failed (${err.message}); the triggered build will run as the authenticating identity.`);
+        }
+    }
+
     private async triggerBuilds(): Promise<number[]> {
         var queuedBuildIds: number[] = new Array();
 
         var index: number = 0;
 
+        // Turn impersonation on only for the duration of the queue calls (if it was set up).
+        if (this.impersonationBuildApi) {
+            this.impersonationBuildApi.__impersonateActive = true;
+        }
+
+        try {
         for (let build of this.buildDefinitionsToTrigger) {
             var queuedBuild: Build =
                 await this.tfsRestService.triggerBuild(
@@ -165,12 +231,33 @@ export class TaskRunner {
 
             console.log(`Queued new Build for definition ${build}: ${queuedBuild._links.web.href}`);
 
+            // When queuing on behalf of the triggering user, confirm the result (or warn if the
+            // server did not attribute the build to them - usually a missing impersonation permission).
+            if (this.queueBuildForUserThatTriggeredBuild
+                && this.userId !== undefined && this.userId !== "" && this.userId !== "undefined"
+                && queuedBuild.requestedFor) {
+                if (queuedBuild.requestedFor.id === this.userId) {
+                    console.log(`Triggered build ${queuedBuild.id} is queued on behalf of ${queuedBuild.requestedFor.displayName}.`);
+                } else if (this.impersonationBuildApi) {
+                    console.log(`##vso[task.logissue type=warning]Could not queue build ${queuedBuild.id} on behalf of the triggering user `
+                        + `(it was attributed to '${queuedBuild.requestedFor.displayName}'). Ensure the authenticating identity has the `
+                        + `collection permission "Make requests on behalf of others".`);
+                }
+            }
+
             if (this.delayBetweenBuilds > 0 && index !== this.buildDefinitionsToTrigger.length - 1) {
                 console.log(`Waiting for ${this.delayBetweenBuilds} seconds before triggering next build`);
                 await this.generalFunctions.sleep(this.delayBetweenBuilds * 1000);
             }
 
             index++;
+        }
+        } finally {
+            // Always turn impersonation back off so that any later calls (waiting for builds,
+            // downloading artifacts, cancelling) run as the authenticating identity again.
+            if (this.impersonationBuildApi) {
+                this.impersonationBuildApi.__impersonateActive = false;
+            }
         }
 
         return queuedBuildIds;
@@ -287,6 +374,17 @@ export class TaskRunner {
                 this.userId = `${process.env[tfsService.RequestedForUserId]}`;
                 console.log(`Build shall be triggered for same user that triggered current build: ${user}`);
             }
+
+            if (this.userId === undefined || this.userId === "" || this.userId === "undefined") {
+                console.log(`##vso[task.logissue type=warning]Could not resolve the triggering user's id (BUILD_REQUESTEDFORID / RELEASE_REQUESTEDFORID was empty). `
+                    + `The triggered build will fall back to the authenticating identity.`);
+            }
+
+            // Since Azure DevOps Server 2022.1 Patch 1+ / 2025 the 'requestedFor' body field is ignored
+            // when queuing. The only supported way to attribute the triggered build to the original user
+            // is server-side impersonation via the 'X-TFS-Impersonate' header, which requires the
+            // authenticating identity to hold the collection permission "Make requests on behalf of others".
+            await this.setupImpersonation();
         }
 
         if (this.useSameSourceVersion) {
